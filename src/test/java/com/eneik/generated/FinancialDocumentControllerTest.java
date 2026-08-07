@@ -74,6 +74,10 @@ public class FinancialDocumentControllerTest {
         budgetDoc.setDescription("Определяет бюджетный цикл на текущий год.");
         budgetDoc.setCreatedAt(LocalDateTime.now());
         budgetDoc.setUpdatedAt(LocalDateTime.now());
+        budgetDoc.setDocumentType("Position");
+        budgetDoc.setAcademicYear("2026–2027");
+        budgetDoc.setProgram("both");
+        budgetDoc.setProcess("other");
         budgetDoc.getSchemaTags().add(budgetTag);
         documentRepository.save(budgetDoc);
 
@@ -86,6 +90,10 @@ public class FinancialDocumentControllerTest {
         loadDoc.setDescription("Формулы расчета и распределения нагрузки.");
         loadDoc.setCreatedAt(LocalDateTime.now());
         loadDoc.setUpdatedAt(LocalDateTime.now());
+        loadDoc.setDocumentType("Procedure");
+        loadDoc.setAcademicYear("2026–2027");
+        loadDoc.setProgram("both");
+        loadDoc.setProcess("other");
         loadDoc.getSchemaTags().add(loadTag);
         documentRepository.save(loadDoc);
 
@@ -98,6 +106,10 @@ public class FinancialDocumentControllerTest {
         stipendDoc.setDescription("Регламентирует выплаты стипендий.");
         stipendDoc.setCreatedAt(LocalDateTime.now());
         stipendDoc.setUpdatedAt(LocalDateTime.now());
+        stipendDoc.setDocumentType("Position");
+        stipendDoc.setAcademicYear("2026–2027");
+        stipendDoc.setProgram("postgraduate");
+        stipendDoc.setProcess("stipends");
         stipendDoc.getSchemaTags().add(stipendsTag);
         documentRepository.save(stipendDoc);
     }

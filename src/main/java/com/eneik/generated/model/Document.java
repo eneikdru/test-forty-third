@@ -1,6 +1,7 @@
 package com.eneik.generated.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,6 +29,24 @@ public class Document {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "document_type", nullable = false)
+    private String documentType = "Other";
+
+    @Column(name = "academic_year", nullable = false)
+    private String academicYear = "2026–2027";
+
+    @Column(nullable = false)
+    private String program = "both";
+
+    @Column(nullable = false)
+    private String process = "other";
+
+    @Column(name = "approval_date")
+    private LocalDate approvalDate;
+
+    @Column(name = "document_number")
+    private String documentNumber;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -61,6 +80,18 @@ public class Document {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public String getDocumentType() { return documentType; }
+    public void setDocumentType(String documentType) { this.documentType = documentType; }
+    public String getAcademicYear() { return academicYear; }
+    public void setAcademicYear(String academicYear) { this.academicYear = academicYear; }
+    public String getProgram() { return program; }
+    public void setProgram(String program) { this.program = program; }
+    public String getProcess() { return process; }
+    public void setProcess(String process) { this.process = process; }
+    public LocalDate getApprovalDate() { return approvalDate; }
+    public void setApprovalDate(LocalDate approvalDate) { this.approvalDate = approvalDate; }
+    public String getDocumentNumber() { return documentNumber; }
+    public void setDocumentNumber(String documentNumber) { this.documentNumber = documentNumber; }
     public Set<SchemaTag> getSchemaTags() { return schemaTags; }
     public void setSchemaTags(Set<SchemaTag> schemaTags) { this.schemaTags = schemaTags; }
     public Set<DocumentVersion> getVersions() { return versions; }

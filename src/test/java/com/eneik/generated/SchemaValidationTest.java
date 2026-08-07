@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -113,5 +114,57 @@ public class SchemaValidationTest {
         List<Map<String, Object>> roleLinks = jdbcTemplate.queryForList(
                 "SELECT * FROM role_schema_tags WHERE role_id = ? AND schema_tag_id = ?", testRoleId, testTagId);
         assertEquals(1, roleLinks.size());
+    }
+
+    @Test
+    public void testStrictlyTypedCheckConstraints() {
+        UUID catId = UUID.randomUUID();
+        jdbcTemplate.update("INSERT INTO categories (id, name) VALUES (?, ?)", catId, "Cat " + catId);
+
+        // Test invalid document_type
+        assertThrows(Exception.class, () -> {
+            jdbcTemplate.update(
+                "INSERT INTO documents (id, category_id, title, document_type, academic_year, program, process) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), catId, "Invalid Type Doc", "BadType", "2026-2027", "both", "other"
+            );
+        });
+
+        // Test invalid academic_year
+        assertThrows(Exception.class, () -> {
+            jdbcTemplate.update(
+                "INSERT INTO documents (id, category_id, title, document_type, academic_year, program, process) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), catId, "Invalid Year Doc", "Position", "2030-2031", "both", "other"
+            );
+        });
+
+        // Test invalid program
+        assertThrows(Exception.class, () -> {
+            jdbcTemplate.update(
+                "INSERT INTO documents (id, category_id, title, document_type, academic_year, program, process) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), catId, "Invalid Program Doc", "Position", "2026-2027", "invalid_program", "other"
+            );
+        });
+
+        // Test invalid process
+        assertThrows(Exception.class, () -> {
+            jdbcTemplate.update(
+                "INSERT INTO documents (id, category_id, title, document_type, academic_year, program, process) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), catId, "Invalid Process Doc", "Position", "2026-2027", "both", "invalid_process"
+            );
+        });
+
+        // Test invalid version status
+        UUID docId = UUID.randomUUID();
+        jdbcTemplate.update(
+            "INSERT INTO documents (id, category_id, title, document_type, academic_year, program, process) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            docId, catId, "Valid Doc", "Position", "2026-2027", "both", "other"
+        );
+
+        assertThrows(Exception.class, () -> {
+            jdbcTemplate.update(
+                "INSERT INTO document_versions (id, document_id, version_number, file_url, file_type, status, author_name) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), docId, 1, "url", "PDF", "BAD_STATUS", "Author"
+            );
+        });
     }
 }
