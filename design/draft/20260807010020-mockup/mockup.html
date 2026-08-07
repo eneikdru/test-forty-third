@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Test Coverage Monitoring</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary-fixed-dim": "#4edea3",
+                        "inverse-on-surface": "#283044",
+                        "tertiary-container": "#f59e0b",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed": "#002113",
+                        "surface-dim": "#0b1326",
+                        "error": "#ffb4ab",
+                        "on-background": "#dae2fd",
+                        "surface": "#0b1326",
+                        "on-surface": "#dae2fd",
+                        "surface-container-high": "#222a3d",
+                        "on-primary": "#00354a",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-error": "#690005",
+                        "on-tertiary": "#472a00",
+                        "inverse-primary": "#00668a",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-fixed-dim": "#7bd0ff",
+                        "primary": "#8ed5ff",
+                        "surface-bright": "#31394d",
+                        "secondary-container": "#00a572",
+                        "surface-variant": "#2d3449",
+                        "secondary-fixed": "#6ffbbe",
+                        "background": "#0b1326",
+                        "primary-fixed": "#c4e7ff",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#613b00",
+                        "outline": "#87929a",
+                        "surface-container-highest": "#2d3449",
+                        "outline-variant": "#3e484f",
+                        "primary-container": "#38bdf8",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-container": "#004965",
+                        "surface-container-lowest": "#060e20",
+                        "on-primary-fixed": "#001e2c",
+                        "secondary": "#4edea3",
+                        "tertiary": "#ffc174",
+                        "on-secondary-container": "#00311f",
+                        "surface-container-low": "#131b2e",
+                        "on-primary-fixed-variant": "#004c69",
+                        "on-secondary": "#003824",
+                        "on-surface-variant": "#bdc8d1",
+                        "inverse-surface": "#dae2fd",
+                        "surface-tint": "#7bd0ff",
+                        "surface-container": "#171f33",
+                        "on-secondary-fixed-variant": "#005236"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "headline-md": ["Inter"],
+                        "code-md": ["JetBrains Mono"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "code-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #020617; /* Deep charcoal */
+        }
+        .matrix-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            border-bottom: 1px solid #1E293B;
+            border-right: 1px solid #1E293B;
+        }
+        .matrix-header {
+            background-color: #0F172A;
+            border-bottom: 1px solid #1E293B;
+        }
+        .matrix-row-header {
+            background-color: #0F172A;
+            border-right: 1px solid #1E293B;
+            border-bottom: 1px solid #1E293B;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col font-body-md selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface w-full top-0 border-b border-outline-variant dark:border-outline-variant flex items-center justify-between px-md py-sm w-full max-w-container-max mx-auto z-50 sticky">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-primary">analytics</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">Test Coverage Monitoring</h1>
+</div>
+<div class="cursor-pointer active:opacity-80 transition-all hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors p-xs rounded-full">
+<span class="material-symbols-outlined text-on-surface-variant">account_circle</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col gap-lg p-md md:p-lg pb-32 max-w-container-max mx-auto w-full overflow-x-hidden">
+<!-- Coverage Matrix Section -->
+<section class="flex flex-col gap-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Coverage Matrix</h2>
+<div class="bg-surface-container rounded-lg border border-outline-variant overflow-hidden">
+<div class="overflow-x-auto">
+<div class="min-w-[400px]">
+<!-- Grid Header -->
+<div class="grid grid-cols-4 bg-surface-container-high border-b border-outline-variant text-on-surface-variant font-label-caps text-label-caps">
+<div class="p-xs pl-sm flex items-center h-10 border-r border-outline-variant">Feature</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">Unit</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">Integration</div>
+<div class="p-xs flex justify-center items-center h-10">E2E</div>
+</div>
+<!-- Rows -->
+<!-- Row 1 -->
+<div class="grid grid-cols-4 border-b border-outline-variant bg-surface-container hover:bg-surface-container-highest transition-colors">
+<div class="p-xs pl-sm flex items-center h-10 border-r border-outline-variant font-code-sm text-code-sm text-on-surface">Document Management</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-xs flex justify-center items-center h-10">
+<span class="material-symbols-outlined text-tertiary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">pending</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-4 border-b border-outline-variant bg-surface-container hover:bg-surface-container-highest transition-colors">
+<div class="p-xs pl-sm flex items-center h-10 border-r border-outline-variant font-code-sm text-code-sm text-on-surface">RBAC</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">
+<span class="material-symbols-outlined text-tertiary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">pending</span>
+</div>
+<div class="p-xs flex justify-center items-center h-10">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">horizontal_rule</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-4 border-b border-outline-variant bg-surface-container hover:bg-surface-container-highest transition-colors">
+<div class="p-xs pl-sm flex items-center h-10 border-r border-outline-variant font-code-sm text-code-sm text-on-surface">Search</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">
+<span class="material-symbols-outlined text-tertiary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">pending</span>
+</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">horizontal_rule</span>
+</div>
+<div class="p-xs flex justify-center items-center h-10">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">horizontal_rule</span>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="grid grid-cols-4 bg-surface-container hover:bg-surface-container-highest transition-colors">
+<div class="p-xs pl-sm flex items-center h-10 border-r border-outline-variant font-code-sm text-code-sm text-on-surface">Language Compliance</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-xs flex justify-center items-center h-10 border-r border-outline-variant">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-xs flex justify-center items-center h-10">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex gap-md mt-sm font-label-caps text-label-caps text-on-surface-variant justify-end">
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-secondary text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span> Pass</div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-tertiary-container text-[16px]" style="font-variation-settings: 'FILL' 1;">pending</span> In Progress</div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: 'FILL' 1;">horizontal_rule</span> Planned</div>
+</div>
+</section>
+<!-- Feature Coverage Summary Section -->
+<section class="flex flex-col gap-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Feature Coverage Summary</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-md flex flex-col gap-sm hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-center">
+<span class="font-code-md text-code-md text-on-surface">Document Management</span>
+<span class="font-label-caps text-label-caps text-secondary font-bold">85%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2 border border-outline-variant overflow-hidden">
+<div class="bg-secondary h-2 rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-md flex flex-col gap-sm hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-center">
+<span class="font-code-md text-code-md text-on-surface">RBAC</span>
+<span class="font-label-caps text-label-caps text-tertiary-container font-bold">45%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2 border border-outline-variant overflow-hidden">
+<div class="bg-tertiary-container h-2 rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-md flex flex-col gap-sm hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-center">
+<span class="font-code-md text-code-md text-on-surface">Search</span>
+<span class="font-label-caps text-label-caps text-primary font-bold">15%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2 border border-outline-variant overflow-hidden">
+<div class="bg-primary h-2 rounded-full" style="width: 15%"></div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-md flex flex-col gap-sm hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-center">
+<span class="font-code-md text-code-md text-on-surface">Language Compliance</span>
+<span class="font-label-caps text-label-caps text-secondary font-bold">100%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2 border border-outline-variant overflow-hidden">
+<div class="bg-secondary h-2 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container-low dark:bg-surface-container-low fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 border-t border-outline-variant dark:border-outline-variant shadow-lg md:hidden">
+<!-- Active Tab: Overview -->
+<div class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container rounded-full px-4 py-1 cursor-pointer active:bg-surface-variant scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-caps text-label-caps mt-xs">Overview</span>
+</div>
+<!-- Inactive Tab: Features -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant cursor-pointer active:bg-surface-variant scale-95 transition-transform px-4 py-1">
+<span class="material-symbols-outlined">list_alt</span>
+<span class="font-label-caps text-label-caps mt-xs">Features</span>
+</div>
+<!-- Inactive Tab: Logs -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant cursor-pointer active:bg-surface-variant scale-95 transition-transform px-4 py-1">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-label-caps text-label-caps mt-xs">Logs</span>
+</div>
+</nav>
+</body></html>
