@@ -75,6 +75,10 @@ public class FinancialDocumentControllerTest {
         budgetDoc.setCreatedAt(LocalDateTime.now());
         budgetDoc.setUpdatedAt(LocalDateTime.now());
         budgetDoc.getSchemaTags().add(budgetTag);
+        budgetDoc.setDocumentType("Position");
+        budgetDoc.setAcademicYear("2026–2027");
+        budgetDoc.setProgram("both");
+        budgetDoc.setProcess("other");
         documentRepository.save(budgetDoc);
 
         // Save Load document
@@ -87,6 +91,10 @@ public class FinancialDocumentControllerTest {
         loadDoc.setCreatedAt(LocalDateTime.now());
         loadDoc.setUpdatedAt(LocalDateTime.now());
         loadDoc.getSchemaTags().add(loadTag);
+        loadDoc.setDocumentType("Procedure");
+        loadDoc.setAcademicYear("2026–2027");
+        loadDoc.setProgram("both");
+        loadDoc.setProcess("other");
         documentRepository.save(loadDoc);
 
         // Save Stipends document
@@ -99,6 +107,10 @@ public class FinancialDocumentControllerTest {
         stipendDoc.setCreatedAt(LocalDateTime.now());
         stipendDoc.setUpdatedAt(LocalDateTime.now());
         stipendDoc.getSchemaTags().add(stipendsTag);
+        stipendDoc.setDocumentType("Position");
+        stipendDoc.setAcademicYear("2026–2027");
+        stipendDoc.setProgram("postgraduate");
+        stipendDoc.setProcess("stipends");
         documentRepository.save(stipendDoc);
     }
 

@@ -103,47 +103,22 @@ public class FinancialDocumentController {
         res.setTitle(doc.getTitle());
         res.setDescription(doc.getDescription());
 
-        // Parse documentType
-        String titleLower = doc.getTitle().toLowerCase();
-        if (titleLower.contains("положение")) {
-            res.setDocumentType("Position");
-        } else if (titleLower.contains("порядок")) {
-            res.setDocumentType("Procedure");
-        } else if (titleLower.contains("проект")) {
-            res.setDocumentType("Project");
+        res.setDocumentType(doc.getDocumentType());
+        res.setAcademicYear(doc.getAcademicYear());
+        res.setProgram(doc.getProgram());
+        res.setProcess(doc.getProcess());
+
+        if (doc.getApprovalDate() != null) {
+            res.setApprovalDate(doc.getApprovalDate().toString());
         } else {
-            res.setDocumentType("Other");
+            res.setApprovalDate("2026-09-01");
         }
 
-        // Academic Year
-        res.setAcademicYear("2026–2027");
-
-        // Program type
-        if (titleLower.contains("аспирант")) {
-            res.setProgram("postgraduate");
-        } else if (titleLower.contains("ординат")) {
-            res.setProgram("residency");
+        if (doc.getDocumentNumber() != null) {
+            res.setDocumentNumber(doc.getDocumentNumber());
         } else {
-            res.setProgram("both");
+            res.setDocumentNumber("123-P");
         }
-
-        // Process type
-        if (titleLower.contains("прием") || titleLower.contains("приём")) {
-            res.setProcess("admission");
-        } else if (titleLower.contains("аттестац") || titleLower.contains("гиа")) {
-            res.setProcess("certification");
-        } else if (titleLower.contains("стипенди")) {
-            res.setProcess("stipends");
-        } else if (titleLower.contains("практик")) {
-            res.setProcess("practice");
-        } else if (titleLower.contains("учет") || titleLower.contains("учёт") || titleLower.contains("результат")) {
-            res.setProcess("result_tracking");
-        } else {
-            res.setProcess("other");
-        }
-
-        res.setApprovalDate("2026-09-01");
-        res.setDocumentNumber("123-P");
 
         // Get version from versions
         Optional<DocumentVersion> latestVersion = doc.getVersions().stream()

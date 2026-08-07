@@ -114,4 +114,62 @@ public class SchemaValidationTest {
                 "SELECT * FROM role_schema_tags WHERE role_id = ? AND schema_tag_id = ?", testRoleId, testTagId);
         assertEquals(1, roleLinks.size());
     }
+
+    @Test
+    public void testDocumentMetadataSchemaAndConstraints() {
+        UUID docId = UUID.randomUUID();
+        UUID catId = UUID.randomUUID();
+        jdbcTemplate.update("INSERT INTO categories (id, name) VALUES (?, ?)", catId, "Category " + catId);
+
+        // Insert valid metadata
+        jdbcTemplate.update("INSERT INTO documents (id, category_id, title, document_type, academic_year, status, program, process, approval_date, document_number, responsible_name, responsible_title, responsible_unit) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                docId, catId, "Valid Document", "Position", "2026–2027", "ACTIVE", "postgraduate", "stipends", java.sql.Date.valueOf("2026-09-01"), "NUM-456", "Иван Иванов", "Декан", "Аспирантура");
+
+        List<Map<String, Object>> docs = jdbcTemplate.queryForList("SELECT * FROM documents WHERE id = ?", docId);
+        assertEquals(1, docs.size());
+        assertEquals("Position", docs.get(0).get("document_type"));
+        assertEquals("2026–2027", docs.get(0).get("academic_year"));
+        assertEquals("ACTIVE", docs.get(0).get("status"));
+        assertEquals("postgraduate", docs.get(0).get("program"));
+        assertEquals("stipends", docs.get(0).get("process"));
+        assertEquals("NUM-456", docs.get(0).get("document_number"));
+        assertEquals("Иван Иванов", docs.get(0).get("responsible_name"));
+
+        // Verify invalid status constraint
+        try {
+            jdbcTemplate.update("INSERT INTO documents (id, category_id, title, status) VALUES (?, ?, ?, ?)",
+                    UUID.randomUUID(), catId, "Invalid Status Doc", "DRAFT");
+            assertTrue(false, "Should have thrown exception due to status CHECK constraint");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("CHK_STATUS") || e.getMessage().contains("chk_status") || e.getMessage().contains("Constraint violation"));
+        }
+
+        // Verify invalid document type constraint
+        try {
+            jdbcTemplate.update("INSERT INTO documents (id, category_id, title, document_type) VALUES (?, ?, ?, ?)",
+                    UUID.randomUUID(), catId, "Invalid Type Doc", "Regulation");
+            assertTrue(false, "Should have thrown exception due to document_type CHECK constraint");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("CHK_DOCUMENT_TYPE") || e.getMessage().contains("chk_document_type") || e.getMessage().contains("Constraint violation"));
+        }
+
+        // Verify invalid program constraint
+        try {
+            jdbcTemplate.update("INSERT INTO documents (id, category_id, title, program) VALUES (?, ?, ?, ?)",
+                    UUID.randomUUID(), catId, "Invalid Program Doc", "undergraduate");
+            assertTrue(false, "Should have thrown exception due to program CHECK constraint");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("CHK_PROGRAM") || e.getMessage().contains("chk_program") || e.getMessage().contains("Constraint violation"));
+        }
+
+        // Verify invalid process constraint
+        try {
+            jdbcTemplate.update("INSERT INTO documents (id, category_id, title, process) VALUES (?, ?, ?, ?)",
+                    UUID.randomUUID(), catId, "Invalid Process Doc", "finance");
+            assertTrue(false, "Should have thrown exception due to process CHECK constraint");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("CHK_PROCESS") || e.getMessage().contains("chk_process") || e.getMessage().contains("Constraint violation"));
+        }
+    }
 }
