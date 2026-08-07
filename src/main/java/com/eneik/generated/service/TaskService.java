@@ -68,7 +68,7 @@ public class TaskService {
     /**
      * Reconciles all tasks status against GitHub reality.
      * If a task is marked 'done' internally but the associated GitHub PR is closed and unmerged,
-     * updates the state to 'unmerged' using an atomically-guarded query.
+     * updates the state to 'failed' using an atomically-guarded query.
      */
     public int reconcileTaskStatusAgainstGitHubTruth() {
         return syncTaskStatusesWithGitHub();
@@ -76,7 +76,7 @@ public class TaskService {
 
     /**
      * Syncs tasks status with GitHub reality.
-     * If a task is marked 'done' but its associated GitHub PR is closed and unmerged, transitions status to 'unmerged'.
+     * If a task is marked 'done' but its associated GitHub PR is closed and unmerged, transitions status to 'failed'.
      * If a task is not marked 'done' but its associated GitHub PR is closed and merged, transitions status to 'done'.
      * If a task is not marked 'done' and its associated GitHub PR is closed and unmerged, bypasses status update to 'done'.
      * All database updates use an atomically-guarded query.
@@ -93,12 +93,12 @@ public class TaskService {
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
 
             if ("done".equalsIgnoreCase(task.getStatus())) {
-                // Task is done but PR is closed and unmerged -> update status to unmerged
+                // Task is done but PR is closed and unmerged -> update status to failed
                 if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
                     log.warn("syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
                             task.getId(), task.getGithubPrNumber());
 
-                    int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "unmerged", "done");
+                    int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", "done");
                     if (updatedRows > 0) {
                         reconciledCount++;
                     }

@@ -127,7 +127,7 @@ public class TaskReconciliationTest {
     }
 
     @Test
-    public void testReconciliationCorrectsMismatchStatusToUnmerged() throws Exception {
+    public void testReconciliationCorrectsMismatchStatusToFailed() throws Exception {
         UUID taskId = UUID.fromString("0bcb9d29-ad04-4c30-8448-e3cbacf70c4f");
         // Task starts at 'done' internally
         Task task = new Task(taskId, "Mismatched Task", "done", 53, "closed", false);
@@ -142,9 +142,9 @@ public class TaskReconciliationTest {
                 .andExpect(jsonPath("$.status", is("success")))
                 .andExpect(jsonPath("$.reconciledCount", is(1)));
 
-        // Verify that the task status has been corrected to 'unmerged'
+        // Verify that the task status has been corrected to 'failed'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("unmerged", reloaded.getStatus());
+        assertEquals("failed", reloaded.getStatus());
     }
 
     @Test
@@ -173,18 +173,18 @@ public class TaskReconciliationTest {
         taskRepository.saveAndFlush(task);
 
         // Try updating with mismatched expected status -> should update 0 rows
-        int rowsUpdated = taskRepository.updateStatusAtomically(taskId, "unmerged", "in_progress");
+        int rowsUpdated = taskRepository.updateStatusAtomically(taskId, "failed", "in_progress");
         assertEquals(0, rowsUpdated);
 
         // Verify task is still 'done'
         assertEquals("done", taskRepository.findById(taskId).orElseThrow().getStatus());
 
         // Update with matching expected status -> should update 1 row
-        rowsUpdated = taskRepository.updateStatusAtomically(taskId, "unmerged", "done");
+        rowsUpdated = taskRepository.updateStatusAtomically(taskId, "failed", "done");
         assertEquals(1, rowsUpdated);
 
-        // Verify task is now 'unmerged'
-        assertEquals("unmerged", taskRepository.findById(taskId).orElseThrow().getStatus());
+        // Verify task is now 'failed'
+        assertEquals("failed", taskRepository.findById(taskId).orElseThrow().getStatus());
     }
 
     @Test
