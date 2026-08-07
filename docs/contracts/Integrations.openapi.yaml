@@ -2,13 +2,17 @@ openapi: 3.0.3
 info:
   title: EIOS Integrations and Analytics API
   version: 1.0.0
-  description: Shared API contract for EIOS auth sync, LMS webhook callbacks, and analytics export.
+  description: |
+    Shared API contract for EIOS auth sync, LMS webhook callbacks, and analytics export.
+    This contract defines endpoints, request/response structures, and security schemas for Eneik EIOS.
 paths:
   /api/v1/integrations/lms/webhooks:
     post:
       summary: LMS Webhook Callback
-      description: Webhook endpoint for LMS to notify about document updates or sync events.
+      description: Webhook endpoint for external LMS (e.g., Teachbase, Moodle) to notify about document updates or sync events.
       operationId: processLmsWebhook
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -18,36 +22,60 @@ paths:
       responses:
         '200':
           description: Webhook processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Webhook processed successfully
         '400':
           description: Invalid webhook payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   /api/v1/analytics/export:
     get:
       summary: Export Analytics Data
       description: Export usage statistics (popular searches, views, downloads).
       operationId: exportAnalytics
+      security:
+        - BearerAuth: []
       parameters:
         - name: startDate
           in: query
           required: false
+          description: Filter statistics starting from this date (inclusive)
           schema:
             type: string
             format: date
         - name: endDate
           in: query
           required: false
+          description: Filter statistics up to this date (inclusive)
           schema:
             type: string
             format: date
         - name: format
           in: query
           required: false
+          description: File format for the analytics report export
           schema:
             type: string
             enum: [PDF, DOCX, CSV]
             default: CSV
       responses:
         '200':
-          description: Successful export
+          description: Successful export of analytics data in the requested format
           content:
             application/pdf:
               schema:
@@ -63,11 +91,21 @@ paths:
                 format: binary
         '400':
           description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   /api/v1/integrations/eios/auth/sync:
     post:
       summary: EIOS Roles Sync
       description: Endpoint to synchronize user roles and permissions with EIOS.
       operationId: syncEiosRoles
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -77,9 +115,33 @@ paths:
       responses:
         '200':
           description: Roles synchronized successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  syncedRolesCount:
+                    type: integer
+                    example: 2
         '400':
           description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     LmsWebhookPayload:
       type: object
@@ -90,16 +152,19 @@ components:
       properties:
         provider:
           type: string
+          description: The LMS provider sending the webhook
           example: 'Teachbase'
         eventType:
           type: string
+          description: Type of the triggered LMS event
           example: 'document.updated'
         documentId:
           type: string
           format: uuid
+          description: UUID of the document associated with this LMS resource
         payload:
           type: object
-          description: Additional event data from LMS
+          description: Additional event metadata from LMS
     EiosRoleSyncRequest:
       type: object
       required:
@@ -109,8 +174,20 @@ components:
         userId:
           type: string
           format: uuid
+          description: The unique identifier of the user in EIOS
         roles:
           type: array
+          description: List of synchronized roles/permissions for the user
           items:
             type: string
             example: 'CONTENT_MANAGER'
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        details:
+          type: string
