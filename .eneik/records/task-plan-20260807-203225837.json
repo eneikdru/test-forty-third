@@ -1,0 +1,36 @@
+{
+  "epics": [
+    {
+      "existingEpicId": null,
+      "title": "Resolve task status mismatch between internal system and GitHub",
+      "jtbd": "When a system operator relies on the internal status of a task, I want it to accurately reflect the actual state on GitHub (e.g. PR closed without merge), so that tasks are not falsely marked as done when their changes were never merged.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Reduce the number of task status mismatches (internal done vs GitHub unmerged) to 0",
+      "tocConstraintRef": "reconcileTaskStatusAgainstGitHubTruth mismatch resolution",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Identify the root cause of why task 0bcb9d29-ad04-4c30-8448-e3cbacf70c4f is marked done internally when its PR#53 closed without merge.",
+        "R2: Implement a fix in the existing code to correctly sync or update the internal task status based on the actual GitHub PR closure status."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Fix GitHub PR status reconciliation to prevent false done states",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the status synchronization for this epic, I want to ensure the reconciliation logic correctly distinguishes between a merged PR and a closed-but-unmerged PR, so that the internal task status correctly aligns with reality.",
+          "acceptanceCriteria": "Given a task with an associated PR on GitHub,\nWhen the PR is closed without being merged,\nThen the internal task status must not transition to 'done'\nGiven the reconciliation task runs,\nWhen it detects a mismatch (task done but PR unmerged),\nThen it correctly updates the internal task state to reflect the unmerged PR.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "reconcileTaskStatusAgainstGitHubTruth sync bug",
+          "sixSigmaMetric": "Reduce false positive 'done' tasks due to unmerged PRs to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ]
+}
