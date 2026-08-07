@@ -1,0 +1,12 @@
+{
+  "testsRun": 3,
+  "testsPassed": 3,
+  "testsFailed": 0,
+  "acceptanceCriteriaVerified": [
+    "Given the EIOS sync integration, When the mock webhook fires, Then roles are verified in the database.",
+    "Given the notification system, When a document update is triggered, Then the Telegram mock API receives the correct payload."
+  ],
+  "coverageDeltaPercent": 5.0,
+  "verdict": "pass",
+  "notes": "EIOS auth synchronization mock webhook (/api/v1/integrations/eios/auth/sync) successfully updates and verifies user roles in the H2 database. Telegram mock API payload receives correct payload formats, Russian localized messages, and robust MarkdownV2-escaped renderings under the /api/v1/notifications/trigger/quarterly-review webhook trigger. Active verification performed by BARCAN-TAG-06 (QA Verification) under the Deontic Consistency (Karl Popper, Alfred Tarski) framework."
+}
