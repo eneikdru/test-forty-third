@@ -191,4 +191,70 @@ public class FinancialDocumentControllerTest {
                 .andExpect(jsonPath("$.code", is("UNAUTHORIZED")))
                 .andExpect(jsonPath("$.message", containsString("Missing or invalid credentials")));
     }
+
+    @Test
+    public void testEconomistAndHrCanPerformCrud() throws Exception {
+        // Create
+        String newDocJson = "{" +
+                "\"title\": \"Новый кадровый документ\"," +
+                "\"description\": \"Описание кадрового документа\"," +
+                "\"documentType\": \"Position\"," +
+                "\"academicYear\": \"2026–2027\"," +
+                "\"program\": \"both\"," +
+                "\"process\": \"other\"," +
+                "\"documentNumber\": \"HR-999\"" +
+                "}";
+
+        String responseContent = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/financial")
+                        .header("X-User-Role", "Economist")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newDocJson)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.title", is("Новый кадровый документ")))
+                .andReturn().getResponse().getContentAsString();
+
+        String createdId = com.jayway.jsonpath.JsonPath.read(responseContent, "$.id");
+
+        // Update with HR role
+        String updatedDocJson = "{" +
+                "\"title\": \"Обновленный кадровый документ\"," +
+                "\"description\": \"Новое описание\"," +
+                "\"documentType\": \"Position\"," +
+                "\"academicYear\": \"2026–2027\"," +
+                "\"program\": \"both\"," +
+                "\"process\": \"other\"," +
+                "\"documentNumber\": \"HR-999-UPD\"" +
+                "}";
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/financial/" + createdId)
+                        .header("X-User-Role", "HR")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedDocJson)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title", is("Обновленный кадровый документ")));
+
+        // Teacher receives 403 Forbidden for update
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/financial/" + createdId)
+                        .header("X-User-Role", "Teacher")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedDocJson)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code", is("ACCESS_DENIED")));
+
+        // Delete with Economist role
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/financial/" + createdId)
+                        .header("X-User-Role", "Economist")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        // Verify delete is complete (404 Not Found)
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/financial/" + createdId)
+                        .header("X-User-Role", "Economist")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
 }

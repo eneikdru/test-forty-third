@@ -49,6 +49,67 @@ public class FinancialDocumentController {
         return handleRequest(request, "Stipends", academicYear, program);
     }
 
+    @org.springframework.web.bind.annotation.PostMapping
+    public ResponseEntity<?> createDocument(
+            HttpServletRequest request,
+            @org.springframework.web.bind.annotation.RequestBody Document doc) {
+        String role = extractRole(request);
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+        try {
+            Document created = financialDocumentService.createDocument(role, doc);
+            return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(created, null));
+        } catch (FinancialDocumentService.AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("ACCESS_DENIED", e.getMessage()));
+        }
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/{id}")
+    public ResponseEntity<?> updateDocument(
+            HttpServletRequest request,
+            @org.springframework.web.bind.annotation.PathVariable UUID id,
+            @org.springframework.web.bind.annotation.RequestBody Document doc) {
+        String role = extractRole(request);
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+        try {
+            Document updated = financialDocumentService.updateDocument(role, id, doc);
+            return ResponseEntity.ok(mapToResponse(updated, null));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("NOT_FOUND", e.getMessage()));
+        } catch (FinancialDocumentService.AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("ACCESS_DENIED", e.getMessage()));
+        }
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDocument(
+            HttpServletRequest request,
+            @org.springframework.web.bind.annotation.PathVariable UUID id) {
+        String role = extractRole(request);
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+        try {
+            financialDocumentService.deleteDocument(role, id);
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("NOT_FOUND", e.getMessage()));
+        } catch (FinancialDocumentService.AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("ACCESS_DENIED", e.getMessage()));
+        }
+    }
+
     private ResponseEntity<?> handleRequest(
             HttpServletRequest request,
             String tagName,
