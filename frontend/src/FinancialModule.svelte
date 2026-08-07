@@ -2,14 +2,89 @@
   import { onMount } from 'svelte';
 
   // Svelte 5 state runes
-  let selectedRole = $state('Economist'); // 'Economist' или 'Postgraduate'
-  let activeCategory = $state('Финансы'); // 'Финансы', 'Кадры' или 'Стипендии'
-  let activeSubTab = $state('Бюджет'); // 'Бюджет' или 'Нагрузка' (для категории Финансы)
+  let selectedRole = $state('Economist'); // 'Economist', 'Teacher', 'Postgraduate'
+  let activeCategory = $state('Финансы'); // 'Финансы', 'Кадры', 'Нагрузка' или 'Стипендии'
+  let activeSubTab = $state('Бюджет'); // 'Бюджет' или 'Нагрузка' (для экономиста)
   let budgetDocs = $state([]);
   let loadDocs = $state([]);
   let stipendDocs = $state([]);
   let loading = $state(false);
   let errorMessage = $state('');
+
+  // Translation helpers for metadata to ensure 100% Russian language
+  function getDocumentTypeName(type) {
+    const map = {
+      Position: 'Положение',
+      Procedure: 'Порядок',
+      Project: 'Проект',
+      Other: 'Иной документ'
+    };
+    return map[type] || 'Документ';
+  }
+
+  function getProgramName(program) {
+    const map = {
+      postgraduate: 'Аспирантура',
+      residency: 'Ординатура',
+      both: 'Аспирантура и ординатура'
+    };
+    return map[program] || 'Все программы';
+  }
+
+  function getProcessName(process) {
+    const map = {
+      admission: 'Приём',
+      certification: 'Аттестация',
+      stipends: 'Стипендии',
+      practice: 'Практика',
+      result_tracking: 'Учёт результатов',
+      other: 'Учебный процесс'
+    };
+    return map[process] || 'Иной процесс';
+  }
+
+  function getQuarterName(quarter) {
+    const map = {
+      Q1: '1-й квартал',
+      Q2: '2-й квартал',
+      Q3: '3-й квартал',
+      Q4: '4-й квартал',
+      ANNUAL: 'Годовой'
+    };
+    return map[quarter] || quarter || 'Период не указан';
+  }
+
+  function getStatusName(status) {
+    const map = {
+      DRAFT: 'ЧЕРНОВИК',
+      REVIEW: 'НА РАССМОТРЕНИИ',
+      APPROVED: 'УТВЕРЖДЕН',
+      ARCHIVED: 'В АРХИВЕ'
+    };
+    return map[status] || status || 'СТАТУС НЕИЗВЕСТЕН';
+  }
+
+  function translateTag(tag) {
+    const map = {
+      Budget: 'Бюджет',
+      Load: 'Нагрузка',
+      Stipends: 'Стипендии',
+      Book: 'Книга',
+      Glossary: 'Глоссарий'
+    };
+    return map[tag] || '';
+  }
+
+  function translateError(err) {
+    if (!err) return 'Неизвестная ошибка реестра';
+    if (err.code === 'ACCESS_DENIED') {
+      return 'Доступ ограничен. У вашей роли отсутствуют необходимые права для просмотра этого раздела.';
+    }
+    if (err.code === 'UNAUTHORIZED') {
+      return 'Вы не авторизованы в системе. Пожалуйста, выполните вход.';
+    }
+    return err.message || 'Ошибка обработки запроса';
+  }
 
   // Fetch data function
   async function fetchData() {
@@ -28,8 +103,8 @@
         if (bRes.ok) {
           budgetDocs = await bRes.json();
         } else {
-          const err = await bRes.json();
-          errorMessage = err.message || 'Ошибка загрузки бюджетов';
+          const err = await bRes.json().catch(() => ({}));
+          errorMessage = translateError(err);
         }
 
         // Fetch load
@@ -47,6 +122,25 @@
         if (sRes.ok) {
           stipendDocs = await sRes.json();
         }
+      } else if (selectedRole === 'Teacher') {
+        // Fetch load
+        const lRes = await fetch('/api/financial/load', {
+          headers: { 'X-User-Role': 'Teacher' }
+        });
+        if (lRes.ok) {
+          loadDocs = await lRes.json();
+        } else {
+          const err = await lRes.json().catch(() => ({}));
+          errorMessage = translateError(err);
+        }
+
+        // Fetch stipends
+        const sRes = await fetch('/api/financial/stipends', {
+          headers: { 'X-User-Role': 'Teacher' }
+        });
+        if (sRes.ok) {
+          stipendDocs = await sRes.json();
+        }
       } else {
         // Fetch only stipends for student
         const sRes = await fetch('/api/financial/stipends', {
@@ -55,7 +149,8 @@
         if (sRes.ok) {
           stipendDocs = await sRes.json();
         } else {
-          errorMessage = 'Доступ запрещен или ошибка сервера';
+          const err = await sRes.json().catch(() => ({}));
+          errorMessage = translateError(err);
         }
       }
     } catch (err) {
@@ -70,6 +165,8 @@
     if (selectedRole === 'Economist') {
       activeCategory = 'Финансы';
       activeSubTab = 'Бюджет';
+    } else if (selectedRole === 'Teacher') {
+      activeCategory = 'Нагрузка';
     } else {
       activeCategory = 'Стипендии';
     }
@@ -82,7 +179,6 @@
 </script>
 
 <style>
-  /* Base reset & styling to guarantee WCAG standards & no CLS shift */
   :global(body) {
     background-color: #f8f9ff;
     color: #0b1c30;
@@ -131,6 +227,25 @@
           <span class="material-symbols-outlined">school</span>
           <span>Стипендии</span>
         </button>
+      {:else if selectedRole === 'Teacher'}
+        <!-- Навигация для Преподавателя -->
+        <button
+          type="button"
+          onclick={() => activeCategory = 'Нагрузка'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Нагрузка' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+        >
+          <span class="material-symbols-outlined">analytics</span>
+          <span>Нормативы нагрузки</span>
+        </button>
+
+        <button
+          type="button"
+          onclick={() => activeCategory = 'Стипендии'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Стипендии' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+        >
+          <span class="material-symbols-outlined">school</span>
+          <span>Стипендии</span>
+        </button>
       {:else}
         <!-- Навигация для Студента / Аспиранта -->
         <button
@@ -151,7 +266,13 @@
         <div class="flex flex-col">
           <span class="text-sm font-semibold text-[#0b1c30]">Текущий доступ</span>
           <span class="text-xs text-[#45464d]">
-            {selectedRole === 'Economist' ? 'Экономист' : 'Студент / Аспирант'}
+            {#if selectedRole === 'Economist'}
+              Экономист
+            {:else if selectedRole === 'Teacher'}
+              Преподаватель
+            {:else}
+              Студент / Аспирант
+            {/if}
           </span>
         </div>
       </div>
@@ -182,6 +303,7 @@
           class="bg-[#ffffff] border border-[#76777d] rounded px-3 py-1.5 text-sm text-[#0b1c30] font-semibold cursor-pointer focus:border-[#000000] focus:ring-0"
         >
           <option value="Economist">Экономист</option>
+          <option value="Teacher">Преподаватель</option>
           <option value="Postgraduate">Студент / Аспирант</option>
         </select>
       </div>
@@ -288,21 +410,50 @@
                             <th class="p-4">Название документа</th>
                             <th class="p-4">Шифр</th>
                             <th class="p-4 text-right">Сумма</th>
-                            <th class="p-4">Версия</th>
+                            <th class="p-4 text-center">Период бюджетирования</th>
+                            <th class="p-4">Версия / Класс</th>
                             <th class="p-4">Статус</th>
                           </tr>
                         </thead>
                         <tbody class="text-sm">
                           {#each budgetDocs as doc}
                             <tr class="border-b border-[#c6c6cd] hover:bg-[#f8f9ff] transition-colors">
-                              <td class="p-4 font-semibold text-[#0b1c30]">{doc.title}</td>
+                              <td class="p-4">
+                                <div class="font-semibold text-[#0b1c30]">{doc.title}</div>
+                                <div class="text-xs text-[#515f74] mt-0.5">{doc.description}</div>
+                              </td>
                               <td class="p-4 text-xs font-mono text-[#515f74]">{doc.documentNumber}</td>
                               <td class="p-4 text-right font-mono text-[#0b1c30] whitespace-nowrap">
                                 {doc.budgetCycleMetadata ? '₽\u00a0' + doc.budgetCycleMetadata.estimatedAmount.toLocaleString('ru-RU') : '—'}
                               </td>
-                              <td class="p-4 text-xs font-semibold">{doc.version}</td>
+                              <td class="p-4 text-center text-xs text-[#0b1c30]">
+                                {#if doc.budgetCycleMetadata}
+                                  <div>{getQuarterName(doc.budgetCycleMetadata.quarter)}</div>
+                                  <div class="text-[11px] text-[#45464d]">Фин. год: {doc.budgetCycleMetadata.fiscalYear}</div>
+                                {:else}
+                                  —
+                                {/if}
+                              </td>
+                              <td class="p-4 text-xs">
+                                <div class="font-semibold">Версия {doc.version}</div>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                  {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
+                                      {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                                    </span>
+                                  {/each}
+                                </div>
+                              </td>
                               <td class="p-4">
-                                <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#dae2fd] text-[#131b2e]">УТВЕРЖДЕН</span>
+                                {#if doc.budgetCycleMetadata}
+                                  <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#dae2fd] text-[#131b2e]">
+                                    {getStatusName(doc.budgetCycleMetadata.status)}
+                                  </span>
+                                {:else}
+                                  <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#eff4ff] text-[#45464d]">
+                                    УТВЕРЖДЕН
+                                  </span>
+                                {/if}
                               </td>
                             </tr>
                           {/each}
@@ -327,8 +478,10 @@
                         <thead>
                           <tr class="bg-[#f8f9ff] border-b border-[#c6c6cd] text-xs font-bold text-[#45464d]">
                             <th class="p-4">Название регламента</th>
-                            <th class="p-4">Год</th>
-                            <th class="p-4">Раздел</th>
+                            <th class="p-4">Учебный год</th>
+                            <th class="p-4">Тип документа</th>
+                            <th class="p-4">Раздел / Процесс</th>
+                            <th class="p-4">Классификация</th>
                             <th class="p-4">Версия</th>
                           </tr>
                         </thead>
@@ -337,8 +490,18 @@
                             <tr class="border-b border-[#c6c6cd] hover:bg-[#f8f9ff] transition-colors">
                               <td class="p-4 font-semibold text-[#0b1c30]">{doc.title}</td>
                               <td class="p-4 font-mono text-[#515f74]">{doc.academicYear}</td>
-                              <td class="p-4 text-xs">{doc.process === 'other' ? 'Учебная часть' : doc.process}</td>
-                              <td class="p-4 text-xs font-semibold">{doc.version}</td>
+                              <td class="p-4 text-xs">{getDocumentTypeName(doc.documentType)}</td>
+                              <td class="p-4 text-xs">{getProcessName(doc.process)}</td>
+                              <td class="p-4 text-xs">
+                                <div class="flex flex-wrap gap-1">
+                                  {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
+                                      {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                                    </span>
+                                  {/each}
+                                </div>
+                              </td>
+                              <td class="p-4 text-xs font-semibold">Версия {doc.version}</td>
                             </tr>
                           {/each}
                         </tbody>
@@ -375,8 +538,8 @@
                         <span class="text-xs font-mono text-[#515f74]">{doc.documentNumber}</span>
                       </div>
                       <p class="text-xs text-[#45464d]">{doc.description}</p>
-                      <div class="flex items-center gap-4 text-xs mt-2 border-t border-[#c6c6cd] pt-2">
-                        <span>Дата: {doc.approvalDate}</span>
+                      <div class="flex items-center justify-between text-xs mt-2 border-t border-[#c6c6cd] pt-2">
+                        <span>Тип: {getDocumentTypeName(doc.documentType)}</span>
                         <span>Версия: {doc.version}</span>
                       </div>
                     </div>
@@ -401,7 +564,14 @@
                       <span class="text-sm font-bold text-[#0b1c30]">{doc.title}</span>
                       <p class="text-xs text-[#45464d]">{doc.description}</p>
                       <div class="flex items-center justify-between text-xs border-t border-[#c6c6cd] pt-2 mt-2">
-                        <span>Категория обучающихся: {doc.program === 'postgraduate' ? 'Аспиранты' : 'Ординаторы'}</span>
+                        <span>Направление: {getProgramName(doc.program)}</span>
+                        <div class="flex gap-1">
+                          {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
+                              {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                            </span>
+                          {/each}
+                        </div>
                         <span class="font-semibold">Версия {doc.version}</span>
                       </div>
                     </div>
@@ -410,6 +580,82 @@
               {/if}
             </div>
           {/if}
+
+        {:else if selectedRole === 'Teacher'}
+          <!-- Содержимое для Преподавателя -->
+          <div class="flex flex-col gap-6">
+            <div class="bg-[#eff4ff] border border-[#c6c6cd] p-5 rounded-xl">
+              <h3 class="font-bold text-lg text-[#0d1c2f] mb-2">Кабинет преподавателя ЦНИИ Эпидемиологии</h3>
+              <p class="text-sm text-[#45464d]">
+                В соответствии с регламентом, вам предоставлен доступ к расчётам нагрузки и стипендиальному обеспечению в режиме просмотра.
+              </p>
+            </div>
+
+            {#if activeCategory === 'Нагрузка'}
+              <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
+                <div class="p-4 bg-[#d5e3fd] border-b border-[#c6c6cd] flex justify-between items-center">
+                  <h3 class="font-bold text-base text-[#0d1c2f]">Реестр учебной нагрузки и нормативов</h3>
+                  <span class="text-xs font-bold text-[#0d1c2f] bg-white px-2 py-0.5 rounded">ФГОС</span>
+                </div>
+
+                {#if loadDocs.length === 0}
+                  <p class="p-6 text-sm text-[#45464d] text-center">Документы нагрузки не найдены</p>
+                {:else}
+                  <div class="p-4 flex flex-col gap-4">
+                    {#each loadDocs as doc}
+                      <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
+                        <span class="text-base font-bold text-[#0b1c30]">{doc.title}</span>
+                        <p class="text-sm text-[#45464d]">{doc.description}</p>
+                        <div class="flex flex-wrap items-center gap-4 text-xs border-t border-[#c6c6cd] pt-2 mt-2 text-[#515f74]">
+                          <span>Тип: {getDocumentTypeName(doc.documentType)}</span>
+                          <span>Процесс: {getProcessName(doc.process)}</span>
+                          <span>Год: {doc.academicYear}</span>
+                          <div class="flex gap-1">
+                            {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white text-[#0b1c30] border border-[#c6c6cd]">
+                                {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                              </span>
+                            {/each}
+                          </div>
+                          <span class="ml-auto font-semibold">Версия {doc.version}</span>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {:else if activeCategory === 'Стипендии'}
+              <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
+                <div class="p-4 bg-[#d5e3fd] border-b border-[#c6c6cd] flex justify-between items-center">
+                  <h3 class="font-bold text-base text-[#0d1c2f]">Справочник стипендий</h3>
+                </div>
+
+                {#if stipendDocs.length === 0}
+                  <p class="p-6 text-sm text-[#45464d] text-center">Документы не найдены</p>
+                {:else}
+                  <div class="p-4 flex flex-col gap-4">
+                    {#each stipendDocs as doc}
+                      <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
+                        <span class="text-base font-bold text-[#0b1c30]">{doc.title}</span>
+                        <p class="text-sm text-[#45464d]">{doc.description}</p>
+                        <div class="flex flex-wrap items-center gap-4 text-xs border-t border-[#c6c6cd] pt-2 mt-2 text-[#515f74]">
+                          <span>Направление: {getProgramName(doc.program)}</span>
+                          <div class="flex gap-1">
+                            {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white text-[#0b1c30] border border-[#c6c6cd]">
+                                {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                              </span>
+                            {/each}
+                          </div>
+                          <span class="ml-auto font-semibold">Версия {doc.version}</span>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {/if}
+          </div>
 
         {:else}
           <!-- Содержимое для Студента (Аспиранта) -->
@@ -438,7 +684,16 @@
                       <div class="flex flex-wrap items-center gap-4 text-xs border-t border-[#c6c6cd] pt-2 mt-2 text-[#515f74]">
                         <span>Номер акта: {doc.documentNumber}</span>
                         <span>Утверждено: {doc.approvalDate}</span>
-                        <span>Актуальная версия: {doc.version}</span>
+                        <span>Тип: {getDocumentTypeName(doc.documentType)}</span>
+                        <span>Направление: {getProgramName(doc.program)}</span>
+                        <div class="flex gap-1">
+                          {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white text-[#0b1c30] border border-[#c6c6cd]">
+                              {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                            </span>
+                          {/each}
+                        </div>
+                        <span class="ml-auto font-semibold">Актуальная версия: {doc.version}</span>
                       </div>
                     </div>
                   {/each}
@@ -473,6 +728,24 @@
       >
         <span class="material-symbols-outlined text-xl">badge</span>
         <span>Кадры</span>
+      </button>
+
+      <button
+        type="button"
+        onclick={() => activeCategory = 'Стипендии'}
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+      >
+        <span class="material-symbols-outlined text-xl">school</span>
+        <span>Стипендии</span>
+      </button>
+    {:else if selectedRole === 'Teacher'}
+      <button
+        type="button"
+        onclick={() => activeCategory = 'Нагрузка'}
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Нагрузка' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+      >
+        <span class="material-symbols-outlined text-xl">analytics</span>
+        <span>Нагрузка</span>
       </button>
 
       <button
