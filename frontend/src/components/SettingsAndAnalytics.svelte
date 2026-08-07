@@ -224,18 +224,18 @@
           <button
             onclick={() => downloadReport('CSV')}
             class="flex items-center gap-1 bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#EFF6FF] text-xs font-bold text-[#1A365D] px-2.5 py-1.5 rounded transition-all focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
-            title="Экспортировать отчет в формате CSV"
+            title="Экспортировать отчет в формате таблицы"
           >
             <span class="material-symbols-outlined text-xs">download</span>
-            <span>CSV</span>
+            <span>Таблица</span>
           </button>
           <button
             onclick={() => downloadReport('PDF')}
             class="flex items-center gap-1 bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#EFF6FF] text-xs font-bold text-[#1A365D] px-2.5 py-1.5 rounded transition-all focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
-            title="Экспортировать отчет в формате PDF"
+            title="Экспортировать отчет в формате документа"
           >
             <span class="material-symbols-outlined text-xs">picture_as_pdf</span>
-            <span>PDF</span>
+            <span>Документ</span>
           </button>
         </div>
       </div>
