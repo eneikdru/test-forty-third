@@ -20,4 +20,15 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
         @Param("newStatus") String newStatus,
         @Param("expectedOldStatus") String expectedOldStatus
     );
+
+    long countByStatus(String status);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("UPDATE Task t SET t.status = :newStatus, t.updatedAt = :updatedAt WHERE t.status = :expectedOldStatus")
+    int updateAllStatusAtomically(
+        @Param("expectedOldStatus") String expectedOldStatus,
+        @Param("newStatus") String newStatus,
+        @Param("updatedAt") java.time.LocalDateTime updatedAt
+    );
 }
