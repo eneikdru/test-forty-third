@@ -1,0 +1,8 @@
+/app/src/test/java/com/eneik/generated/AnalyticsIntegrationTest.java
+/app/src/test/java/com/eneik/generated/ApiContractValidationTest.java
+/app/src/test/java/com/eneik/generated/DocumentsAndSearchContractValidationTest.java
+/app/src/test/java/com/eneik/generated/FinancialAccessControlQaTest.java
+/app/src/test/java/com/eneik/generated/FinancialDocumentControllerTest.java
+/app/src/test/java/com/eneik/generated/LmsNotificationsAnalyticsSchemaTest.java
+/app/src/test/java/com/eneik/generated/NotificationTriggerIntegrationTest.java
+/app/src/test/java/com/eneik/generated/SchemaValidationTest.java

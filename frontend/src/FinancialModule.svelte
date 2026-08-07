@@ -11,6 +11,22 @@
   let loading = $state(false);
   let errorMessage = $state('');
 
+  // Russian translation mappings for system/metadata values from backend
+  const processTranslations = {
+    'admission': 'Приемная кампания',
+    'certification': 'Аттестация',
+    'stipends': 'Стипендиальное обеспечение',
+    'practice': 'Производственная практика',
+    'result_tracking': 'Контроль успеваемости',
+    'other': 'Учебная часть'
+  };
+
+  const programTranslations = {
+    'postgraduate': 'Аспирантура',
+    'residency': 'Ординатура',
+    'both': 'Аспирантура и ординатура'
+  };
+
   // Fetch data function
   async function fetchData() {
     loading = true;
@@ -202,7 +218,7 @@
       {#if loading}
         <div class="flex flex-col items-center justify-center py-12 gap-2 text-[#515f74]">
           <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
-          <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
+          <span class="text-sm font-semibold tracking-wider">Идет получение данных из реестра...</span>
         </div>
       {:else}
 
@@ -337,7 +353,7 @@
                             <tr class="border-b border-[#c6c6cd] hover:bg-[#f8f9ff] transition-colors">
                               <td class="p-4 font-semibold text-[#0b1c30]">{doc.title}</td>
                               <td class="p-4 font-mono text-[#515f74]">{doc.academicYear}</td>
-                              <td class="p-4 text-xs">{doc.process === 'other' ? 'Учебная часть' : doc.process}</td>
+                              <td class="p-4 text-xs">{processTranslations[doc.process] || doc.process || 'Учебная часть'}</td>
                               <td class="p-4 text-xs font-semibold">{doc.version}</td>
                             </tr>
                           {/each}
@@ -401,7 +417,7 @@
                       <span class="text-sm font-bold text-[#0b1c30]">{doc.title}</span>
                       <p class="text-xs text-[#45464d]">{doc.description}</p>
                       <div class="flex items-center justify-between text-xs border-t border-[#c6c6cd] pt-2 mt-2">
-                        <span>Категория обучающихся: {doc.program === 'postgraduate' ? 'Аспиранты' : 'Ординаторы'}</span>
+                        <span>Категория обучающихся: {programTranslations[doc.program] || doc.program || 'Обучающиеся'}</span>
                         <span class="font-semibold">Версия {doc.version}</span>
                       </div>
                     </div>
