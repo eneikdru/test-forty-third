@@ -5,11 +5,13 @@ import com.eneik.generated.repository.TaskRepository;
 import com.eneik.generated.service.GitHubService;
 import com.eneik.generated.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.eneik.generated.service.TaskSyncScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,6 +23,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -36,7 +39,7 @@ public class TaskReconciliationTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Autowired
+    @SpyBean
     private TaskRepository taskRepository;
 
     @Autowired
@@ -44,6 +47,9 @@ public class TaskReconciliationTest {
 
     @Autowired
     private GitHubService gitHubService;
+
+    @Autowired
+    private TaskSyncScheduler taskSyncScheduler;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -179,5 +185,53 @@ public class TaskReconciliationTest {
 
         // Verify task is now 'unmerged'
         assertEquals("unmerged", taskRepository.findById(taskId).orElseThrow().getStatus());
+    }
+
+    @Test
+    public void testScheduledSyncBypassesDoneStatusWhenPrClosedAndUnmerged() {
+        // Reset spy invocation count
+        reset(taskRepository);
+
+        UUID taskId = UUID.randomUUID();
+        // Task starts at 'in_progress' internally
+        Task task = new Task(taskId, "Closed But Unmerged Task", "in_progress", 88, "closed", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and UNMERGED
+        gitHubService.registerPrStatus(88, "closed", false);
+
+        // Trigger synchronization via scheduler
+        taskSyncScheduler.runSyncJob();
+
+        // Verify that the task status was NOT updated to 'done' (remains 'in_progress')
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("in_progress", reloaded.getStatus());
+
+        // Verify that updateStatusAtomically was never called with "done" status for this task
+        verify(taskRepository, never()).updateStatusAtomically(eq(taskId), eq("done"), anyString());
+    }
+
+    @Test
+    public void testScheduledSyncUpdatesToDoneWhenPrClosedAndMerged() {
+        // Reset spy invocation count
+        reset(taskRepository);
+
+        UUID taskId = UUID.randomUUID();
+        // Task starts at 'in_progress' internally
+        Task task = new Task(taskId, "Closed and Merged Task", "in_progress", 89, "closed", true);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and MERGED
+        gitHubService.registerPrStatus(89, "closed", true);
+
+        // Trigger synchronization via scheduler
+        taskSyncScheduler.runSyncJob();
+
+        // Verify that the task status was updated to 'done'
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("done", reloaded.getStatus());
+
+        // Verify that updateStatusAtomically was indeed called with "done" status for this task
+        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("done"), eq("in_progress"));
     }
 }

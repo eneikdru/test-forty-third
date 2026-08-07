@@ -71,6 +71,17 @@ public class TaskService {
      * updates the state to 'unmerged' using an atomically-guarded query.
      */
     public int reconcileTaskStatusAgainstGitHubTruth() {
+        return syncTaskStatusesWithGitHub();
+    }
+
+    /**
+     * Syncs tasks status with GitHub reality.
+     * If a task is marked 'done' but its associated GitHub PR is closed and unmerged, transitions status to 'unmerged'.
+     * If a task is not marked 'done' but its associated GitHub PR is closed and merged, transitions status to 'done'.
+     * If a task is not marked 'done' and its associated GitHub PR is closed and unmerged, bypasses status update to 'done'.
+     * All database updates use an atomically-guarded query.
+     */
+    public int syncTaskStatusesWithGitHub() {
         List<Task> tasks = taskRepository.findAll();
         int reconciledCount = 0;
 
@@ -81,16 +92,33 @@ public class TaskService {
 
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
 
-            // Check mismatch: task is marked 'done' internally, but PR closed without merge
             if ("done".equalsIgnoreCase(task.getStatus())) {
+                // Task is done but PR is closed and unmerged -> update status to unmerged
                 if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
-                    log.warn("reconcileTaskStatusAgainstGitHubTruth: task {} is marked done but PR#{} closed without merge",
+                    log.warn("syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
                             task.getId(), task.getGithubPrNumber());
 
-                    // Atomically guard the update status from 'done' to 'unmerged'
                     int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "unmerged", "done");
                     if (updatedRows > 0) {
                         reconciledCount++;
+                    }
+                }
+            } else {
+                // Task is not done
+                if ("closed".equalsIgnoreCase(prStatus.getState())) {
+                    if (prStatus.isMerged()) {
+                        // PR is closed and merged -> update task status to done
+                        log.info("syncTaskStatusesWithGitHub: task {} has merged PR#{}, transitioning status to done",
+                                task.getId(), task.getGithubPrNumber());
+
+                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "done", task.getStatus());
+                        if (updatedRows > 0) {
+                            reconciledCount++;
+                        }
+                    } else {
+                        // PR is closed and unmerged -> status update logic to done is bypassed
+                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, bypassing status update to done",
+                                task.getId(), task.getGithubPrNumber());
                     }
                 }
             }
