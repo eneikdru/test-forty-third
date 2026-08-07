@@ -207,4 +207,44 @@ public class DocumentSearchControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void testNewBidirectionalSynonymExpansion() throws Exception {
+        // Document 1 has abbreviation "ФВОКО"
+        Document doc1 = createDocument("Документ по ФВОКО", "Общие положения.", "both", "Other");
+        // Document 2 has expanded text "Федеральная внутренняя оценка качества образования"
+        Document doc2 = createDocument("Регламент оценки", "Федеральная внутренняя оценка качества образования ординаторов.", "both", "Position");
+
+        // Query "ФВОКО" should return both documents
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ФВОКО")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(doc1.getId().toString(), doc2.getId().toString())));
+
+        // Query "федеральная внутренняя оценка качества образования" should return both documents
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "федеральная внутренняя оценка качества образования")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(doc1.getId().toString(), doc2.getId().toString())));
+
+        // Document 3 has abbreviation "ФОС"
+        Document doc3 = createDocument("Инструкция по ФОС", "Для преподавателей.", "both", "Other");
+        // Document 4 has expanded text "фонд оценочных средств"
+        Document doc4 = createDocument("Оценочные материалы", "Применяется фонд оценочных средств по специальности.", "both", "Position");
+
+        // Query "ФОС" should return both doc3 and doc4
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ФОС")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(doc3.getId().toString(), doc4.getId().toString())));
+    }
 }
