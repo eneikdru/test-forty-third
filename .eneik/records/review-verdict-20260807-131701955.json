@@ -1,0 +1,15 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "block",
+      "criticalReason": "The PR contains committed .png design-check screenshots under the forbidden .eneik/ directory (.eneik/records/design-check-8c0eee6e-8a18-4050-a6a4-a793dcb98884/desktop-1440.png and mobile-375.png), which directly violates the core project boundaries and artifact commitment constraints.",
+      "concerns": [
+        {
+          "text": "The commit includes compiled/minified web assets (index-BMrDTnx-.js and index-CYdzpQUL.css) in src/main/resources/static/assets/, which are build artifacts and should be built via the build pipeline rather than committed directly to git.",
+          "severity": "medium"
+        }
+      ]
+    }
+  ]
+}
