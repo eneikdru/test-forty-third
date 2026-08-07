@@ -1,0 +1,12 @@
+{
+  "testsRun": 71,
+  "testsPassed": 71,
+  "testsFailed": 0,
+  "acceptanceCriteriaVerified": [
+    "Given the student status document API is deployed, When running E2E tests for student transfer, dismissal, reinstatement, and leaves, Then document upload, versioning, and search workflows pass successfully.",
+    "Given the RBAC rules for student status documents, When running security tests with a student token, Then unauthorized modification endpoints return 403."
+  ],
+  "coverageDeltaPercent": null,
+  "verdict": "pass",
+  "notes": "Verified backend student status document workflows (transfer, dismissal, reinstatement, leaves) including upload, auto-versioning, and search, as well as the Role-Based Access Control (RBAC) restrictions on Student/Postgraduate roles via X-User-Role/Authorization headers returning 403."
+}
