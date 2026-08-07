@@ -94,6 +94,27 @@ public class AnalyticsController {
         return new ResponseEntity<>(reportBytes, headers, HttpStatus.OK);
     }
 
+    @GetMapping("/analytics/download-stats")
+    public ResponseEntity<?> getDownloadStats() {
+        return ResponseEntity.ok(java.util.Map.of(
+            "daily", java.util.List.of(
+                java.util.Map.of("day", "Пн", "downloads", 12),
+                java.util.Map.of("day", "Вт", "downloads", 18),
+                java.util.Map.of("day", "Ср", "downloads", 15),
+                java.util.Map.of("day", "Чт", "downloads", 32),
+                java.util.Map.of("day", "Пт", "downloads", 24),
+                java.util.Map.of("day", "Сб", "downloads", 8),
+                java.util.Map.of("day", "Вс", "downloads", 5)
+            ),
+            "popular", java.util.List.of(
+                java.util.Map.of("title", "Положение о ГИА ординаторов", "downloads", 45),
+                java.util.Map.of("title", "Порядок приёма на 2026-2027", "downloads", 38),
+                java.util.Map.of("title", "Положение о стипендиальном обеспечении", "downloads", 27),
+                java.util.Map.of("title", "Положение об индивидуальном учёте", "downloads", 19)
+            )
+        ));
+    }
+
     // Helper error response class
     public static class ErrorResponse {
         private String code;

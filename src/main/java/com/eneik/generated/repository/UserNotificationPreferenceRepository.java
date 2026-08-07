@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface UserNotificationPreferenceRepository extends JpaRepository<UserNotificationPreference, UUID> {
     List<UserNotificationPreference> findByNotifyOnDocumentUpdateTrue();
+    java.util.Optional<UserNotificationPreference> findByUserId(UUID userId);
 }
