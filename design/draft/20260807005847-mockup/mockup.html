@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Панель управления - Lexicon Flux</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom card gradient for high-tech aesthetic */
+        .glass-card {
+            background: linear-gradient(145deg, rgba(23, 31, 51, 0.9), rgba(19, 27, 46, 0.4));
+        }
+        /* Glowing status dot */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(0, 240, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
+        }
+        .status-dot {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#2d3449",
+                        "on-background": "#dae2fd",
+                        "outline": "#849495",
+                        "tertiary-container": "#ffcbe0",
+                        "on-error": "#690005",
+                        "inverse-surface": "#dae2fd",
+                        "inverse-primary": "#006970",
+                        "on-primary-container": "#006970",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "surface-bright": "#31394d",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-tertiary-fixed": "#3d0026",
+                        "on-primary-fixed": "#002022",
+                        "surface-container-lowest": "#060e20",
+                        "surface-container-high": "#222a3d",
+                        "primary-container": "#00f0ff",
+                        "on-tertiary-fixed-variant": "#85145a",
+                        "on-surface": "#dae2fd",
+                        "primary-fixed": "#7df4ff",
+                        "on-tertiary": "#620040",
+                        "background": "#0b1326",
+                        "tertiary": "#fff2f5",
+                        "primary": "#dbfcff",
+                        "secondary": "#c0c1ff",
+                        "error": "#ffb4ab",
+                        "secondary-fixed": "#e1e0ff",
+                        "inverse-on-surface": "#283044",
+                        "on-secondary-fixed": "#07006c",
+                        "surface-container-low": "#131b2e",
+                        "secondary-container": "#3131c0",
+                        "surface-container-highest": "#2d3449",
+                        "tertiary-fixed-dim": "#ffafd3",
+                        "on-surface-variant": "#b9cacb",
+                        "surface": "#0b1326",
+                        "on-primary-fixed-variant": "#004f54",
+                        "on-secondary-container": "#b0b2ff",
+                        "on-tertiary-container": "#a43173",
+                        "tertiary-fixed": "#ffd8e7",
+                        "outline-variant": "#3b494b",
+                        "surface-container": "#171f33",
+                        "on-secondary": "#1000a9",
+                        "surface-dim": "#0b1326",
+                        "primary-fixed-dim": "#00dbe9",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-tint": "#00dbe9",
+                        "on-primary": "#00363a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "0.5rem",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "md": "1rem",
+                        "2xl": "3rem",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "xl": "2rem",
+                        "xs": "0.25rem",
+                        "lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-lg-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "code-snippet": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code-snippet": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pt-16 pb-24 md:pb-10 selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-surface/85 backdrop-blur-md border-b border-white/10 flat no shadows fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 transition-all duration-200">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-headline-md text-headline-md-mobile md:text-headline-md font-bold text-primary dark:text-primary-fixed tracking-tight">Главная панель</span>
+</div>
+<!-- Desktop Navigation Cluster (Hidden on Mobile) -->
+<nav class="hidden md:flex items-center gap-lg">
+<a class="flex items-center gap-sm text-primary dark:text-primary-fixed font-label-sm text-label-sm uppercase transition-all duration-200 hover:bg-surface-variant/50 px-3 py-1.5 rounded-full bg-primary-container/10" href="#">
+<span class="material-symbols-outlined filled">dashboard</span>
+                Дашборд
+            </a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-surface-variant font-label-sm text-label-sm uppercase transition-all duration-200 hover:bg-surface-variant/50 px-3 py-1.5 rounded-full" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Отчеты
+            </a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-surface-variant font-label-sm text-label-sm uppercase transition-all duration-200 hover:bg-surface-variant/50 px-3 py-1.5 rounded-full" href="#">
+<span class="material-symbols-outlined">gavel</span>
+                Настройки
+            </a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-surface-variant font-label-sm text-label-sm uppercase transition-all duration-200 hover:bg-surface-variant/50 px-3 py-1.5 rounded-full" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+                Профиль
+            </a>
+</nav>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mt-lg md:mt-2xl">
+<!-- Page Header & Status -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-2xl gap-md">
+<div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary-fixed">Панель управления</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Lexicon Flux System Overview</p>
+</div>
+<div class="flex items-center bg-surface-container-high border border-white/10 rounded-full px-4 py-2 self-start md:self-end">
+<div class="w-2 h-2 rounded-full bg-primary-fixed status-dot mr-sm"></div>
+<span class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider">Статус системы: В норме</span>
+</div>
+</div>
+<h2 class="font-headline-md text-headline-md-mobile md:text-headline-md text-on-surface mb-lg">Обзор активности</h2>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter auto-rows-[minmax(180px,auto)]">
+<!-- Main Metric Card (Spans 8 cols) -->
+<div class="md:col-span-8 glass-card border border-white/10 rounded-xl p-lg flex flex-col justify-between relative overflow-hidden group hover:border-primary-fixed/30 transition-colors">
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-primary-fixed/5 rounded-full blur-3xl group-hover:bg-primary-fixed/10 transition-colors"></div>
+<div class="flex justify-between items-start mb-xl relative z-10">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary-fixed">data_usage</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Поток данных</span>
+</div>
+<span class="font-label-sm text-label-sm bg-primary-container text-on-primary-container px-2 py-0.5 rounded flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span> +14.2%
+                    </span>
+</div>
+<div class="relative z-10">
+<div class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary">84.2 TB/s</div>
+<div class="mt-md w-full h-1 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed w-[78%] relative">
+<div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/50 to-transparent"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Card (Spans 4 cols) -->
+<div class="md:col-span-4 glass-card border border-white/10 rounded-xl p-lg flex flex-col justify-between hover:border-primary-fixed/30 transition-colors">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-outline">memory</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Нагрузка узлов</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-on-surface mb-xs">42 Узла</div>
+<p class="font-body-md text-body-md text-outline">38 активны, 4 в резерве</p>
+</div>
+<div class="mt-md flex gap-xs">
+<div class="flex-1 h-1.5 bg-primary-fixed rounded-full"></div>
+<div class="flex-1 h-1.5 bg-primary-fixed rounded-full"></div>
+<div class="flex-1 h-1.5 bg-primary-fixed rounded-full"></div>
+<div class="flex-1 h-1.5 bg-surface-container-lowest rounded-full"></div>
+</div>
+</div>
+<!-- List Card (Spans 6 cols) -->
+<div class="md:col-span-6 glass-card border border-white/10 rounded-xl p-lg">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-outline">history</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Недавние события</span>
+</div>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-sm hover:bg-surface-variant/30 rounded-lg transition-colors border-l-2 border-primary-fixed">
+<div class="flex items-center gap-md">
+<span class="font-code-snippet text-code-snippet text-outline">10:42</span>
+<span class="font-body-md text-body-md text-on-surface">Синхронизация кластера Альфа</span>
+</div>
+<span class="material-symbols-outlined text-primary-fixed text-sm">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-sm hover:bg-surface-variant/30 rounded-lg transition-colors border-l-2 border-outline-variant">
+<div class="flex items-center gap-md">
+<span class="font-code-snippet text-code-snippet text-outline">10:15</span>
+<span class="font-body-md text-body-md text-on-surface">Резервное копирование</span>
+</div>
+<span class="material-symbols-outlined text-outline text-sm">done</span>
+</div>
+<div class="flex items-center justify-between p-sm hover:bg-surface-variant/30 rounded-lg transition-colors border-l-2 border-outline-variant">
+<div class="flex items-center gap-md">
+<span class="font-code-snippet text-code-snippet text-outline">09:30</span>
+<span class="font-body-md text-body-md text-on-surface">Обновление протоколов безопасности</span>
+</div>
+<span class="material-symbols-outlined text-outline text-sm">done</span>
+</div>
+</div>
+</div>
+<!-- Image Card (Spans 6 cols) -->
+<div class="md:col-span-6 glass-card border border-white/10 rounded-xl overflow-hidden relative min-h-[200px]">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-screen" data-alt="A highly complex glowing digital data matrix visualization in a dark room, featuring interconnected bright cyan nodes and sweeping lines of light, representing a futuristic high-tech data stream in a professional cybersecurity environment, sleek, minimal, technological." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCBQS7-vNTpQHKy14fmt_yvb3yFwaG_0GpHKISIvpMmsuinrPezNO7JAQXdoOoUT5vMiQS_BNkvv9Nc_7S6CuwvbHWdEeAtBigesUj8Z0knaQwyTBS1OnSUcnshkqUbK1MaXb0yVo42x7O0u4zVZ43c7SZaBMDOXxE7utl2ZqkodGsC_UK9wkm1qKKjoe-DFf2g5ivCc9iBDTL3y2bd5CbpvPCEKJ6GWgUQjPU4beEY43vFwG8hFjU1ca_J08iCUB5t0fthqywgOS9f')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-lg w-full flex justify-between items-end">
+<div>
+<div class="font-label-sm text-label-sm text-primary-fixed uppercase mb-xs">Топология Сети</div>
+<div class="font-headline-md text-headline-md text-on-surface">Мониторинг в реальном времени</div>
+</div>
+<button class="bg-primary hover:bg-primary-fixed text-on-primary font-label-sm text-label-sm uppercase px-4 py-2 rounded flex items-center gap-xs transition-colors shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+                        Открыть <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container/90 dark:bg-surface-container-high/90 backdrop-blur-xl border-t border-white/5 shadow-sm docked full-width bottom-0 rounded-t-full fixed left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 transition-transform duration-150">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 transition-all duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined filled">dashboard</span>
+<span class="font-label-sm text-label-sm mt-0.5">Дашборд</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-sm text-label-sm mt-0.5">Отчеты</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span class="font-label-sm text-label-sm mt-0.5">Настройки</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm mt-0.5">Профиль</span>
+</a>
+</nav>
+</body></html>
