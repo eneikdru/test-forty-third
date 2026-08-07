@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Финансовый Отчет</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#d5e3fd",
+                        "on-secondary-fixed": "#0d1c2f",
+                        "tertiary": "#000000",
+                        "background": "#f7f9fb",
+                        "inverse-primary": "#bec6e0",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#001d31",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container-low": "#f2f4f6",
+                        "on-primary-fixed": "#131b2e",
+                        "primary-fixed": "#dae2fd",
+                        "surface-tint": "#565e74",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#b9c7e0",
+                        "on-secondary-fixed-variant": "#3a485c",
+                        "inverse-surface": "#2d3133",
+                        "surface-bright": "#f7f9fb",
+                        "secondary": "#515f74",
+                        "on-secondary-container": "#57657b",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "on-tertiary-container": "#188ace",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-container": "#eceef0",
+                        "tertiary-fixed-dim": "#93ccff",
+                        "surface": "#f7f9fb",
+                        "on-background": "#191c1e",
+                        "on-tertiary-fixed-variant": "#004b73",
+                        "outline-variant": "#c6c6cd",
+                        "error-container": "#ffdad6",
+                        "primary": "#000000",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#d5e3fd",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-fixed": "#001d31",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-container": "#131b2e",
+                        "tertiary-fixed": "#cce5ff",
+                        "surface-dim": "#d8dadc",
+                        "outline": "#76777d",
+                        "on-surface-variant": "#45464d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "max-width": "1440px",
+                        "gutter": "16px",
+                        "container-padding": "24px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "unit": "4px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "mono-data": ["JetBrains Mono", "monospace"],
+                        "body-md": ["IBM Plex Sans", "sans-serif"],
+                        "headline-sm": ["IBM Plex Sans", "sans-serif"],
+                        "label-md": ["IBM Plex Sans", "sans-serif"],
+                        "body-lg": ["IBM Plex Sans", "sans-serif"],
+                        "body-sm": ["IBM Plex Sans", "sans-serif"],
+                        "headline-md": ["IBM Plex Sans", "sans-serif"],
+                        "headline-lg": ["IBM Plex Sans", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "mono-data": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pt-[64px] pb-[72px] md:pb-0 md:pl-[280px]">
+<!-- Security Banner -->
+<div class="fixed top-0 left-0 w-full bg-error text-on-error py-1 px-4 z-[60] flex justify-between items-center text-xs font-medium tracking-wide" style="font-family: 'JetBrains Mono', monospace;">
+<span>SECURE CLEARANCE LEVEL 4 REQUIRED</span>
+<span>SESSION TIMEOUT: <span id="session-timer">14:59</span></span>
+</div>
+<!-- TopAppBar -->
+<header class="fixed top-[24px] w-full z-50 flex items-center justify-between px-gutter bg-surface border-b border-outline-variant h-[64px] transition-colors duration-200 md:pl-[296px]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary font-bold">security</span>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Финансовый Отчет</h1>
+</div>
+<div>
+<span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full cursor-pointer transition-colors">account_circle</span>
+</div>
+</header>
+<!-- SideNav (Desktop) -->
+<nav class="hidden md:flex flex-col fixed left-0 top-[24px] bottom-0 w-[280px] bg-surface-container-lowest border-r border-outline-variant py-6 px-4 z-40">
+<div class="flex flex-col gap-2 mt-16">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Дашборд</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-secondary-container text-on-secondary-container font-bold transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Отчеты</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-label-md text-label-md">Логистика</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span class="font-label-md text-label-md">Профиль</span>
+</a>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="max-w-max-width mx-auto px-gutter md:px-container-padding py-stack-lg flex flex-col gap-stack-lg mt-[24px]">
+<!-- Controls & Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-stack-md">
+<!-- Date Filter -->
+<div class="flex flex-col gap-unit">
+<label class="font-label-md text-label-md text-on-surface-variant">Период</label>
+<div class="flex items-center gap-2">
+<input class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded focus:border-[#0284C7] focus:ring-0 font-mono-data text-mono-data py-2 px-3 h-10" type="date" value="2023-10-01"/>
+<span class="text-on-surface-variant">-</span>
+<input class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded focus:border-[#0284C7] focus:ring-0 font-mono-data text-mono-data py-2 px-3 h-10" type="date" value="2023-10-31"/>
+</div>
+</div>
+<!-- Export Button -->
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-2 rounded h-10 flex items-center gap-2 hover:bg-on-background transition-colors">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                Экспорт PDF
+            </button>
+</div>
+<!-- Summary Cards (Bento style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-stack-md flex flex-col gap-stack-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant">Общий Доход</h3>
+<span class="font-headline-lg text-headline-lg font-mono-data">₽ 12,450,000.00</span>
+<div class="flex items-center gap-1 text-[#10B981]">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="font-body-sm text-body-sm">+14.5% к прошлому месяцу</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-stack-md flex flex-col gap-stack-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant">Расходы</h3>
+<span class="font-headline-lg text-headline-lg font-mono-data">₽ 8,120,400.00</span>
+<div class="flex items-center gap-1 text-error">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="font-body-sm text-body-sm">+2.1% к прошлому месяцу</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-stack-md flex flex-col gap-stack-sm border-l-4 border-l-primary">
+<h3 class="font-label-md text-label-md text-on-surface-variant">Чистая Прибыль</h3>
+<span class="font-headline-lg text-headline-lg font-mono-data">₽ 4,329,600.00</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="font-body-sm text-body-sm">Данные подтверждены</span>
+</div>
+</div>
+</div>
+<!-- Detailed Data Table -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden flex flex-col">
+<div class="px-4 py-3 bg-surface-container-low border-b border-outline-variant">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">История Транзакций</h2>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#F1F5F9] border-b border-outline-variant">
+<th class="p-2 px-4 font-label-md text-label-md text-on-surface-variant">ID Транзакции</th>
+<th class="p-2 px-4 font-label-md text-label-md text-on-surface-variant">Дата / Время</th>
+<th class="p-2 px-4 font-label-md text-label-md text-on-surface-variant">Описание</th>
+<th class="p-2 px-4 font-label-md text-label-md text-on-surface-variant text-right">Сумма (₽)</th>
+<th class="p-2 px-4 font-label-md text-label-md text-on-surface-variant">Статус</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface">
+<tr class="border-b border-outline-variant hover:bg-[#F8FAFC] transition-colors">
+<td class="p-2 px-4 font-mono-data text-mono-data">TX-9982-A</td>
+<td class="p-2 px-4 font-mono-data text-mono-data">2023-10-24 14:32:01</td>
+<td class="p-2 px-4">Оплата поставки логистики</td>
+<td class="p-2 px-4 font-mono-data text-mono-data text-right">-450,000.00</td>
+<td class="p-2 px-4">
+<span class="inline-block px-2 py-1 bg-[#10B981] bg-opacity-10 text-[#10B981] font-label-md text-[10px] rounded">Оплачено</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#F8FAFC] transition-colors">
+<td class="p-2 px-4 font-mono-data text-mono-data">TX-9983-B</td>
+<td class="p-2 px-4 font-mono-data text-mono-data">2023-10-24 15:10:45</td>
+<td class="p-2 px-4">Поступление от клиента А</td>
+<td class="p-2 px-4 font-mono-data text-mono-data text-right text-[#10B981]">+1,200,000.00</td>
+<td class="p-2 px-4">
+<span class="inline-block px-2 py-1 bg-[#10B981] bg-opacity-10 text-[#10B981] font-label-md text-[10px] rounded">Проведено</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#F8FAFC] transition-colors">
+<td class="p-2 px-4 font-mono-data text-mono-data">TX-9984-C</td>
+<td class="p-2 px-4 font-mono-data text-mono-data">2023-10-24 16:05:12</td>
+<td class="p-2 px-4">Закупка оборудования (серверная)</td>
+<td class="p-2 px-4 font-mono-data text-mono-data text-right">-890,500.00</td>
+<td class="p-2 px-4">
+<span class="inline-block px-2 py-1 bg-[#F59E0B] bg-opacity-10 text-[#F59E0B] font-label-md text-[10px] rounded">В обработке</span>
+</td>
+</tr>
+<tr class="hover:bg-[#F8FAFC] transition-colors">
+<td class="p-2 px-4 font-mono-data text-mono-data">TX-9985-D</td>
+<td class="p-2 px-4 font-mono-data text-mono-data">2023-10-24 16:45:00</td>
+<td class="p-2 px-4">Списание комиссии банка</td>
+<td class="p-2 px-4 font-mono-data text-mono-data text-right">-1,250.00</td>
+<td class="p-2 px-4">
+<span class="inline-block px-2 py-1 bg-[#EF4444] bg-opacity-10 text-[#EF4444] font-label-md text-[10px] rounded">Ошибка</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-4 py-3 border-t border-outline-variant flex justify-between items-center text-on-surface-variant font-body-sm">
+<span>Показано 1-4 из 1,248 записей</span>
+<div class="flex items-center gap-2">
+<button class="p-1 hover:bg-surface-container-high rounded" disabled=""><span class="material-symbols-outlined text-[18px] opacity-50">chevron_left</span></button>
+<span class="font-mono-data">1 / 312</span>
+<button class="p-1 hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center py-2 px-gutter bg-surface-container-lowest border-t border-outline-variant h-[72px]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1">Дашборд</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 scale-95 active:scale-90 transition-transform font-bold" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md mt-1">Отчеты</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-label-md text-label-md mt-1">Логистика</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span class="font-label-md text-label-md mt-1">Профиль</span>
+</a>
+</nav>
+<script>
+        // Simple session timer script
+        let minutes = 14;
+        let seconds = 59;
+        const timerElement = document.getElementById('session-timer');
+        
+        setInterval(() => {
+            if (seconds === 0) {
+                if (minutes === 0) return;
+                minutes--;
+                seconds = 59;
+            } else {
+                seconds--;
+            }
+            
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if(minutes < 2) {
+                timerElement.parentElement.parentElement.classList.add('animate-pulse');
+            }
+        }, 1000);
+    </script>
+</body></html>
