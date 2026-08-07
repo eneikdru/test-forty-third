@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  title: EIOS Integrations and Analytics API
+  version: 1.0.0
+  description: Shared API contract for EIOS auth sync, LMS webhook callbacks, and analytics export.
+paths:
+  /api/v1/integrations/lms/webhooks:
+    post:
+      summary: LMS Webhook Callback
+      description: Webhook endpoint for LMS to notify about document updates or sync events.
+      operationId: processLmsWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LmsWebhookPayload'
+      responses:
+        '200':
+          description: Webhook processed successfully
+        '400':
+          description: Invalid webhook payload
+  /api/v1/analytics/export:
+    get:
+      summary: Export Analytics Data
+      description: Export usage statistics (popular searches, views, downloads).
+      operationId: exportAnalytics
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PDF, DOCX, CSV]
+            default: CSV
+      responses:
+        '200':
+          description: Successful export
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: string
+                format: binary
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid parameters
+  /api/v1/integrations/eios/auth/sync:
+    post:
+      summary: EIOS Roles Sync
+      description: Endpoint to synchronize user roles and permissions with EIOS.
+      operationId: syncEiosRoles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EiosRoleSyncRequest'
+      responses:
+        '200':
+          description: Roles synchronized successfully
+        '400':
+          description: Invalid request payload
+components:
+  schemas:
+    LmsWebhookPayload:
+      type: object
+      required:
+        - provider
+        - eventType
+        - documentId
+      properties:
+        provider:
+          type: string
+          example: 'Teachbase'
+        eventType:
+          type: string
+          example: 'document.updated'
+        documentId:
+          type: string
+          format: uuid
+        payload:
+          type: object
+          description: Additional event data from LMS
+    EiosRoleSyncRequest:
+      type: object
+      required:
+        - userId
+        - roles
+      properties:
+        userId:
+          type: string
+          format: uuid
+        roles:
+          type: array
+          items:
+            type: string
+            example: 'CONTENT_MANAGER'
