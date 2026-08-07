@@ -107,7 +107,7 @@
   <div class="flex flex-col gap-2">
     <h2 class="text-2xl font-bold text-[#1A365D] tracking-tight">Интеграция, уведомления и аналитика</h2>
     <p class="text-sm text-[#515f74]">
-      Управление параметрами интеграции с мессенджерами Telegram/Max и просмотр статистики использования базы знаний ЦНИИ Эпидемиологии.
+      Управление параметрами интеграции с мессенджерами Телеграм/Макс и просмотр статистики использования базы знаний ЦНИИ Эпидемиологии.
     </p>
   </div>
 
@@ -120,7 +120,7 @@
           <span class="material-symbols-outlined text-[#3182CE]">settings_suggest</span>
           <span>Настройки уведомлений</span>
         </h3>
-        <p class="text-xs text-[#515f74] mt-1">Настройка отправки алертов о публикации и пересмотре нормативных актов.</p>
+        <p class="text-xs text-[#515f74] mt-1">Настройка отправки оповещений о публикации и пересмотре нормативных актов.</p>
       </div>
 
       {#if loadingPrefs}
@@ -148,31 +148,31 @@
 
           <!-- Поле Telegram -->
           <div class="flex flex-col gap-1.5">
-            <label for="telegram-id" class="text-xs font-bold text-[#1A365D] uppercase tracking-wider">Канал Telegram (Идентификатор)</label>
+            <label for="telegram-id" class="text-xs font-bold text-[#1A365D] uppercase tracking-wider">Канал Телеграм (идентификатор)</label>
             <div class="relative flex items-center">
               <span class="absolute left-3 text-[#515f74] text-sm font-mono">@</span>
               <input
                 id="telegram-id"
                 type="text"
                 bind:value={telegramChatId}
-                placeholder="cniiep_edu_updates"
+                placeholder="имя_канала_цнии"
                 class="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-md pl-8 pr-3 py-2 text-sm text-[#1A365D] placeholder:text-[#94A3B8] focus:border-[#3182CE] focus:ring-1 focus:ring-[#3182CE] outline-none transition-all"
               />
             </div>
-            <span class="text-[10px] text-[#515f74]">Идентификатор публичного канала или чата для публикации алертов.</span>
+            <span class="text-[10px] text-[#515f74]">Идентификатор публичного канала или чата для публикации оповещений.</span>
           </div>
 
           <!-- Поле Max -->
           <div class="flex flex-col gap-1.5">
-            <label for="max-id" class="text-xs font-bold text-[#1A365D] uppercase tracking-wider">Чат Max (Идентификатор чата)</label>
+            <label for="max-id" class="text-xs font-bold text-[#1A365D] uppercase tracking-wider">Чат Макс (идентификатор чата)</label>
             <input
               id="max-id"
               type="text"
               bind:value={maxChatId}
-              placeholder="Введите ID чата Max"
+              placeholder="Введите идентификатор чата"
               class="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-md px-3 py-2 text-sm text-[#1A365D] placeholder:text-[#94A3B8] focus:border-[#3182CE] focus:ring-1 focus:ring-[#3182CE] outline-none transition-all"
             />
-            <span class="text-[10px] text-[#515f74]">Идентификатор группы или ответственного лица в мессенджере Max.</span>
+            <span class="text-[10px] text-[#515f74]">Идентификатор группы или ответственного лица в мессенджере Макс.</span>
           </div>
 
           <!-- Чекбокс активности -->
