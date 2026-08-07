@@ -166,4 +166,27 @@ public class AnalyticsIntegrationTest {
                 .andExpect(header().string("Content-Type", startsWith("application/vnd.openxmlformats-officedocument.wordprocessingml.document")))
                 .andExpect(content().string(containsString("EIOS Analytics Export Report (DOCX Format)")));
     }
+
+    @Test
+    public void testAnalyticsExportJson() throws Exception {
+        UUID userId = UUID.randomUUID();
+        analyticsService.setUuidProvider(UUID::randomUUID); // use random here to allow multiple records
+        analyticsService.logEvent("DOWNLOAD", userId, testDocId, null);
+        analyticsService.logEvent("VIEW", userId, testDocId, null);
+
+        // Export as JSON
+        mockMvc.perform(get("/api/v1/analytics/export")
+                        .param("format", "JSON"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", startsWith("application/json")))
+                .andExpect(jsonPath("$.totalViews", is(1)))
+                .andExpect(jsonPath("$.totalDownloads", is(1)))
+                .andExpect(jsonPath("$.summaryByDocument", hasSize(1)))
+                .andExpect(jsonPath("$.summaryByDocument[0].documentId", is(testDocId.toString())))
+                .andExpect(jsonPath("$.summaryByDocument[0].documentTitle", is("Standard Operating Procedure for Analytics Export")))
+                .andExpect(jsonPath("$.summaryByDocument[0].views", is(1)))
+                .andExpect(jsonPath("$.summaryByDocument[0].downloads", is(1)))
+                .andExpect(jsonPath("$.events", hasSize(2)))
+                .andExpect(jsonPath("$.events[0].eventType", anyOf(is("VIEW"), is("DOWNLOAD"))));
+    }
 }
