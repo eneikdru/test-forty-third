@@ -182,7 +182,7 @@
   function getFileTypeIcon(fileType, title) {
     const lowerTitle = title.toLowerCase();
     if (fileType === 'PDF' || lowerTitle.includes('фгос') || lowerTitle.includes('регламент')) {
-      return { icon: 'picture_as_pdf', color: 'text-[#E53E3E]', bg: 'bg-[#FFF5F5]', border: 'border-[#FED7D7]', label: 'PDF' };
+      return { icon: 'picture_as_pdf', color: 'text-[#E53E3E]', bg: 'bg-[#FFF5F5]', border: 'border-[#FED7D7]', label: 'ПДФ' };
     }
     if (fileType === 'Table' || lowerTitle.includes('таблиц') || lowerTitle.includes('протокол') || lowerTitle.includes('оплат') || lowerTitle.includes('бюджет')) {
       return { icon: 'table_chart', color: 'text-[#38A169]', bg: 'bg-[#F0FFF4]', border: 'border-[#C6F6D5]', label: 'Таблица' };
@@ -465,7 +465,7 @@
             <!-- Версия и статус -->
             <div class="flex flex-col items-end gap-1">
               <span class="font-mono text-[9px] font-bold text-slate-600 uppercase leading-none">
-                v{doc.version || '1.0'}
+                ВЕРСИЯ {doc.version || '1.0'}
               </span>
               <span class="font-mono text-[8px] font-bold px-1 py-0.5 rounded-[4px] bg-slate-100 text-slate-600 border border-slate-200">
                 {getStatusRu(doc.status)}
