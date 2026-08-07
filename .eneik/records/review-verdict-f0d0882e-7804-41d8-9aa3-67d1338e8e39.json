@@ -1,0 +1,13 @@
+{"verdicts": [
+  {
+    "sourceIndex": 0,
+    "verdict": "block",
+    "criticalReason": "The PR contains committed generated/build artifacts or other files under the forbidden '.eneik/' directory: '.eneik/records/design-check-aeae7e9a-5fe3-4dc4-9f9e-432c3dd90252/desktop-1440.png' and '.eneik/records/design-check-aeae7e9a-5fe3-4dc4-9f9e-432c3dd90252/mobile-375.png'. Committing anything under '.eneik/' or committing '.png' files is explicitly defined as a blocking criteria that blocks a PR.",
+    "concerns": [
+      {
+        "text": "The Svelte frontend contains built and minified assets (index-BMrDTnx-.js, index-CYdzpQUL.css) committed directly to 'src/main/resources/static/assets/'. Changing compiled files directly instead of letting CI/CD build them is generally discouraged.",
+        "severity": "medium"
+      }
+    ]
+  }
+]}
