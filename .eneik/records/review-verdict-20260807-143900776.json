@@ -1,0 +1,13 @@
+{"verdicts": [
+  {
+    "sourceIndex": 0,
+    "verdict": "block",
+    "criticalReason": "The PR directly contradicts the stated Acceptance Criteria and Definition of Done requiring all UI text and error messages to be strictly in Russian. In `FinancialModule.svelte`, the diff removes the regex check `/[a-zA-Z]/` that translated English errors, and instead returns raw `err.message` directly, causing English error strings from backend or network failures to be rendered on-screen to users.",
+    "concerns": [
+      {
+        "text": "The function `getProcessName` is defined in `KnowledgeBase.svelte` but never used to render any UI components.",
+        "severity": "low"
+      }
+    ]
+  }
+]}
