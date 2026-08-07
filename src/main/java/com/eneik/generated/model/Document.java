@@ -40,14 +40,16 @@ public class Document {
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DocumentVersion> versions = new HashSet<>();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "document_type", nullable = false)
-    private String documentType = "Other";
+    private DocumentType documentType = DocumentType.Other;
 
-    @Column(name = "academic_year", nullable = false)
-    private String academicYear = "infinite";
+    @Embedded
+    private AcademicYear academicYear = new AcademicYear("infinite");
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status = "PROJECT";
+    private DocumentStatus status = DocumentStatus.PROJECT;
 
     @Column(nullable = false)
     private String program = "both";
@@ -86,14 +88,57 @@ public class Document {
         this.description = description;
     }
 
-    public String getDocumentType() { return documentType; }
-    public void setDocumentType(String documentType) { this.documentType = documentType; }
+    public String getDocumentType() {
+        return documentType != null ? documentType.name() : "Other";
+    }
 
-    public String getAcademicYear() { return academicYear; }
-    public void setAcademicYear(String academicYear) { this.academicYear = academicYear; }
+    public void setDocumentType(String documentType) {
+        if (documentType == null) {
+            this.documentType = DocumentType.Other;
+        } else {
+            try {
+                this.documentType = DocumentType.valueOf(documentType);
+            } catch (IllegalArgumentException e) {
+                for (DocumentType t : DocumentType.values()) {
+                    if (t.name().equalsIgnoreCase(documentType)) {
+                        this.documentType = t;
+                        return;
+                    }
+                }
+                this.documentType = DocumentType.Other;
+            }
+        }
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getAcademicYear() {
+        return academicYear != null ? academicYear.getValue() : "infinite";
+    }
+
+    public void setAcademicYear(String academicYear) {
+        this.academicYear = new AcademicYear(academicYear);
+    }
+
+    public String getStatus() {
+        return status != null ? status.name() : "PROJECT";
+    }
+
+    public void setStatus(String status) {
+        if (status == null) {
+            this.status = DocumentStatus.PROJECT;
+        } else {
+            try {
+                this.status = DocumentStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                for (DocumentStatus s : DocumentStatus.values()) {
+                    if (s.name().equalsIgnoreCase(status)) {
+                        this.status = s;
+                        return;
+                    }
+                }
+                this.status = DocumentStatus.PROJECT;
+            }
+        }
+    }
 
     public String getProgram() { return program; }
     public void setProgram(String program) { this.program = program; }
