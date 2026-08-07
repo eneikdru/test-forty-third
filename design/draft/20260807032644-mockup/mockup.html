@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Главная - Управление интеграциями</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: JetBrains Mono (for code/monospaced if needed) -->
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-low": "#f2f4f6",
+                      "inverse-on-surface": "#eff1f3",
+                      "outline-variant": "#c6c6cd",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed": "#0b1c30",
+                      "tertiary-fixed": "#d3e4fe",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#131b2e",
+                      "surface": "#f7f9fb",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "primary-fixed-dim": "#bec6e0",
+                      "primary-container": "#131b2e",
+                      "inverse-primary": "#bec6e0",
+                      "on-surface": "#191c1e",
+                      "primary": "#000000",
+                      "on-secondary-fixed": "#001a42",
+                      "tertiary-fixed-dim": "#b7c8e1",
+                      "tertiary-container": "#0b1c30",
+                      "secondary": "#0058be",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary-container": "#fefcff",
+                      "on-tertiary": "#ffffff",
+                      "background": "#f7f9fb",
+                      "on-tertiary-fixed-variant": "#38485d",
+                      "surface-bright": "#f7f9fb",
+                      "secondary-container": "#2170e4",
+                      "surface-container": "#eceef0",
+                      "outline": "#76777d",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "on-secondary-fixed-variant": "#004395",
+                      "tertiary": "#000000",
+                      "surface-container-high": "#e6e8ea",
+                      "surface-variant": "#e0e3e5",
+                      "on-tertiary-container": "#75859d",
+                      "inverse-surface": "#2d3133",
+                      "on-background": "#191c1e",
+                      "on-primary-container": "#7c839b",
+                      "surface-container-highest": "#e0e3e5",
+                      "secondary-fixed": "#d8e2ff",
+                      "surface-dim": "#d8dadc",
+                      "primary-fixed": "#dae2fd"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-margin": "16px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "xl": "32px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "gutter": "12px"
+              },
+              "fontFamily": {
+                      "h2": ["Inter"],
+                      "label-md": ["Inter"],
+                      "h1": ["Inter"],
+                      "h1-mobile": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "h3": ["Inter"],
+                      "body-md": ["Inter"],
+                      "code": ["jetbrainsMono"]
+              },
+              "fontSize": {
+                      "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "h1": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "h1-mobile": ["26px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "h3": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "code": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Base styles for material symbols to ensure they render correctly */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased min-h-screen pb-24 md:pb-8 pt-16">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full flex items-center justify-between px-md h-14 z-50 bg-surface text-primary border-b border-outline-variant shadow-sm transition-colors duration-200">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high active:scale-95 transition-all duration-200 text-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-h2 text-h2 font-bold text-primary truncate max-w-[60%] text-center">
+            Управление интеграциями
+        </h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high active:scale-95 transition-all duration-200 text-primary">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="px-container-margin flex flex-col gap-lg max-w-5xl mx-auto mt-sm">
+<!-- Page Title -->
+<div>
+<h2 class="font-h1-mobile text-h1-mobile md:font-h1 md:text-h1 text-primary">Главная</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Сводка по работе системы за сегодня</p>
+</div>
+<!-- Metrics Bento Grid -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-sm md:gap-md">
+<!-- Metric Card 1: Active Syncs -->
+<div class="col-span-2 md:col-span-2 bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-[0px_1px_3px_rgba(15,23,42,0.08)] flex flex-col justify-between min-h-[140px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Активные синхронизации</span>
+<span class="material-symbols-outlined text-secondary">sync</span>
+</div>
+<div>
+<div class="font-h1-mobile text-h1-mobile md:font-h1 md:text-h1 text-primary">24</div>
+<div class="font-body-sm text-body-sm text-secondary-container mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span> +3 за сутки
+                    </div>
+</div>
+</div>
+<!-- Metric Card 2: Total Events -->
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-[0px_1px_3px_rgba(15,23,42,0.08)] flex flex-col justify-between min-h-[140px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Всего событий</span>
+</div>
+<div>
+<div class="font-h2 text-h2 text-primary">1.2M</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1">За последние 24ч</div>
+</div>
+</div>
+<!-- Metric Card 3: Error Rate -->
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-[0px_1px_3px_rgba(15,23,42,0.08)] flex flex-col justify-between min-h-[140px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Ошибки</span>
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+<div>
+<div class="font-h2 text-h2 text-primary">0.05%</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1">Штатная работа</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Active Integrations -->
+<section class="flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<h3 class="font-h3 text-h3 text-primary">Интеграции</h3>
+<button class="font-label-md text-label-md text-secondary hover:text-secondary-fixed-dim transition-colors uppercase">Все</button>
+</div>
+<div class="flex flex-col gap-sm">
+<!-- Integration Item -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-outline-variant/30 shadow-[0px_1px_3px_rgba(15,23,42,0.08)] flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined">api</span>
+</div>
+<div>
+<div class="font-body-lg text-body-lg font-semibold text-primary">CRM &lt;-&gt; ERP Sync</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Интервал: 5 мин</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="bg-tertiary-fixed/30 text-tertiary-container font-label-md text-label-md px-2 py-1 rounded-md">Активно</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+</div>
+<!-- Integration Item -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-outline-variant/30 shadow-[0px_1px_3px_rgba(15,23,42,0.08)] flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div>
+<div class="font-body-lg text-body-lg font-semibold text-primary">Payment Gateway</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Webhook (Real-time)</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="bg-tertiary-fixed/30 text-tertiary-container font-label-md text-label-md px-2 py-1 rounded-md">Активно</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Activity -->
+<section class="flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<h3 class="font-h3 text-h3 text-primary">Последняя активность</h3>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-[0px_1px_3px_rgba(15,23,42,0.08)] overflow-hidden">
+<!-- Activity Row -->
+<div class="flex gap-4 p-md border-b border-surface-container-high last:border-0 hover:bg-surface-container-low transition-colors">
+<div class="mt-1">
+<span class="material-symbols-outlined text-[20px] text-secondary">check_circle</span>
+</div>
+<div class="flex-1">
+<div class="font-body-md text-body-md text-primary font-medium">Синхронизация завершена</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">CRM &lt;-&gt; ERP Sync • Обработано 450 записей</div>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant whitespace-nowrap">2 мин назад</div>
+</div>
+<!-- Activity Row -->
+<div class="flex gap-4 p-md border-b border-surface-container-high last:border-0 hover:bg-surface-container-low transition-colors">
+<div class="mt-1">
+<span class="material-symbols-outlined text-[20px] text-error">error</span>
+</div>
+<div class="flex-1">
+<div class="font-body-md text-body-md text-primary font-medium">Ошибка аутентификации</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Marketing API • Invalid Token</div>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant whitespace-nowrap">15 мин назад</div>
+</div>
+<!-- Activity Row -->
+<div class="flex gap-4 p-md border-b border-surface-container-high last:border-0 hover:bg-surface-container-low transition-colors">
+<div class="mt-1">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant">play_circle</span>
+</div>
+<div class="flex-1">
+<div class="font-body-md text-body-md text-primary font-medium">Запущен процесс</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Nightly Backup</div>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant whitespace-nowrap">1 час назад</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only based on rules, though instructions say to output it if it's a top level destination. Home is top level.) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-container-margin py-sm bg-surface text-primary border-t border-outline-variant shadow-lg z-50 transition-all duration-200">
+<!-- Active Item: Главная -->
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-xl px-3 py-1 min-w-[64px] active:scale-90 transition-all duration-200 group">
+<span class="material-symbols-outlined filled">home</span>
+<span class="font-label-md text-label-md mt-1">Главная</span>
+</button>
+<!-- Inactive Item: Аналитика -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 min-w-[64px] hover:bg-surface-container-high rounded-xl active:scale-90 transition-all duration-200 group">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md mt-1 group-hover:text-primary transition-colors">Аналитика</span>
+</button>
+<!-- Inactive Item: События -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 min-w-[64px] hover:bg-surface-container-high rounded-xl active:scale-90 transition-all duration-200 group">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-md text-label-md mt-1 group-hover:text-primary transition-colors">События</span>
+</button>
+<!-- Inactive Item: Настройки -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 min-w-[64px] hover:bg-surface-container-high rounded-xl active:scale-90 transition-all duration-200 group">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md mt-1 group-hover:text-primary transition-colors">Настройки</span>
+</button>
+</nav>
+</body></html>
