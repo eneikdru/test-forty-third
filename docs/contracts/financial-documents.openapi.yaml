@@ -1,3 +1,5 @@
+# API Contract Specification under BARCAN-TAG-12 (API Contract Designer)
+# Grounded in wishlist 98f1e6f8-d684-4f4b-957e-8c4dd0d0af6e
 openapi: 3.0.3
 info:
   title: Financial Documents API Contract
@@ -160,6 +162,7 @@ components:
 
     FinancialDocument:
       type: object
+      description: Represents a physical financial or HR document card with specialized metadata and permissions.
       required:
         - id
         - title
@@ -173,6 +176,7 @@ components:
         id:
           type: string
           format: uuid
+          description: Universally unique identifier for the document
           example: "d3b07384-d113-49c3-a5e2-63bc40428efc"
         title:
           type: string
@@ -180,6 +184,7 @@ components:
           example: "Положение о порядке расчета стипендий аспирантов"
         description:
           type: string
+          description: Comprehensive summary of the document purpose and contents
           example: "Регламентирует порядок назначения и выплаты стипендий за успехи в учебе."
         documentType:
           $ref: '#/components/schemas/DocumentType'
@@ -194,20 +199,20 @@ components:
         approvalDate:
           type: string
           format: date
-          description: Optional date of approval
+          description: Optional date of document approval by the educational center
           example: "2026-09-01"
         documentNumber:
           type: string
-          description: Optional registration number of the document
+          description: Optional registration number of the document (e.g. '123-P')
           example: "123-P"
         version:
           type: string
-          description: Version tag (e.g., "1.0", "2.0")
+          description: Version tag (e.g., "1.0", "2.0") conforming to update regulations
           example: "1.0"
         updatedAt:
           type: string
           format: date-time
-          description: Timestamp of the last document update
+          description: Timestamp of the last document update or version transition
           example: "2026-09-15T10:30:00Z"
         budgetCycleMetadata:
           $ref: '#/components/schemas/BudgetCycleMetadata'
@@ -215,7 +220,12 @@ components:
           type: array
           items:
             type: string
-          example: ["Budget", "Load"]
+          description: >
+            Schema tags for classification and fast search.
+            Can include block tags (Budget, Load, Stipends, Reports) and functional classification tags:
+            - "Book" (Книга): For structured guides with chapters and table of contents.
+            - "Glossary" (Глоссарий): For term definitions.
+          example: ["Budget", "Load", "Book"]
 
     BudgetCycleMetadata:
       type: object
@@ -225,20 +235,20 @@ components:
         - currency
         - status
         - quarter
-      description: Specialized metadata schema for tracking the budget cycle details.
+      description: Specialized metadata schema for tracking the budget cycle details for financial documents.
       properties:
         budgetCycle:
           type: string
-          description: The name or identifier of the budget cycle (e.g. '2026-2027 Budget', '2026 Cycle')
+          description: The name or identifier of the budget cycle (e.g. '2026 Budget Cycle', '2026-2027 Budget', '2026 Cycle')
           example: "2026 Budget Cycle"
         estimatedAmount:
           type: number
           format: double
-          description: Estimated amount assigned for this budget cycle context
+          description: Estimated amount allocated/assigned for this budget cycle context
           example: 1500000.00
         currency:
           type: string
-          description: Currency code
+          description: ISO currency code or currency symbol (e.g. 'RUB')
           example: "RUB"
         status:
           type: string
@@ -247,7 +257,7 @@ components:
             - REVIEW
             - APPROVED
             - ARCHIVED
-          description: The state of the budget cycle
+          description: The state of the budget cycle within the planning workflow
           example: "APPROVED"
         quarter:
           type: string
@@ -257,11 +267,11 @@ components:
             - Q3
             - Q4
             - ANNUAL
-          description: Specific quarter or annual indicator for this cycle
+          description: Specific quarter or annual indicator for this budget cycle context
           example: "Q1"
         fiscalYear:
           type: integer
-          description: Fiscal year for the budget
+          description: Fiscal year for the budget cycle tracking
           example: 2026
 
     ErrorResponse:
