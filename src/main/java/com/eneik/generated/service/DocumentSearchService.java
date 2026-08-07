@@ -2,7 +2,9 @@ package com.eneik.generated.service;
 
 import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
+import com.eneik.generated.model.DocumentLmsMetadata;
 import com.eneik.generated.repository.DocumentRepository;
+import com.eneik.generated.repository.DocumentLmsMetadataRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 public class DocumentSearchService {
 
     private final DocumentRepository documentRepository;
+    private final DocumentLmsMetadataRepository lmsMetadataRepository;
 
     private static final List<List<String>> SYNONYM_GROUPS = List.of(
         List.of("фгос", "федеральный государственный образовательный стандарт", "федерального государственного образовательного стандарта", "федеральному государственному образовательному стандарту", "федеральном государственном образовательном стандарте", "федеральные государственные образовательные стандарты"),
@@ -21,8 +24,9 @@ public class DocumentSearchService {
         List.of("фбун", "федеральное бюджетное учреждение науки", "федерального бюджетного учреждения науки", "федеральному бюджетному учреждению науки", "федеральным бюджетным учреждением науки")
     );
 
-    public DocumentSearchService(DocumentRepository documentRepository) {
+    public DocumentSearchService(DocumentRepository documentRepository, DocumentLmsMetadataRepository lmsMetadataRepository) {
         this.documentRepository = documentRepository;
+        this.lmsMetadataRepository = lmsMetadataRepository;
     }
 
     @Transactional(readOnly = true)
@@ -194,6 +198,32 @@ public class DocumentSearchService {
         }
         if (description.contains(fullQuery)) {
             score += 2.0;
+        }
+
+        // D. Include matches on external LMS metadata (SDO/Teachbase)
+        List<DocumentLmsMetadata> lmsList = lmsMetadataRepository.findByDocumentId(doc.getId());
+        if (lmsList != null) {
+            for (DocumentLmsMetadata lms : lmsList) {
+                String prov = normalizeText(lms.getLmsProvider());
+                String extId = normalizeText(lms.getExternalId());
+                String metaJson = lms.getMetadataJson() != null ? normalizeText(lms.getMetadataJson()) : "";
+
+                // Match synonym groups against LMS metadata
+                for (List<String> group : activeGroups) {
+                    for (String synonym : group) {
+                        if (prov.contains(synonym) || extId.contains(synonym) || metaJson.contains(synonym)) {
+                            score += 3.0;
+                        }
+                    }
+                }
+
+                // Match individual query words against LMS metadata
+                for (String qw : queryWords) {
+                    if (prov.contains(qw) || extId.contains(qw) || metaJson.contains(qw)) {
+                        score += 2.0;
+                    }
+                }
+            }
         }
 
         return score;

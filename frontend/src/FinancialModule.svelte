@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import SettingsAndAnalytics from './components/SettingsAndAnalytics.svelte';
 
   // Svelte 5 state runes
   let selectedRole = $state('Economist'); // 'Economist', 'Teacher', 'Postgraduate'
@@ -162,7 +163,9 @@
 
   // Fetch when role changes
   $effect(() => {
-    if (selectedRole === 'Economist') {
+    if (selectedRole === 'Admin') {
+      activeCategory = 'Интеграция';
+    } else if (selectedRole === 'Economist') {
       activeCategory = 'Финансы';
       activeSubTab = 'Бюджет';
     } else if (selectedRole === 'Teacher') {
@@ -199,7 +202,17 @@
     </div>
 
     <nav class="flex-1 py-4 flex flex-col gap-1">
-      {#if selectedRole === 'Economist'}
+      {#if selectedRole === 'Admin'}
+        <!-- Навигация для Администратора -->
+        <button
+          type="button"
+          onclick={() => activeCategory = 'Интеграция'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+        >
+          <span class="material-symbols-outlined">settings_suggest</span>
+          <span>Настройки и аналитика</span>
+        </button>
+      {:else if selectedRole === 'Economist'}
         <!-- Навигация для Экономиста -->
         <button
           type="button"
@@ -227,6 +240,15 @@
           <span class="material-symbols-outlined">school</span>
           <span>Стипендии</span>
         </button>
+
+        <button
+          type="button"
+          onclick={() => activeCategory = 'Интеграция'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+        >
+          <span class="material-symbols-outlined">settings_suggest</span>
+          <span>Настройки и аналитика</span>
+        </button>
       {:else if selectedRole === 'Teacher'}
         <!-- Навигация для Преподавателя -->
         <button
@@ -246,15 +268,33 @@
           <span class="material-symbols-outlined">school</span>
           <span>Стипендии</span>
         </button>
+
+        <button
+          type="button"
+          onclick={() => activeCategory = 'Интеграция'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+        >
+          <span class="material-symbols-outlined">settings_suggest</span>
+          <span>Настройки и аналитика</span>
+        </button>
       {:else}
         <!-- Навигация для Студента / Аспиранта -->
         <button
           type="button"
           onclick={() => activeCategory = 'Стипендии'}
-          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold bg-[#d5e3fd] text-[#0d1c2f]"
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Стипендии' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
         >
           <span class="material-symbols-outlined">school</span>
           <span>Стипендии</span>
+        </button>
+
+        <button
+          type="button"
+          onclick={() => activeCategory = 'Интеграция'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+        >
+          <span class="material-symbols-outlined">settings_suggest</span>
+          <span>Настройки и аналитика</span>
         </button>
       {/if}
     </nav>
@@ -266,7 +306,9 @@
         <div class="flex flex-col">
           <span class="text-sm font-semibold text-[#0b1c30]">Текущий доступ</span>
           <span class="text-xs text-[#45464d]">
-            {#if selectedRole === 'Economist'}
+            {#if selectedRole === 'Admin'}
+              Администратор
+            {:else if selectedRole === 'Economist'}
               Экономист
             {:else if selectedRole === 'Teacher'}
               Преподаватель
@@ -286,7 +328,9 @@
     <header class="w-full sticky top-0 z-50 bg-[#f8f9ff] border-b border-[#c6c6cd] flex items-center justify-between px-6 py-4">
       <div class="flex items-center gap-4">
         <h1 class="text-lg md:text-xl font-bold text-[#0b1c30]">
-          {#if selectedRole === 'Economist'}
+          {#if selectedRole === 'Admin'}
+            Панель администратора
+          {:else if selectedRole === 'Economist'}
             Панель управления экономиста
           {:else}
             Кабинет студента
@@ -305,6 +349,7 @@
           <option value="Economist">Экономист</option>
           <option value="Teacher">Преподаватель</option>
           <option value="Postgraduate">Студент / Аспирант</option>
+          <option value="Admin">Администратор</option>
         </select>
       </div>
     </header>
@@ -326,6 +371,8 @@
           <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
           <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
         </div>
+      {:else if activeCategory === 'Интеграция'}
+        <SettingsAndAnalytics />
       {:else}
 
         <!-- Содержимое для Экономиста -->
@@ -711,7 +758,16 @@
 
   <!-- Нижняя панель навигации (для мобильных устройств) -->
   <nav class="md:hidden fixed bottom-0 w-full z-50 bg-[#e5eeff] border-t border-[#c6c6cd] flex justify-around items-center h-16 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
-    {#if selectedRole === 'Economist'}
+    {#if selectedRole === 'Admin'}
+      <button
+        type="button"
+        onclick={() => activeCategory = 'Интеграция'}
+        class="flex flex-col items-center justify-center text-xs font-bold text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-6 py-1"
+      >
+        <span class="material-symbols-outlined text-xl">settings_suggest</span>
+        <span>Интеграция</span>
+      </button>
+    {:else if selectedRole === 'Economist'}
       <button
         type="button"
         onclick={() => activeCategory = 'Финансы'}
