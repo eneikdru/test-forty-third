@@ -3,6 +3,7 @@ package com.eneik.generated.controller;
 import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.model.SchemaTag;
+import com.eneik.generated.service.AnalyticsService;
 import com.eneik.generated.service.DocumentSearchService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -19,13 +20,15 @@ import java.util.stream.Collectors;
 public class DocumentSearchController {
 
     private final DocumentSearchService documentSearchService;
+    private final AnalyticsService analyticsService;
 
     private static final Set<String> ALLOWED_ROLES = Set.of(
         "administrator", "content_manager", "teacher", "student", "economist", "postgraduate", "resident", "hr"
     );
 
-    public DocumentSearchController(DocumentSearchService documentSearchService) {
+    public DocumentSearchController(DocumentSearchService documentSearchService, AnalyticsService analyticsService) {
         this.documentSearchService = documentSearchService;
+        this.analyticsService = analyticsService;
     }
 
     @GetMapping("/documents/search")
@@ -45,6 +48,21 @@ public class DocumentSearchController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ErrorResponse("ACCESS_DENIED", "Access forbidden for user role: " + role));
         }
+
+        // Extract user ID
+        UUID userId = null;
+        String xUserId = request.getHeader("X-User-Id");
+        String paramUserId = request.getParameter("userId");
+        try {
+            if (xUserId != null && !xUserId.trim().isEmpty()) {
+                userId = UUID.fromString(xUserId.trim());
+            } else if (paramUserId != null && !paramUserId.trim().isEmpty()) {
+                userId = UUID.fromString(paramUserId.trim());
+            }
+        } catch (IllegalArgumentException e) {
+            // Ignore
+        }
+        analyticsService.logEvent("SEARCH", userId, null, query);
 
         try {
             List<DocumentSearchService.SearchResult> searchResults = documentSearchService.search(query, program, documentType);

@@ -6,6 +6,7 @@ import com.eneik.generated.model.SchemaTag;
 import com.eneik.generated.repository.DocumentRepository;
 import com.eneik.generated.repository.DocumentVersionRepository;
 import com.eneik.generated.repository.SchemaTagRepository;
+import com.eneik.generated.service.AnalyticsService;
 import com.eneik.generated.util.IdProvider;
 import com.eneik.generated.util.TimeProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ public class DocumentController {
     private final SchemaTagRepository schemaTagRepository;
     private final IdProvider idProvider;
     private final TimeProvider timeProvider;
+    private final AnalyticsService analyticsService;
 
     private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of("Position", "Procedure", "Project", "Other");
     private static final Set<String> ALLOWED_PROGRAMS = Set.of("postgraduate", "residency", "both");
@@ -40,12 +42,14 @@ public class DocumentController {
                               DocumentVersionRepository documentVersionRepository,
                               SchemaTagRepository schemaTagRepository,
                               IdProvider idProvider,
-                              TimeProvider timeProvider) {
+                              TimeProvider timeProvider,
+                              AnalyticsService analyticsService) {
         this.documentRepository = documentRepository;
         this.documentVersionRepository = documentVersionRepository;
         this.schemaTagRepository = schemaTagRepository;
         this.idProvider = idProvider;
         this.timeProvider = timeProvider;
+        this.analyticsService = analyticsService;
     }
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -285,6 +289,22 @@ public class DocumentController {
         }
 
         Document doc = docOpt.get();
+
+        // Extract user ID
+        UUID userId = null;
+        String xUserId = request.getHeader("X-User-Id");
+        String paramUserId = request.getParameter("userId");
+        try {
+            if (xUserId != null && !xUserId.trim().isEmpty()) {
+                userId = UUID.fromString(xUserId.trim());
+            } else if (paramUserId != null && !paramUserId.trim().isEmpty()) {
+                userId = UUID.fromString(paramUserId.trim());
+            }
+        } catch (IllegalArgumentException e) {
+            // Ignore
+        }
+        analyticsService.logEvent("VIEW", userId, doc.getId(), null);
+
         DocumentDetailsResponseDTO details = new DocumentDetailsResponseDTO();
         details.setDocument(mapToResponse(doc));
 

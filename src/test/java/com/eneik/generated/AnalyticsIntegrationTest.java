@@ -118,6 +118,51 @@ public class AnalyticsIntegrationTest {
     }
 
     @Test
+    public void testDocumentViewSavesAnalyticsEvent() throws Exception {
+        UUID userId = UUID.randomUUID();
+
+        // Perform view document details
+        mockMvc.perform(get("/api/documents/" + testDocId)
+                        .header("X-User-Id", userId.toString())
+                        .header("X-User-Role", "teacher"))
+                .andExpect(status().isOk());
+
+        // Verify analytics record was saved
+        List<AnalyticsEvent> savedEvents = analyticsEventRepository.findAll();
+        assertEquals(1, savedEvents.size());
+
+        AnalyticsEvent event = savedEvents.get(0);
+        assertEquals(fixedEventId, event.getId());
+        assertEquals("VIEW", event.getEventType());
+        assertEquals(userId, event.getUserId());
+        assertEquals(testDocId, event.getDocumentId());
+        assertEquals(fixedDateTime, event.getCreatedAt());
+    }
+
+    @Test
+    public void testDocumentSearchSavesAnalyticsEvent() throws Exception {
+        UUID userId = UUID.randomUUID();
+
+        // Perform search
+        mockMvc.perform(get("/api/documents/search")
+                        .param("q", "Standard")
+                        .header("X-User-Id", userId.toString())
+                        .header("X-User-Role", "teacher"))
+                .andExpect(status().isOk());
+
+        // Verify analytics record was saved
+        List<AnalyticsEvent> savedEvents = analyticsEventRepository.findAll();
+        assertEquals(1, savedEvents.size());
+
+        AnalyticsEvent event = savedEvents.get(0);
+        assertEquals(fixedEventId, event.getId());
+        assertEquals("SEARCH", event.getEventType());
+        assertEquals(userId, event.getUserId());
+        assertEquals("Standard", event.getSearchQuery());
+        assertEquals(fixedDateTime, event.getCreatedAt());
+    }
+
+    @Test
     public void testAnalyticsExportCsv() throws Exception {
         // Manually save a VIEW event and a DOWNLOAD event
         UUID userId = UUID.randomUUID();
