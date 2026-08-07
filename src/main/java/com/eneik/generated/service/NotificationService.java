@@ -78,12 +78,12 @@ public class NotificationService {
         payload.setFileType("PDF");
         request.setPayload(payload);
 
-        // Render message according to ADR-001 format
-        String escapedTitle = doc.getTitle().replace(".", "\\.").replace("-", "\\-").replace("'", "\\'");
-        String escapedLink = directLink.replace(".", "\\.").replace("-", "\\-");
-        String escapedAuthor = authorName.replace(".", "\\.").replace("-", "\\-");
-        String escapedSummary = updateSummary.replace(".", "\\.").replace("-", "\\-");
-        String escapedCategory = categoryName.replace(".", "\\.").replace("-", "\\-");
+        // Render message according to ADR-001 format using robust MarkdownV2 escaping
+        String escapedTitle = escapeMarkdownV2(doc.getTitle());
+        String escapedLink = escapeMarkdownV2(directLink);
+        String escapedAuthor = escapeMarkdownV2(authorName);
+        String escapedSummary = escapeMarkdownV2(updateSummary);
+        String escapedCategory = escapeMarkdownV2(categoryName);
 
         String renderedMessage = "🔔 *Новый документ в Базе Знаний ЦНИИ Эпидемиологии*\n\n" +
                 "📅 *Раздел:* " + escapedCategory + "\n" +
@@ -97,6 +97,23 @@ public class NotificationService {
 
         // Dispatch via decoupled dispatcher directly within JVM
         notificationDispatcher.dispatchTelegram(request);
+    }
+
+    private String escapeMarkdownV2(String text) {
+        if (text == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '_' || c == '*' || c == '[' || c == ']' || c == '(' || c == ')' || c == '~' || c == '`' ||
+                c == '>' || c == '#' || c == '+' || c == '=' || c == '|' || c == '{' || c == '}' || c == '.' ||
+                c == '!' || c == '-' || c == '\\' || c == '\'') {
+                sb.append('\\');
+            }
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     @Transactional(readOnly = true)
