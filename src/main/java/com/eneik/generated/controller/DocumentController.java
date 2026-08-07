@@ -6,6 +6,7 @@ import com.eneik.generated.model.SchemaTag;
 import com.eneik.generated.repository.DocumentRepository;
 import com.eneik.generated.repository.DocumentVersionRepository;
 import com.eneik.generated.repository.SchemaTagRepository;
+import com.eneik.generated.service.NotificationService;
 import com.eneik.generated.util.IdProvider;
 import com.eneik.generated.util.TimeProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,11 +26,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/documents")
 public class DocumentController {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DocumentController.class);
+
     private final DocumentRepository documentRepository;
     private final DocumentVersionRepository documentVersionRepository;
     private final SchemaTagRepository schemaTagRepository;
     private final IdProvider idProvider;
     private final TimeProvider timeProvider;
+    private final NotificationService notificationService;
 
     private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of("Position", "Procedure", "Project", "Other");
     private static final Set<String> ALLOWED_PROGRAMS = Set.of("postgraduate", "residency", "both");
@@ -40,12 +44,14 @@ public class DocumentController {
                               DocumentVersionRepository documentVersionRepository,
                               SchemaTagRepository schemaTagRepository,
                               IdProvider idProvider,
-                              TimeProvider timeProvider) {
+                              TimeProvider timeProvider,
+                              NotificationService notificationService) {
         this.documentRepository = documentRepository;
         this.documentVersionRepository = documentVersionRepository;
         this.schemaTagRepository = schemaTagRepository;
         this.idProvider = idProvider;
         this.timeProvider = timeProvider;
+        this.notificationService = notificationService;
     }
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -210,6 +216,12 @@ public class DocumentController {
 
         // Fetch refreshed entity to ensure loaded versions are correct
         Document savedDoc = documentRepository.findById(finalDoc.getId()).orElse(finalDoc);
+
+        try {
+            notificationService.triggerNewVersionPublished(savedDoc.getId(), nextVersionNumber);
+        } catch (Exception e) {
+            log.error("Failed to trigger new version notification for document: " + savedDoc.getId(), e);
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(mapToResponse(savedDoc));

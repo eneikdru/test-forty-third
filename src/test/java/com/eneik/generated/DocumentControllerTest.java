@@ -2,6 +2,7 @@ package com.eneik.generated;
 
 import com.eneik.generated.model.*;
 import com.eneik.generated.repository.*;
+import com.eneik.generated.service.NotificationDispatcher;
 import com.eneik.generated.util.IdProvider;
 import com.eneik.generated.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,12 @@ public class DocumentControllerTest {
     private SchemaTagRepository schemaTagRepository;
 
     @Autowired
+    private UserNotificationPreferenceRepository userNotificationPreferenceRepository;
+
+    @Autowired
+    private NotificationDispatcher notificationDispatcher;
+
+    @Autowired
     private IdProvider idProvider;
 
     @Autowired
@@ -57,6 +64,8 @@ public class DocumentControllerTest {
         jdbcTemplate.update("DELETE FROM document_schema_tags");
         jdbcTemplate.update("DELETE FROM document_versions");
         jdbcTemplate.update("DELETE FROM documents");
+        userNotificationPreferenceRepository.deleteAll();
+        notificationDispatcher.clear();
     }
 
     @Test
@@ -137,6 +146,35 @@ public class DocumentControllerTest {
                 .andExpect(jsonPath("$.versions[0].changesSummary", is("Initial upload")))
                 .andExpect(jsonPath("$.versions[1].versionNumber", is(2)))
                 .andExpect(jsonPath("$.versions[1].changesSummary", is("Uploaded version 2")));
+    }
+
+    @Test
+    public void testContentManagerUploadTriggersNotification() throws Exception {
+        // Save user notification preference (active subscriber)
+        UUID userId = UUID.randomUUID();
+        UserNotificationPreference pref = new UserNotificationPreference(
+                UUID.randomUUID(), userId, "tg_chat_id_123", "max_chat_id_123", true
+        );
+        userNotificationPreferenceRepository.save(pref);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "stipends-manual.pdf", "application/pdf", "Stipends manual content".getBytes());
+
+        mockMvc.perform(multipart("/api/documents")
+                        .file(file)
+                        .param("title", "Инструкция по заполнению документов")
+                        .param("documentType", "Position")
+                        .param("academicYear", "infinite")
+                        .param("program", "both")
+                        .param("process", "stipends")
+                        .header("X-User-Role", "Content Manager"))
+                .andExpect(status().isCreated());
+
+        // Verify notification is triggered and received by NotificationDispatcher
+        var maxNotifications = notificationDispatcher.getDispatchedMax();
+        org.junit.jupiter.api.Assertions.assertEquals(1, maxNotifications.size());
+        org.junit.jupiter.api.Assertions.assertEquals("max_chat_id_123", maxNotifications.get(0).getRecipientId());
+        org.junit.jupiter.api.Assertions.assertTrue(maxNotifications.get(0).getRenderedMessage().contains("Инструкция по заполнению документов"));
     }
 
     @Test
