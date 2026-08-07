@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import SettingsAndAnalytics from './components/SettingsAndAnalytics.svelte';
+  import KnowledgeBase from './KnowledgeBase.svelte';
 
   // Svelte 5 state runes
   let selectedRole = $state('Economist'); // 'Economist', 'Teacher', 'Postgraduate'
@@ -84,14 +84,7 @@
     if (err.code === 'UNAUTHORIZED') {
       return 'Вы не авторизованы в системе. Пожалуйста, выполните вход.';
     }
-    let msg = err.message || '';
-    if (msg.includes('does not have access')) {
-      return 'Доступ ограничен. У вашей роли отсутствуют необходимые права для просмотра этого раздела.';
-    }
-    if (/[a-zA-Z]/.test(msg)) {
-      return 'Внутренняя ошибка сервера при обработке запроса.';
-    }
-    return msg || 'Ошибка обработки запроса';
+    return err.message || 'Ошибка обработки запроса';
   }
 
   // Fetch data function
@@ -170,9 +163,7 @@
 
   // Fetch when role changes
   $effect(() => {
-    if (selectedRole === 'Admin') {
-      activeCategory = 'Интеграция';
-    } else if (selectedRole === 'Economist') {
+    if (selectedRole === 'Economist') {
       activeCategory = 'Финансы';
       activeSubTab = 'Бюджет';
     } else if (selectedRole === 'Teacher') {
@@ -209,17 +200,7 @@
     </div>
 
     <nav class="flex-1 py-4 flex flex-col gap-1">
-      {#if selectedRole === 'Admin'}
-        <!-- Навигация для Администратора -->
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Интеграция'}
-          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-        >
-          <span class="material-symbols-outlined">settings_suggest</span>
-          <span>Настройки и аналитика</span>
-        </button>
-      {:else if selectedRole === 'Economist'}
+      {#if selectedRole === 'Economist'}
         <!-- Навигация для Экономиста -->
         <button
           type="button"
@@ -250,11 +231,11 @@
 
         <button
           type="button"
-          onclick={() => activeCategory = 'Интеграция'}
-          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+          onclick={() => activeCategory = 'База знаний'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'База знаний' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
         >
-          <span class="material-symbols-outlined">settings_suggest</span>
-          <span>Настройки и аналитика</span>
+          <span class="material-symbols-outlined">menu_book</span>
+          <span>База знаний</span>
         </button>
       {:else if selectedRole === 'Teacher'}
         <!-- Навигация для Преподавателя -->
@@ -278,11 +259,11 @@
 
         <button
           type="button"
-          onclick={() => activeCategory = 'Интеграция'}
-          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+          onclick={() => activeCategory = 'База знаний'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'База знаний' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
         >
-          <span class="material-symbols-outlined">settings_suggest</span>
-          <span>Настройки и аналитика</span>
+          <span class="material-symbols-outlined">menu_book</span>
+          <span>База знаний</span>
         </button>
       {:else}
         <!-- Навигация для Студента / Аспиранта -->
@@ -294,6 +275,15 @@
           <span class="material-symbols-outlined">school</span>
           <span>Стипендии</span>
         </button>
+
+        <button
+          type="button"
+          onclick={() => activeCategory = 'База знаний'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'База знаний' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+        >
+          <span class="material-symbols-outlined">menu_book</span>
+          <span>База знаний</span>
+        </button>
       {/if}
     </nav>
 
@@ -304,9 +294,7 @@
         <div class="flex flex-col">
           <span class="text-sm font-semibold text-[#0b1c30]">Текущий доступ</span>
           <span class="text-xs text-[#45464d]">
-            {#if selectedRole === 'Admin'}
-              Администратор
-            {:else if selectedRole === 'Economist'}
+            {#if selectedRole === 'Economist'}
               Экономист
             {:else if selectedRole === 'Teacher'}
               Преподаватель
@@ -326,12 +314,14 @@
     <header class="w-full sticky top-0 z-50 bg-[#f8f9ff] border-b border-[#c6c6cd] flex items-center justify-between px-6 py-4">
       <div class="flex items-center gap-4">
         <h1 class="text-lg md:text-xl font-bold text-[#0b1c30]">
-          {#if selectedRole === 'Admin'}
-            Панель администратора
-          {:else if selectedRole === 'Economist'}
-            Панель управления экономиста
+          {#if activeCategory === 'База знаний'}
+            База знаний
           {:else}
-            Кабинет студента
+            {#if selectedRole === 'Economist'}
+              Панель управления экономиста
+            {:else}
+              Кабинет студента
+            {/if}
           {/if}
         </h1>
       </div>
@@ -347,7 +337,6 @@
           <option value="Economist">Экономист</option>
           <option value="Teacher">Преподаватель</option>
           <option value="Postgraduate">Студент / Аспирант</option>
-          <option value="Admin">Администратор</option>
         </select>
       </div>
     </header>
@@ -355,25 +344,26 @@
     <!-- Тело страницы -->
     <div class="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
 
-      <!-- Уведомление об ошибке в системе -->
-      {#if errorMessage}
-        <div class="bg-[#ffdad6] text-[#93000a] p-4 rounded-lg border border-[#ba1a1a] flex items-center gap-3">
-          <span class="material-symbols-outlined">error</span>
-          <span class="font-semibold text-sm">{errorMessage}</span>
-        </div>
-      {/if}
-
-      <!-- Загрузка -->
-      {#if loading}
-        <div class="flex flex-col items-center justify-center py-12 gap-2 text-[#515f74]">
-          <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
-          <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
-        </div>
-      {:else if activeCategory === 'Интеграция' && selectedRole !== 'Postgraduate'}
-        <SettingsAndAnalytics />
+      {#if activeCategory === 'База знаний'}
+        <KnowledgeBase role={selectedRole} />
       {:else}
+        <!-- Уведомление об ошибке в системе -->
+        {#if errorMessage}
+          <div class="bg-[#ffdad6] text-[#93000a] p-4 rounded-lg border border-[#ba1a1a] flex items-center gap-3">
+            <span class="material-symbols-outlined">error</span>
+            <span class="font-semibold text-sm">{errorMessage}</span>
+          </div>
+        {/if}
 
-        <!-- Содержимое для Экономиста -->
+        <!-- Загрузка -->
+        {#if loading}
+          <div class="flex flex-col items-center justify-center py-12 gap-2 text-[#515f74]">
+            <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+            <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
+          </div>
+        {:else}
+
+          <!-- Содержимое для Экономиста -->
         {#if selectedRole === 'Economist'}
 
           {#if activeCategory === 'Финансы'}
@@ -750,22 +740,15 @@
 
       {/if}
 
+      {/if}
+
     </div>
 
   </main>
 
   <!-- Нижняя панель навигации (для мобильных устройств) -->
   <nav class="md:hidden fixed bottom-0 w-full z-50 bg-[#e5eeff] border-t border-[#c6c6cd] flex justify-around items-center h-16 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
-    {#if selectedRole === 'Admin'}
-      <button
-        type="button"
-        onclick={() => activeCategory = 'Интеграция'}
-        class="flex flex-col items-center justify-center text-xs font-bold text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-6 py-1"
-      >
-        <span class="material-symbols-outlined text-xl">settings_suggest</span>
-        <span>Интеграция</span>
-      </button>
-    {:else if selectedRole === 'Economist'}
+    {#if selectedRole === 'Economist'}
       <button
         type="button"
         onclick={() => activeCategory = 'Финансы'}
@@ -792,6 +775,15 @@
         <span class="material-symbols-outlined text-xl">school</span>
         <span>Стипендии</span>
       </button>
+
+      <button
+        type="button"
+        onclick={() => activeCategory = 'База знаний'}
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'База знаний' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+      >
+        <span class="material-symbols-outlined text-xl">menu_book</span>
+        <span>База</span>
+      </button>
     {:else if selectedRole === 'Teacher'}
       <button
         type="button"
@@ -810,14 +802,32 @@
         <span class="material-symbols-outlined text-xl">school</span>
         <span>Стипендии</span>
       </button>
+
+      <button
+        type="button"
+        onclick={() => activeCategory = 'База знаний'}
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'База знаний' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+      >
+        <span class="material-symbols-outlined text-xl">menu_book</span>
+        <span>База</span>
+      </button>
     {:else}
       <button
         type="button"
         onclick={() => activeCategory = 'Стипендии'}
-        class="flex flex-col items-center justify-center text-xs font-bold text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-6 py-1"
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
       >
         <span class="material-symbols-outlined text-xl">school</span>
         <span>Стипендии</span>
+      </button>
+
+      <button
+        type="button"
+        onclick={() => activeCategory = 'База знаний'}
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'База знаний' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+      >
+        <span class="material-symbols-outlined text-xl">menu_book</span>
+        <span>База</span>
       </button>
     {/if}
   </nav>
