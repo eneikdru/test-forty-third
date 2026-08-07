@@ -1,3 +1,5 @@
+# API Contract Specification under BARCAN-TAG-12 (API Contract Designer)
+# Grounded in wishlist 98f1e6f8-d684-4f4b-957e-8c4dd0d0af6e and task Ff773a6f
 openapi: 3.0.3
 info:
   title: Documents and Search API Contract

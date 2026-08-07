@@ -1,0 +1,15 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "block",
+      "criticalReason": "The PR violates its own Acceptance Criteria and Definition of Done. The task asks to implement the backend/API/data behavior for EIOS analytics and export (storing download events as analytics records and exporting statistics). However, the PR's changes consist solely of adding an IntegrationsContractValidationTest that validates that docs/contracts/Integrations.openapi.yaml exists and contains certain paths/schemas. No production code/backend API implementation has been done.",
+      "concerns": [
+        {
+          "text": "The test `IntegrationsContractValidationTest` is configured with `@SpringBootTest` and `@ActiveProfiles(\"test\")` but only performs basic file reading and string checks on `docs/contracts/Integrations.openapi.yaml`. Loading a full Spring context for simple file existence/content checks is unnecessary and slows down the test suite.",
+          "severity": "medium"
+        }
+      ]
+    }
+  ]
+}

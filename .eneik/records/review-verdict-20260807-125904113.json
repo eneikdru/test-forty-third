@@ -1,0 +1,19 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "approve",
+      "criticalReason": "",
+      "concerns": [
+        {
+          "text": "The try-catch logic for extracting and parsing the 'userId' from HTTP headers/parameters is duplicated across DocumentController and DocumentSearchController. It is recommended to extract this logic into a shared utility class or request helper to improve maintainability and avoid code duplication.",
+          "severity": "low"
+        },
+        {
+          "text": "The test class 'IntegrationsContractValidationTest' is annotated with '@SpringBootTest' and '@ActiveProfiles(\"test\")', which spins up the entire Spring ApplicationContext. Since the test only reads and validates the OpenAPI contract file ('docs/contracts/Integrations.openapi.yaml'), it can be implemented as a lightweight unit test without booting up the Spring Boot context, significantly reducing test suite execution time.",
+          "severity": "medium"
+        }
+      ]
+    }
+  ]
+}
