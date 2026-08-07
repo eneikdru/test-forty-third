@@ -1,7 +1,9 @@
 <script>
   import { onMount } from 'svelte';
+  import IntegrationsModule from './IntegrationsModule.svelte';
 
   // Svelte 5 state runes
+  let currentAppView = $state('documents'); // 'documents' or 'integrations'
   let selectedRole = $state('Economist'); // 'Economist', 'Teacher', 'Postgraduate'
   let activeCategory = $state('Финансы'); // 'Финансы', 'Кадры', 'Нагрузка' или 'Стипендии'
   let activeSubTab = $state('Бюджет'); // 'Бюджет' или 'Нагрузка' (для экономиста)
@@ -189,6 +191,9 @@
   }
 </style>
 
+{#if currentAppView === 'integrations'}
+  <IntegrationsModule onBack={() => currentAppView = 'documents'} />
+{:else}
 <div class="min-h-screen flex flex-col md:flex-row bg-[#f8f9ff] text-[#0b1c30] antialiased">
 
   <!-- Боковая панель навигации (для десктопа) -->
@@ -257,6 +262,16 @@
           <span>Стипендии</span>
         </button>
       {/if}
+
+      <div class="border-t border-[#c6c6cd] my-2 mx-4"></div>
+      <button
+        type="button"
+        onclick={() => currentAppView = 'integrations'}
+        class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold text-[#45464d] hover:bg-[#dce9ff]"
+      >
+        <span class="material-symbols-outlined">api</span>
+        <span>Интеграции и отчеты</span>
+      </button>
     </nav>
 
     <!-- Информация о роли внизу -->
@@ -738,6 +753,15 @@
         <span class="material-symbols-outlined text-xl">school</span>
         <span>Стипендии</span>
       </button>
+
+      <button
+        type="button"
+        onclick={() => currentAppView = 'integrations'}
+        class="flex flex-col items-center justify-center text-xs font-bold text-[#45464d]"
+      >
+        <span class="material-symbols-outlined text-xl">api</span>
+        <span>Интеграции</span>
+      </button>
     {:else if selectedRole === 'Teacher'}
       <button
         type="button"
@@ -756,6 +780,15 @@
         <span class="material-symbols-outlined text-xl">school</span>
         <span>Стипендии</span>
       </button>
+
+      <button
+        type="button"
+        onclick={() => currentAppView = 'integrations'}
+        class="flex flex-col items-center justify-center text-xs font-bold text-[#45464d]"
+      >
+        <span class="material-symbols-outlined text-xl">api</span>
+        <span>Интеграции</span>
+      </button>
     {:else}
       <button
         type="button"
@@ -765,7 +798,17 @@
         <span class="material-symbols-outlined text-xl">school</span>
         <span>Стипендии</span>
       </button>
+
+      <button
+        type="button"
+        onclick={() => currentAppView = 'integrations'}
+        class="flex flex-col items-center justify-center text-xs font-bold text-[#45464d] ml-2"
+      >
+        <span class="material-symbols-outlined text-xl">api</span>
+        <span>Интеграции</span>
+      </button>
     {/if}
   </nav>
 
 </div>
+{/if}

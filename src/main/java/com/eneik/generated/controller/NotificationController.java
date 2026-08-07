@@ -2,6 +2,8 @@ package com.eneik.generated.controller;
 
 import com.eneik.generated.dto.MaxNotificationRequest;
 import com.eneik.generated.dto.TelegramNotificationRequest;
+import com.eneik.generated.model.UserNotificationPreference;
+import com.eneik.generated.repository.UserNotificationPreferenceRepository;
 import com.eneik.generated.service.NotificationDispatcher;
 import com.eneik.generated.service.NotificationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,13 +20,49 @@ public class NotificationController {
 
     private final NotificationService notificationService;
     private final NotificationDispatcher notificationDispatcher;
+    private final UserNotificationPreferenceRepository userNotificationPreferenceRepository;
 
     @Value("${notification.internal.service.key:INTERNAL_SERVICE_KEY}")
     private String internalServiceKey;
 
-    public NotificationController(NotificationService notificationService, NotificationDispatcher notificationDispatcher) {
+    public NotificationController(NotificationService notificationService,
+                                  NotificationDispatcher notificationDispatcher,
+                                  UserNotificationPreferenceRepository userNotificationPreferenceRepository) {
         this.notificationService = notificationService;
         this.notificationDispatcher = notificationDispatcher;
+        this.userNotificationPreferenceRepository = userNotificationPreferenceRepository;
+    }
+
+    @GetMapping("/preferences")
+    public ResponseEntity<?> getPreferences(@RequestParam UUID userId) {
+        UserNotificationPreference pref = userNotificationPreferenceRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    UserNotificationPreference newPref = new UserNotificationPreference();
+                    newPref.setId(UUID.randomUUID());
+                    newPref.setUserId(userId);
+                    newPref.setTelegramChatId("");
+                    newPref.setMaxChatId("");
+                    newPref.setNotifyOnDocumentUpdate(true);
+                    return userNotificationPreferenceRepository.save(newPref);
+                });
+        return ResponseEntity.ok(pref);
+    }
+
+    @PutMapping("/preferences")
+    public ResponseEntity<?> updatePreferences(@RequestBody UserNotificationPreference payload) {
+        UserNotificationPreference pref = userNotificationPreferenceRepository.findByUserId(payload.getUserId())
+                .orElseGet(() -> {
+                    UserNotificationPreference newPref = new UserNotificationPreference();
+                    newPref.setId(UUID.randomUUID());
+                    newPref.setUserId(payload.getUserId());
+                    return newPref;
+                });
+        pref.setTelegramChatId(payload.getTelegramChatId());
+        pref.setMaxChatId(payload.getMaxChatId());
+        pref.setNotifyOnDocumentUpdate(payload.getNotifyOnDocumentUpdate());
+        pref.setUpdatedAt(java.time.LocalDateTime.now());
+        UserNotificationPreference saved = userNotificationPreferenceRepository.save(pref);
+        return ResponseEntity.ok(saved);
     }
 
     @PostMapping("/trigger/quarterly-review")
