@@ -12,6 +12,36 @@ info:
 servers:
   - url: /api
 paths:
+  /financial/budget:
+    get:
+      summary: Retrieve budget reports and metadata
+      description: >
+        Returns budget report documents and metadata.
+        Accessible by Economists, Accountants, and Head of Educational Center.
+        Access is forbidden for Teachers, Postgraduates, and Residents.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: academicYear
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "2026-2027"
+      responses:
+        '200':
+          description: A list of budget report documents and metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinancialDocument'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
   /financial/stipends:
     get:
       summary: Retrieve stipend-related documents and calculations

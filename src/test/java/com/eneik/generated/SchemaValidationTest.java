@@ -69,7 +69,7 @@ public class SchemaValidationTest {
         assertTrue(tablesStr.contains("role_schema_tags"));
 
         // Verify "Budget" and "Load" schema tags are seeded
-        List<Map<String, Object>> tags = jdbcTemplate.queryForList("SELECT * FROM schema_tags ORDER BY name");
+        List<Map<String, Object>> tags = jdbcTemplate.queryForList("SELECT * FROM schema_tags WHERE name IN ('Budget', 'Load') ORDER BY name");
         assertEquals(2, tags.size());
         assertEquals("Budget", tags.get(0).get("name"));
         assertEquals("Load", tags.get(1).get("name"));
@@ -100,15 +100,18 @@ public class SchemaValidationTest {
                 "SELECT * FROM document_schema_tags WHERE document_id = ? AND schema_tag_id = ?", docId, tagId);
         assertEquals(1, docLinks.size());
 
-        // Fetch Economist role ID
-        UUID roleId = UUID.fromString(jdbcTemplate.queryForObject("SELECT id FROM roles WHERE name = 'Economist'", String.class));
+        // Create a dedicated role and tag to avoid unique constraint collisions with pre-seeded data
+        UUID testRoleId = UUID.randomUUID();
+        UUID testTagId = UUID.randomUUID();
+        jdbcTemplate.update("INSERT INTO roles (id, name, description) VALUES (?, ?, ?)", testRoleId, "TestRole_" + testRoleId, "Test Description");
+        jdbcTemplate.update("INSERT INTO schema_tags (id, name, description) VALUES (?, ?, ?)", testTagId, "TestTag_" + testTagId, "Test Description");
 
         // Link role and schema tag
-        jdbcTemplate.update("INSERT INTO role_schema_tags (role_id, schema_tag_id) VALUES (?, ?)", roleId, tagId);
+        jdbcTemplate.update("INSERT INTO role_schema_tags (role_id, schema_tag_id) VALUES (?, ?)", testRoleId, testTagId);
 
         // Fetch link
         List<Map<String, Object>> roleLinks = jdbcTemplate.queryForList(
-                "SELECT * FROM role_schema_tags WHERE role_id = ? AND schema_tag_id = ?", roleId, tagId);
+                "SELECT * FROM role_schema_tags WHERE role_id = ? AND schema_tag_id = ?", testRoleId, testTagId);
         assertEquals(1, roleLinks.size());
     }
 }
