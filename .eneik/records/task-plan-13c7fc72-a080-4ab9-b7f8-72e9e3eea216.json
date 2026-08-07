@@ -1,0 +1,34 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "99a858e4-e855-40be-8352-acaddbfeb144",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Clear or retry the 5 failed tasks to resolve the BLOCKED_BY_FAILED_FRONTIER state and unblock Flow Core."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch Flow Core to clear failed tasks",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the recovery patch for this epic, I want to clear or retry the failed tasks, so that the Flow Core resumes active work.",
+          "acceptanceCriteria": "Given the Flow Core is in a BLOCKED_BY_FAILED_FRONTIER state with 5 failed tasks\nWhen the unblock patch is applied\nThen the failed tasks are cleared\nAnd tests confirm the Flow Core resumes active work",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Flow Core blocked state",
+          "sixSigmaMetric": "Reduce failed tasks blocking the Flow Core from 5 to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
