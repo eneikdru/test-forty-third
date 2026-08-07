@@ -86,6 +86,9 @@ public class AnalyticsController {
         } else if ("DOCX".equalsIgnoreCase(format)) {
             headers.setContentType(MediaType.valueOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
             headers.setContentDispositionFormData("attachment", filename);
+        } else if ("JSON".equalsIgnoreCase(format)) {
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setContentDispositionFormData("attachment", filename);
         } else {
             headers.setContentType(MediaType.valueOf("text/csv"));
             headers.setContentDispositionFormData("attachment", filename);

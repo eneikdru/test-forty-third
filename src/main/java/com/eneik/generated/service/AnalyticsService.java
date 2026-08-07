@@ -4,6 +4,7 @@ import com.eneik.generated.model.AnalyticsEvent;
 import com.eneik.generated.model.Document;
 import com.eneik.generated.repository.AnalyticsEventRepository;
 import com.eneik.generated.repository.DocumentRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,15 +20,18 @@ public class AnalyticsService {
 
     private final AnalyticsEventRepository analyticsEventRepository;
     private final DocumentRepository documentRepository;
+    private final ObjectMapper objectMapper;
 
     // Injectable/seedable providers for reproducible testing
     private Supplier<UUID> uuidProvider = UUID::randomUUID;
     private Supplier<LocalDateTime> dateTimeProvider = LocalDateTime::now;
 
     public AnalyticsService(AnalyticsEventRepository analyticsEventRepository,
-                            DocumentRepository documentRepository) {
+                            DocumentRepository documentRepository,
+                            ObjectMapper objectMapper) {
         this.analyticsEventRepository = analyticsEventRepository;
         this.documentRepository = documentRepository;
+        this.objectMapper = objectMapper;
     }
 
     public void setUuidProvider(Supplier<UUID> uuidProvider) {
@@ -81,8 +85,61 @@ public class AnalyticsService {
             return generatePdfExport(events, docTitleMap);
         } else if ("DOCX".equals(reportType)) {
             return generateDocxExport(events, docTitleMap);
+        } else if ("JSON".equals(reportType)) {
+            return generateJsonExport(events, docTitleMap);
         } else {
             return generateCsvExport(events, docTitleMap);
+        }
+    }
+
+    private byte[] generateJsonExport(List<AnalyticsEvent> events, Map<UUID, String> docTitleMap) {
+        long totalViews = events.stream().filter(e -> "VIEW".equalsIgnoreCase(e.getEventType())).count();
+        long totalDownloads = events.stream().filter(e -> "DOWNLOAD".equalsIgnoreCase(e.getEventType())).count();
+
+        // Group by document
+        Map<UUID, Map<String, Object>> docSummary = new LinkedHashMap<>();
+        for (AnalyticsEvent e : events) {
+            UUID docId = e.getDocumentId();
+            if (docId == null) continue;
+            docSummary.computeIfAbsent(docId, id -> {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("documentId", id);
+                map.put("documentTitle", docTitleMap.getOrDefault(id, "Неизвестный документ"));
+                map.put("views", 0);
+                map.put("downloads", 0);
+                return map;
+            });
+
+            Map<String, Object> map = docSummary.get(docId);
+            if ("VIEW".equalsIgnoreCase(e.getEventType())) {
+                map.put("views", (int) map.get("views") + 1);
+            } else if ("DOWNLOAD".equalsIgnoreCase(e.getEventType())) {
+                map.put("downloads", (int) map.get("downloads") + 1);
+            }
+        }
+
+        List<Map<String, Object>> eventsList = new ArrayList<>();
+        for (AnalyticsEvent e : events) {
+            Map<String, Object> eventMap = new LinkedHashMap<>();
+            eventMap.put("id", e.getId());
+            eventMap.put("eventType", e.getEventType());
+            eventMap.put("userId", e.getUserId());
+            eventMap.put("documentId", e.getDocumentId());
+            eventMap.put("documentTitle", e.getDocumentId() != null ? docTitleMap.getOrDefault(e.getDocumentId(), "Неизвестный документ") : "Н/Д");
+            eventMap.put("createdAt", e.getCreatedAt().toString());
+            eventsList.add(eventMap);
+        }
+
+        Map<String, Object> report = new LinkedHashMap<>();
+        report.put("totalViews", totalViews);
+        report.put("totalDownloads", totalDownloads);
+        report.put("summaryByDocument", new ArrayList<>(docSummary.values()));
+        report.put("events", eventsList);
+
+        try {
+            return objectMapper.writeValueAsBytes(report);
+        } catch (Exception ex) {
+            return "{}".getBytes();
         }
     }
 

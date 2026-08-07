@@ -46,6 +46,9 @@ public class DocumentControllerTest {
     private UserNotificationPreferenceRepository userNotificationPreferenceRepository;
 
     @Autowired
+    private AnalyticsEventRepository analyticsEventRepository;
+
+    @Autowired
     private NotificationDispatcher notificationDispatcher;
 
     @Autowired
@@ -61,6 +64,7 @@ public class DocumentControllerTest {
         timeProvider.reset();
 
         // Clear tables transactionally
+        jdbcTemplate.update("DELETE FROM analytics_events");
         jdbcTemplate.update("DELETE FROM document_schema_tags");
         jdbcTemplate.update("DELETE FROM document_versions");
         jdbcTemplate.update("DELETE FROM documents");
@@ -247,5 +251,45 @@ public class DocumentControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code", is("BAD_REQUEST")))
                 .andExpect(jsonPath("$.message", containsString("Invalid academicYear")));
+    }
+
+    @Test
+    public void testGetDocumentDetailsSavesViewEvent() throws Exception {
+        // First upload a document
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "aspirant-stipends.pdf", "application/pdf", "Stipends detail content".getBytes());
+
+        String response = mockMvc.perform(multipart("/api/documents")
+                        .file(file)
+                        .param("title", "Положение о расчете стипендий аспирантов")
+                        .param("documentType", "Position")
+                        .param("academicYear", "2026–2027")
+                        .param("program", "postgraduate")
+                        .param("process", "stipends")
+                        .header("X-User-Role", "Content Manager"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String documentId = response.substring(response.indexOf("\"id\":\"") + 6, response.indexOf("\",\"title\""));
+
+        // Request document details, passing a specific X-User-Id
+        UUID userId = UUID.randomUUID();
+        mockMvc.perform(get("/api/documents/" + documentId)
+                        .header("X-User-Role", "Student")
+                        .header("X-User-Id", userId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.document.id", is(documentId)));
+
+        // Verify that a VIEW event was logged in analytics database
+        var savedEvents = analyticsEventRepository.findAll();
+        org.junit.jupiter.api.Assertions.assertFalse(savedEvents.isEmpty());
+        var viewEvent = savedEvents.stream()
+                .filter(e -> "VIEW".equals(e.getEventType()))
+                .findFirst()
+                .orElse(null);
+
+        org.junit.jupiter.api.Assertions.assertNotNull(viewEvent);
+        org.junit.jupiter.api.Assertions.assertEquals(UUID.fromString(documentId), viewEvent.getDocumentId());
+        org.junit.jupiter.api.Assertions.assertEquals(userId, viewEvent.getUserId());
     }
 }
