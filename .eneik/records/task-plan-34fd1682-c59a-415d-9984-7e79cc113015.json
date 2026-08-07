@@ -1,0 +1,297 @@
+{
+  "epics": [
+    {
+      "existingEpicId": null,
+      "title": "Core Knowledge Base and Document Repository",
+      "jtbd": "When students and staff search for educational materials, I want to find centralized, versioned, and role-filtered documents with a strict Russian UI, so that I can prepare for exams and teaching without dealing with outdated or inaccessible files.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "complicated",
+      "sixSigmaMetric": "Reduce document search and retrieval time to under 2 seconds for 95% of queries.",
+      "tocConstraintRef": "Scattered and unversioned documentation storage",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Store and systematize educational materials and normative documents with versioning and archive capability.",
+        "R2: Provide role-based access control (Admin, Content Manager, Teacher, Student) with granular permissions.",
+        "R3: Implement full-text search with synonyms, filters, and auto-complete.",
+        "R4: Provide a web interface using the Lexicon Flux design system.",
+        "R5: Enforce strict Russian-only UI language across all interfaces, errors, and metadata."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Define core data schema for documents and roles",
+          "roleTag": "BARCAN-TAG-08",
+          "jtbd": "When implementing document storage for this epic, I want to define tables and relationships for files, versions, and user roles, so that all subsequent backend tasks have a stable persistence model.",
+          "acceptanceCriteria": "Given a new schema deployment, When I inspect the database, Then I see tables for documents, versions, categories, and roles.\nGiven a document with multiple versions, When I query it, Then the schema supports retrieving the active and archived versions.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Lack of structured relational storage for documents",
+          "sixSigmaMetric": "100% schema coverage for required metadata fields",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "Define API contract for document management and search",
+          "roleTag": "BARCAN-TAG-12",
+          "jtbd": "When implementing the backend and frontend for this epic in parallel, I want a shared API contract, so that both sides can develop without breaking integration.",
+          "acceptanceCriteria": "Given the OpenAPI specification, When reviewing endpoints, Then upload, search, and version history routes are documented.\nGiven the payload definitions, When checking DTOs, Then RBAC roles and metadata are correctly typed.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Integration misalignment between frontend and backend",
+          "sixSigmaMetric": "0 breaking API changes during parallel implementation",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "Implement core backend APIs and search engine",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing document endpoints for this epic, I want to provide secure, role-filtered full-text search and version control, so that the frontend can consume and display the knowledge base.",
+          "acceptanceCriteria": "Given a valid document payload, When a content manager uploads it, Then the backend stores the file and indexes it for search.\nGiven a search query with synonyms, When requested, Then the backend returns matching documents under 2 seconds.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Slow or inaccurate document retrieval",
+          "sixSigmaMetric": "Search response time < 2000ms at standard load",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "Implement frontend UI with Lexicon Flux and Russian localization",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing the user interface for this epic, I want to apply the Lexicon Flux design system and ensure strictly Russian text, so that users experience a professional and compliant interaction.",
+          "acceptanceCriteria": "Given the UI components, When rendered, Then they match Lexicon Flux specs.\nGiven the interface language, When inspected, Then absolutely no English or foreign words appear anywhere in the UI or errors.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Inconsistent visual design and non-compliant language",
+          "sixSigmaMetric": "100% Russian language compliance across all UI strings",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R4",
+            "R5"
+          ]
+        },
+        {
+          "title": "QA verification of core knowledge base flows",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When implementing tests for this epic, I want to cover document management, RBAC, search, and language compliance across unit, integration, and E2E layers, so that the core knowledge base is proven to work reliably.",
+          "acceptanceCriteria": "Given the E2E test suite, When run, Then a user can successfully upload, version, and search a document.\nGiven UI tests, When executed, Then tests fail if any non-Russian strings or incorrect Lexicon Flux styling is detected.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Unverified integration of core features",
+          "sixSigmaMetric": "100% test coverage for critical paths",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3",
+            "R4",
+            "R5"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Financial and Organizational Management Module",
+      "jtbd": "When management and accounting staff manage budgets and workloads, I want secure, role-restricted access to financial templates and scholarship rules, so that sensitive financial data is not exposed to unauthorized students.",
+      "kanoClass": "Performance",
+      "cynefinDomain": "complicated",
+      "sixSigmaMetric": "Zero incidents of unauthorized access to budget and workload documents.",
+      "tocConstraintRef": "Manual and insecure distribution of financial spreadsheets and workload assignments",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Store and manage budget planning, workload, and scholarship documents.",
+        "R2: Enforce strict access control: students see general info, admins see budgets/workload.",
+        "R3: Provide reporting and audit trail for financial modules."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Define data schema for financial and workload documents",
+          "roleTag": "BARCAN-TAG-08",
+          "jtbd": "When implementing financial storage for this epic, I want to define explicit models for budgets, workload, and scholarships, so that sensitive organizational data is isolated and queryable.",
+          "acceptanceCriteria": "Given the database schema, When deployed, Then tables for budget, workload, and scholarships exist.\nGiven the relations, When checked, Then they link to strict visibility rules.",
+          "leanValue": "valuable",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Lack of structured financial data models",
+          "sixSigmaMetric": "100% schema alignment with organizational reporting needs",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "Define API contract for financial module endpoints",
+          "roleTag": "BARCAN-TAG-12",
+          "jtbd": "When implementing the financial module for this epic, I want a shared API specification, so that frontend and backend teams can build in parallel without integration errors.",
+          "acceptanceCriteria": "Given the OpenAPI spec, When reviewed, Then endpoints for budget, workload, and reports exist.\nGiven the payload definitions, When checked, Then financial DTOs enforce strict access scopes.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Unclear data formats for financial reporting UI",
+          "sixSigmaMetric": "0 integration mismatches between API and UI",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "Implement backend logic for financial access and reporting",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the financial API for this epic, I want to enforce strict RBAC on budgets and workload, so that students cannot access sensitive administrative documents.",
+          "acceptanceCriteria": "Given an admin request, When querying budgets, Then the full financial report is returned.\nGiven a student request, When querying budgets, Then the backend strictly denies access (403 Forbidden).",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Risk of exposing sensitive financial documents",
+          "sixSigmaMetric": "0 authorization bypasses in financial endpoints",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "Implement frontend UI for financial module in Lexicon Flux",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing the financial views for this epic, I want to provide clear, Russian-only dashboards for budgets and scholarships, so that administration can manage workloads comfortably.",
+          "acceptanceCriteria": "Given an admin user, When opening the financial dashboard, Then budget and workload reports are rendered correctly.\nGiven the UI language, When inspected, Then all financial terminology is strictly in Russian.",
+          "leanValue": "valuable",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Poor visibility of organizational and financial data",
+          "sixSigmaMetric": "100% UI component compliance with Lexicon Flux guidelines",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "QA verification of financial module RBAC and views",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When implementing tests for this epic, I want to verify strict access controls and financial reporting at unit, integration, and E2E layers, so that sensitive data is proven secure.",
+          "acceptanceCriteria": "Given the test suite, When run as a student, Then E2E tests confirm budget routes are hidden and blocked.\nGiven E2E tests for admin, When run, Then financial reports are successfully generated and viewed.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Unverified authorization logic for sensitive data",
+          "sixSigmaMetric": "100% test coverage for financial access boundaries",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Ecosystem Integrations and Notifications",
+      "jtbd": "When normative documents are updated, I want automatic synchronization with LMS platforms and instant messenger notifications, so that all staff and students are immediately aware of critical changes without manual announcements.",
+      "kanoClass": "Attractive",
+      "cynefinDomain": "complex",
+      "sixSigmaMetric": "Achieve 99% automated notification delivery within 5 minutes of document updates.",
+      "tocConstraintRef": "Siloed LMS platforms and manual update communication",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Integrate document search and indexing with SDO.crie.ru and Teachbase.",
+        "R2: Sync user roles and authorization with EIOS (electronic educational environment).",
+        "R3: Send automated notifications about document updates via Max and Telegram messengers."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Architecture spike for external system integrations",
+          "roleTag": "BARCAN-TAG-09",
+          "jtbd": "When implementing ecosystem integrations for this epic, I want to evaluate API capabilities of EIOS, Teachbase, and Telegram, so that we choose the most reliable synchronization and notification strategies.",
+          "acceptanceCriteria": "Given the spike task, When completed, Then a Markdown decision record details the authentication flow with EIOS.\nGiven the integration analysis, When documented, Then the payload structure for Teachbase federation and Telegram bots is finalized.",
+          "leanValue": "essential",
+          "cynefinDomain": "complex",
+          "tocConstraintRef": "Unknown API boundaries of external systems",
+          "sixSigmaMetric": "1 fully reviewed architecture decision record",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "Implement EIOS authentication and role synchronization",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing EIOS integration for this epic, I want to synchronize user sessions and roles from the central directory, so that users can seamlessly access the knowledge base without separate credentials.",
+          "acceptanceCriteria": "Given a valid EIOS token, When passed to the API, Then the backend establishes a session and maps roles correctly.\nGiven a revoked EIOS session, When a request is made, Then the backend rejects access.",
+          "leanValue": "valuable",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Manual user management and redundant logins",
+          "sixSigmaMetric": "Authentication success rate > 99.9% with EIOS",
+          "hasUi": false,
+          "requirementRefs": [
+            "R2"
+          ]
+        },
+        {
+          "title": "Implement Teachbase and SDO federated search indexer",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing federated search for this epic, I want to index metadata from Teachbase and SDO, so that users can find all materials from a single search bar.",
+          "acceptanceCriteria": "Given new content in Teachbase, When the sync job runs, Then the local search index is updated with the new metadata.\nGiven a search query, When executed, Then results from both local DB and federated LMS platforms are returned.",
+          "leanValue": "attractive",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Fragmented search experience across multiple platforms",
+          "sixSigmaMetric": "Federated search adds < 500ms to query latency",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        },
+        {
+          "title": "Implement notification dispatchers for Telegram and Max",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing notifications for this epic, I want to trigger messages via Telegram and Max bots upon document updates, so that subscribed users are instantly informed.",
+          "acceptanceCriteria": "Given a document update event, When triggered, Then the notification service formats a strictly Russian message.\nGiven the message payload, When sent, Then the Telegram and Max APIs receive the correct request to notify subscribed users.",
+          "leanValue": "attractive",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Delayed awareness of critical normative changes",
+          "sixSigmaMetric": "Message delivery latency < 10 seconds post-update",
+          "hasUi": false,
+          "requirementRefs": [
+            "R3"
+          ]
+        },
+        {
+          "title": "QA verification of external integrations and notifications",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When implementing tests for this epic, I want to mock external EIOS, Teachbase, and messenger APIs across the test pyramid, so that integrations are proven resilient to external failures.",
+          "acceptanceCriteria": "Given mocked EIOS endpoints, When tested, Then role synchronization behaves correctly under success and error conditions.\nGiven a triggered document update, When integrated tests run, Then dispatch requests to Telegram/Max mock servers are verified.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Fragile integrations leading to silent failures",
+          "sixSigmaMetric": "100% integration test coverage for external API adapters",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        }
+      ]
+    }
+  ]
+}
