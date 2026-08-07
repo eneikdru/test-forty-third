@@ -1,10 +1,11 @@
 <script>
   import { onMount } from 'svelte';
   import SettingsAndAnalytics from './components/SettingsAndAnalytics.svelte';
+  import KnowledgeBase from './components/KnowledgeBase.svelte';
 
   // Svelte 5 state runes
   let selectedRole = $state('Economist'); // 'Economist', 'Teacher', 'Postgraduate'
-  let activeCategory = $state('Финансы'); // 'Финансы', 'Кадры', 'Нагрузка' или 'Стипендии'
+  let activeCategory = $state('База знаний'); // 'База знаний' по умолчанию
   let activeSubTab = $state('Бюджет'); // 'Бюджет' или 'Нагрузка' (для экономиста)
   let budgetDocs = $state([]);
   let loadDocs = $state([]);
@@ -170,15 +171,17 @@
 
   // Fetch when role changes
   $effect(() => {
-    if (selectedRole === 'Admin') {
-      activeCategory = 'Интеграция';
-    } else if (selectedRole === 'Economist') {
-      activeCategory = 'Финансы';
-      activeSubTab = 'Бюджет';
-    } else if (selectedRole === 'Teacher') {
-      activeCategory = 'Нагрузка';
-    } else {
-      activeCategory = 'Стипендии';
+    if (activeCategory !== 'База знаний') {
+      if (selectedRole === 'Admin') {
+        activeCategory = 'Интеграция';
+      } else if (selectedRole === 'Economist') {
+        activeCategory = 'Финансы';
+        activeSubTab = 'Бюджет';
+      } else if (selectedRole === 'Teacher') {
+        activeCategory = 'Нагрузка';
+      } else {
+        activeCategory = 'Стипендии';
+      }
     }
     fetchData();
   });
@@ -209,6 +212,16 @@
     </div>
 
     <nav class="flex-1 py-4 flex flex-col gap-1">
+      <!-- База знаний доступна для всех -->
+      <button
+        type="button"
+        onclick={() => activeCategory = 'База знаний'}
+        class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'База знаний' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+      >
+        <span class="material-symbols-outlined">library_books</span>
+        <span>База знаний</span>
+      </button>
+
       {#if selectedRole === 'Admin'}
         <!-- Навигация для Администратора -->
         <button
@@ -369,6 +382,8 @@
           <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
           <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
         </div>
+      {:else if activeCategory === 'База знаний'}
+        <KnowledgeBase {selectedRole} />
       {:else if activeCategory === 'Интеграция' && selectedRole !== 'Postgraduate'}
         <SettingsAndAnalytics />
       {:else}
@@ -756,11 +771,21 @@
 
   <!-- Нижняя панель навигации (для мобильных устройств) -->
   <nav class="md:hidden fixed bottom-0 w-full z-50 bg-[#e5eeff] border-t border-[#c6c6cd] flex justify-around items-center h-16 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+    <!-- База знаний в мобильном меню для всех ролей -->
+    <button
+      type="button"
+      onclick={() => activeCategory = 'База знаний'}
+      class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'База знаний' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+    >
+      <span class="material-symbols-outlined text-xl">library_books</span>
+      <span>База</span>
+    </button>
+
     {#if selectedRole === 'Admin'}
       <button
         type="button"
         onclick={() => activeCategory = 'Интеграция'}
-        class="flex flex-col items-center justify-center text-xs font-bold text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-6 py-1"
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Интеграция' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
       >
         <span class="material-symbols-outlined text-xl">settings_suggest</span>
         <span>Интеграция</span>
@@ -814,7 +839,7 @@
       <button
         type="button"
         onclick={() => activeCategory = 'Стипендии'}
-        class="flex flex-col items-center justify-center text-xs font-bold text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-6 py-1"
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
       >
         <span class="material-symbols-outlined text-xl">school</span>
         <span>Стипендии</span>
