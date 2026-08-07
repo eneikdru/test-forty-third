@@ -1,0 +1,630 @@
+openapi: 3.0.3
+info:
+  title: Documents and Search API Contract
+  version: 1.0.0
+  description: >
+    API contract for knowledge base documents management, full-text search, commenting, and actualization requests.
+    This contract specifies endpoints for document upload, search with synonym expansion, comments management, and actualization requests.
+
+    Access Control Requirements (RBAC):
+    - Administrator (ADMINISTRATOR): Full system control, including backup trigger and advanced deletion.
+    - Content Manager (CONTENT_MANAGER): Manage categories, upload documents, edit metadata, view and resolve actualization requests.
+    - Teacher (TEACHER): Read-only access to most materials, ability to view and post comments, and request document actualization.
+    - Postgraduate / Resident (STUDENT): Read-only access restricted to stipends and general regulations. Ability to view and post comments.
+servers:
+  - url: /api
+paths:
+  /documents:
+    get:
+      summary: Get all or filtered documents metadata
+      description: Returns a list of documents metadata filtered by parameters.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: program
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ProgramType'
+        - name: process
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ProcessType'
+      responses:
+        '200':
+          description: A list of document metadata objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+    post:
+      summary: Upload a new document with metadata
+      description: >
+        Uploads a new document file along with its metadata.
+        Accessible by Administrators and Content Managers only.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - title
+                - documentType
+                - program
+                - process
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The document file (PDF, DOCX, etc.)
+                title:
+                  type: string
+                  description: The title of the document without abbreviations
+                  example: "Порядок расчета стипендий аспирантов"
+                description:
+                  type: string
+                  example: "Регламентирует порядок назначения и выплаты стипендий за успехи в учебе."
+                documentType:
+                  $ref: '#/components/schemas/DocumentType'
+                academicYear:
+                  type: string
+                  default: "infinite"
+                  example: "2026-2027"
+                program:
+                  $ref: '#/components/schemas/ProgramType'
+                process:
+                  $ref: '#/components/schemas/ProcessType'
+                documentNumber:
+                  type: string
+                  example: "123-P"
+                schemaTags:
+                  type: array
+                  items:
+                    type: string
+                  example: ["Stipends", "Regulations"]
+      responses:
+        '201':
+          description: Document uploaded and created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '400':
+          description: Invalid request payload or file format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /documents/search:
+    get:
+      summary: Full-text search with synonym support
+      description: >
+        Performs full-text search across documents (titles, descriptions, and version text content).
+        Supports synonym and abbreviation expansion for Russian educational/epidemiological terms:
+        - "ФГОС" matches "Федеральный государственный образовательный стандарт"
+        - "ГЭК" matches "Государственная экзаменационная комиссия"
+        - "ГИА" matches "Государственная итоговая аттестация"
+        - "ФБУН" matches "Федеральное бюджетное учреждение науки"
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: The search query string
+          schema:
+            type: string
+            example: "ФГОС Эпидемиология"
+        - name: program
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ProgramType'
+        - name: documentType
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/DocumentType'
+      responses:
+        '200':
+          description: Matched documents ordered by relevance rank
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResultResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /documents/{id}:
+    get:
+      summary: Retrieve specific document details and version history
+      description: Returns a detailed representation of the document, including its metadata and history of versions.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detailed document metadata and version history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetailsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      summary: Update document metadata or upload new version
+      description: Updates document attributes or adds a new active/draft version of the document.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                academicYear:
+                  type: string
+                program:
+                  $ref: '#/components/schemas/ProgramType'
+                process:
+                  $ref: '#/components/schemas/ProcessType'
+                status:
+                  type: string
+                  enum: [PROJECT, ACTIVE, DECOMMISSIONED]
+      responses:
+        '200':
+          description: Document updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '400':
+          description: Invalid document details provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Delete or Decommission a document
+      description: >
+        Deletes the document from the database or marks it as decommissioned.
+        Only accessible by Administrators.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Document deleted or decommissioned successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /documents/{id}/comments:
+    get:
+      summary: List all comments for a document
+      description: Returns a list of comments/discussion threads on a specific document.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      summary: Post a comment on a document
+      description: Adds a text comment/query regarding document content or clarity.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  description: Comment markdown or plain text
+                  example: "Пожалуйста, уточните размер стипендии для второго года обучения."
+      responses:
+        '201':
+          description: Comment added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponse'
+        '400':
+          description: Empty or invalid comment body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /documents/{id}/actualization-requests:
+    post:
+      summary: Send a request for document actualization
+      description: Sends a formal update request to the Content Managers regarding an outdated or inaccurate document.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  description: Reason why actualization is requested (e.g. legislative updates)
+                  example: "ФГОС по Эпидемиологии обновился приказом Минобрнауки №123 от 2026 года."
+      responses:
+        '201':
+          description: Actualization request submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualizationRequestResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Missing or invalid authorization token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ForbiddenError:
+      description: Access forbidden for user role or access group constraints
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFoundError:
+      description: Requested document or resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    DocumentType:
+      type: string
+      enum:
+        - Position
+        - Procedure
+        - Project
+        - Other
+      description: Type classification of the document.
+
+    ProgramType:
+      type: string
+      enum:
+        - postgraduate
+        - residency
+        - both
+      description: Targeted educational program direction.
+
+    ProcessType:
+      type: string
+      enum:
+        - admission
+        - certification
+        - stipends
+        - practice
+        - result_tracking
+        - other
+      description: Educational process mapping.
+
+    DocumentResponse:
+      type: object
+      required:
+        - id
+        - title
+        - documentType
+        - academicYear
+        - program
+        - process
+        - status
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "d3b07384-d113-49c3-a5e2-63bc40428efc"
+        title:
+          type: string
+          example: "Порядок расчета стипендий аспирантов"
+        description:
+          type: string
+          example: "Регламентирует порядок назначения и выплаты стипендий за успехи в учебе."
+        documentType:
+          $ref: '#/components/schemas/DocumentType'
+        academicYear:
+          type: string
+          example: "2026–2027"
+        program:
+          $ref: '#/components/schemas/ProgramType'
+        process:
+          $ref: '#/components/schemas/ProcessType'
+        status:
+          type: string
+          enum: [PROJECT, ACTIVE, DECOMMISSIONED]
+          example: "ACTIVE"
+        approvalDate:
+          type: string
+          format: date
+          example: "2026-09-01"
+        documentNumber:
+          type: string
+          example: "123-P"
+        version:
+          type: string
+          example: "1.0"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-09-15T10:30:00Z"
+        schemaTags:
+          type: array
+          items:
+            type: string
+          example: ["Stipends", "Regulations"]
+
+    DocumentDetailsResponse:
+      type: object
+      required:
+        - document
+        - versions
+      properties:
+        document:
+          $ref: '#/components/schemas/DocumentResponse'
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentVersionResponse'
+
+    DocumentVersionResponse:
+      type: object
+      required:
+        - id
+        - versionNumber
+        - status
+        - changesSummary
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "a8b9c1d2-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+        versionNumber:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum: [DRAFT, ACTIVE, ARCHIVED]
+          example: "ACTIVE"
+        changesSummary:
+          type: string
+          example: "Первоначальная редакция регламента."
+        fileUrl:
+          type: string
+          example: "/api/files/d3b07384-d113-49c3-a5e2-63bc40428efc/v1.pdf"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-09-01T09:00:00Z"
+
+    SearchResultResponse:
+      type: object
+      required:
+        - document
+        - rank
+      properties:
+        document:
+          $ref: '#/components/schemas/DocumentResponse'
+        rank:
+          type: number
+          format: float
+          description: Search relevance rank calculated by native ts_rank
+          example: 0.89
+
+    CommentResponse:
+      type: object
+      required:
+        - id
+        - userId
+        - userName
+        - text
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "b1030e20-72bb-4c22-b677-fcda6d772b11"
+        userId:
+          type: string
+          format: uuid
+          example: "00000000-0000-0000-0000-000000000001"
+        userName:
+          type: string
+          example: "Иванов Иван Иванович"
+        text:
+          type: string
+          example: "Пожалуйста, уточните размер стипендии для второго года обучения."
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-09-16T11:00:00Z"
+
+    ActualizationRequestResponse:
+      type: object
+      required:
+        - id
+        - documentId
+        - requesterId
+        - reason
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "c2040e30-83cc-5d33-c788-fcda6d772b22"
+        documentId:
+          type: string
+          format: uuid
+          example: "d3b07384-d113-49c3-a5e2-63bc40428efc"
+        requesterId:
+          type: string
+          format: uuid
+          example: "00000000-0000-0000-0000-000000000002"
+        reason:
+          type: string
+          example: "ФГОС по Эпидемиологии обновился приказом Минобрнауки №123 от 2026 года."
+        status:
+          type: string
+          enum: [PENDING, REVIEWING, RESOLVED, REJECTED]
+          example: "PENDING"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-09-17T12:00:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: "ACCESS_DENIED"
+        message:
+          type: string
+          example: "User is not authorized to edit this document."
