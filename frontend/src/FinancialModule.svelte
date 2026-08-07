@@ -84,7 +84,14 @@
     if (err.code === 'UNAUTHORIZED') {
       return 'Вы не авторизованы в системе. Пожалуйста, выполните вход.';
     }
-    return err.message || 'Ошибка обработки запроса';
+    let msg = err.message || '';
+    if (msg.includes('does not have access')) {
+      return 'Доступ ограничен. У вашей роли отсутствуют необходимые права для просмотра этого раздела.';
+    }
+    if (/[a-zA-Z]/.test(msg)) {
+      return 'Внутренняя ошибка сервера при обработке запроса.';
+    }
+    return msg || 'Ошибка обработки запроса';
   }
 
   // Fetch data function
