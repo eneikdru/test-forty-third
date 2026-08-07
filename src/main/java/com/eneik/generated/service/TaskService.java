@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +34,26 @@ public class TaskService {
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         return taskRepository.save(task);
+    }
+
+    /**
+     * Retrieves the current state of the Flow Core.
+     */
+    public Map<String, Object> getFlowCoreState() {
+        long failedTasksCount = taskRepository.countByStatus("failed");
+        String state = failedTasksCount > 0 ? "BLOCKED_BY_FAILED_FRONTIER" : "ACTIVE";
+        return Map.of(
+            "state", state,
+            "failedTasksCount", failedTasksCount
+        );
+    }
+
+    /**
+     * Unblocks the Flow Core by transitioning failed tasks to an active state.
+     */
+    public int unblockFlowCore(String targetStatus) {
+        String resolvedTarget = (targetStatus == null || targetStatus.trim().isEmpty()) ? "open" : targetStatus;
+        return taskRepository.updateAllStatusAtomically("failed", resolvedTarget, LocalDateTime.now());
     }
 
     public Optional<Task> getTask(UUID id) {
@@ -78,7 +99,7 @@ public class TaskService {
      * Syncs tasks status with GitHub reality.
      * If a task is marked 'done' but its associated GitHub PR is closed and unmerged, transitions status to 'failed'.
      * If a task is not marked 'done' but its associated GitHub PR is closed and merged, transitions status to 'done'.
-     * If a task is not marked 'done' and its associated GitHub PR is closed and unmerged, bypasses status update to 'done'.
+     * If a task is not marked 'done' and its associated GitHub PR is closed and unmerged, transitions status to 'failed'.
      * All database updates use an atomically-guarded query.
      */
     public int syncTaskStatusesWithGitHub() {
@@ -116,9 +137,14 @@ public class TaskService {
                             reconciledCount++;
                         }
                     } else {
-                        // PR is closed and unmerged -> status update logic to done is bypassed
-                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, bypassing status update to done",
+                        // PR is closed and unmerged -> update task status to failed
+                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, transitioning status to failed",
                                 task.getId(), task.getGithubPrNumber());
+
+                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", task.getStatus());
+                        if (updatedRows > 0) {
+                            reconciledCount++;
+                        }
                     }
                 }
             }

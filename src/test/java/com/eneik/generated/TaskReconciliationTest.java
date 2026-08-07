@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -203,12 +204,12 @@ public class TaskReconciliationTest {
         // Trigger synchronization via scheduler
         taskSyncScheduler.runSyncJob();
 
-        // Verify that the task status was NOT updated to 'done' (remains 'in_progress')
+        // Verify that the task status was updated to 'failed' rather than 'done'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("in_progress", reloaded.getStatus());
+        assertEquals("failed", reloaded.getStatus());
 
-        // Verify that updateStatusAtomically was never called with "done" status for this task
-        verify(taskRepository, never()).updateStatusAtomically(eq(taskId), eq("done"), anyString());
+        // Verify that updateStatusAtomically was indeed called with "failed" status for this task
+        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("failed"), eq("in_progress"));
     }
 
     @Test
@@ -233,5 +234,62 @@ public class TaskReconciliationTest {
 
         // Verify that updateStatusAtomically was indeed called with "done" status for this task
         verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("done"), eq("in_progress"));
+    }
+
+    @Test
+    public void testFlowCoreBlockedWhenFailedTasksExist() throws Exception {
+        // Assert initial flow state is ACTIVE
+        mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is("ACTIVE")))
+                .andExpect(jsonPath("$.failedTasksCount", is(0)));
+
+        // Create a failed task
+        UUID taskId = UUID.randomUUID();
+        Task failedTask = new Task(taskId, "Failed Task", "failed", 101, "closed", false);
+        taskRepository.saveAndFlush(failedTask);
+
+        // Assert flow state is now BLOCKED_BY_FAILED_FRONTIER
+        mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is("BLOCKED_BY_FAILED_FRONTIER")))
+                .andExpect(jsonPath("$.failedTasksCount", is(1)));
+    }
+
+    @Test
+    public void testFlowCoreUnblockTransitionsFailedTasksToOpen() throws Exception {
+        // Create 5 failed tasks (representing the five failed tasks of the brief)
+        for (int i = 0; i < 5; i++) {
+            UUID taskId = UUID.randomUUID();
+            Task failedTask = new Task(taskId, "Failed Task " + i, "failed", 200 + i, "closed", false);
+            taskRepository.saveAndFlush(failedTask);
+        }
+
+        // Verify state is blocked with 5 failed tasks
+        mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is("BLOCKED_BY_FAILED_FRONTIER")))
+                .andExpect(jsonPath("$.failedTasksCount", is(5)));
+
+        // Execute the unblocking patch
+        mockMvc.perform(post("/api/v1/tasks/flow-core/unblock")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("targetStatus", "open"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("success")))
+                .andExpect(jsonPath("$.unblockedCount", is(5)));
+
+        // Verify flow core is active now
+        mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is("ACTIVE")))
+                .andExpect(jsonPath("$.failedTasksCount", is(0)));
+
+        // Verify tasks statuses became 'open'
+        List<Task> tasks = taskRepository.findAll();
+        assertFalse(tasks.isEmpty());
+        for (Task t : tasks) {
+            assertEquals("open", t.getStatus());
+        }
     }
 }

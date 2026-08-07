@@ -68,4 +68,23 @@ public class TaskController {
                 "message", "Status reconciliation completed successfully"
         ));
     }
+
+    @GetMapping("/flow-core/state")
+    public ResponseEntity<?> getFlowCoreState() {
+        return ResponseEntity.ok(taskService.getFlowCoreState());
+    }
+
+    @PostMapping("/flow-core/unblock")
+    public ResponseEntity<?> unblockFlowCore(@RequestBody(required = false) Map<String, String> body) {
+        String targetStatus = null;
+        if (body != null) {
+            targetStatus = body.get("targetStatus");
+        }
+        int unblockedCount = taskService.unblockFlowCore(targetStatus);
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "unblockedCount", unblockedCount,
+                "message", "Flow Core unblocked successfully, state is now ACTIVE"
+        ));
+    }
 }
