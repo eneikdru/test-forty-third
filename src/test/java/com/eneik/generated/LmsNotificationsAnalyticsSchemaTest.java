@@ -1,5 +1,7 @@
 package com.eneik.generated;
 
+import com.eneik.generated.model.*;
+import com.eneik.generated.repository.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +21,15 @@ public class LmsNotificationsAnalyticsSchemaTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private DocumentLmsMetadataRepository lmsMetadataRepository;
+
+    @Autowired
+    private DocumentRepository documentRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Test
     public void testNewSchemaExists() {
@@ -58,5 +69,39 @@ public class LmsNotificationsAnalyticsSchemaTest {
         List<Map<String, Object>> prefs = jdbcTemplate.queryForList("SELECT * FROM user_notification_preferences WHERE id = ?", prefId);
         assertEquals(1, prefs.size());
         assertEquals("123456789", prefs.get(0).get("telegram_chat_id"));
+    }
+
+    @Test
+    public void testLmsMetadataJpaPersistence() {
+        UUID catId = UUID.randomUUID();
+        Category category = new Category(catId, "Integration Category " + catId);
+        categoryRepository.save(category);
+
+        UUID docId = UUID.randomUUID();
+        Document document = new Document();
+        document.setId(docId);
+        document.setCategory(category);
+        document.setTitle("Test JPA Document LMS");
+        documentRepository.save(document);
+
+        UUID metaId = UUID.randomUUID();
+        DocumentLmsMetadata metadata = new DocumentLmsMetadata(
+            metaId,
+            document,
+            "Teachbase",
+            "tb_course_999",
+            "https://teachbase.ru/course/999",
+            "{\"duration\": \"2 weeks\"}"
+        );
+        lmsMetadataRepository.save(metadata);
+
+        List<DocumentLmsMetadata> fetchedList = lmsMetadataRepository.findByDocumentId(docId);
+        assertEquals(1, fetchedList.size());
+        DocumentLmsMetadata fetched = fetchedList.get(0);
+        assertEquals(metaId, fetched.getId());
+        assertEquals("Teachbase", fetched.getLmsProvider());
+        assertEquals("tb_course_999", fetched.getExternalId());
+        assertEquals("https://teachbase.ru/course/999", fetched.getExternalUrl());
+        assertEquals("{\"duration\": \"2 weeks\"}", fetched.getMetadataJson());
     }
 }
