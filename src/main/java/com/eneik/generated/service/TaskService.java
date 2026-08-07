@@ -89,7 +89,7 @@ public class TaskService {
     /**
      * Reconciles all tasks status against GitHub reality.
      * If a task is marked 'done' internally but the associated GitHub PR is closed and unmerged,
-     * updates the state to 'unmerged' using an atomically-guarded query.
+     * updates the state to 'failed' using an atomically-guarded query.
      */
     public int reconcileTaskStatusAgainstGitHubTruth() {
         return syncTaskStatusesWithGitHub();

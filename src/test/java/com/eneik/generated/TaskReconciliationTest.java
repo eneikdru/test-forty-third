@@ -128,7 +128,7 @@ public class TaskReconciliationTest {
     }
 
     @Test
-    public void testReconciliationCorrectsMismatchStatusToUnmerged() throws Exception {
+    public void testReconciliationCorrectsMismatchStatusToFailed() throws Exception {
         UUID taskId = UUID.fromString("0bcb9d29-ad04-4c30-8448-e3cbacf70c4f");
         // Task starts at 'done' internally
         Task task = new Task(taskId, "Mismatched Task", "done", 53, "closed", false);
