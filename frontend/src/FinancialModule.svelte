@@ -84,7 +84,14 @@
     if (err.code === 'UNAUTHORIZED') {
       return 'Вы не авторизованы в системе. Пожалуйста, выполните вход.';
     }
-    return err.message || 'Ошибка обработки запроса';
+    let msg = err.message || '';
+    if (msg.includes('does not have access')) {
+      return 'Доступ ограничен. У вашей роли отсутствуют необходимые права для просмотра этого раздела.';
+    }
+    if (/[a-zA-Z]/.test(msg)) {
+      return 'Внутренняя ошибка сервера при обработке запроса.';
+    }
+    return msg || 'Ошибка обработки запроса';
   }
 
   // Fetch data function
@@ -287,15 +294,6 @@
           <span class="material-symbols-outlined">school</span>
           <span>Стипендии</span>
         </button>
-
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Интеграция'}
-          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-        >
-          <span class="material-symbols-outlined">settings_suggest</span>
-          <span>Настройки и аналитика</span>
-        </button>
       {/if}
     </nav>
 
@@ -371,7 +369,7 @@
           <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
           <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
         </div>
-      {:else if activeCategory === 'Интеграция'}
+      {:else if activeCategory === 'Интеграция' && selectedRole !== 'Postgraduate'}
         <SettingsAndAnalytics />
       {:else}
 
