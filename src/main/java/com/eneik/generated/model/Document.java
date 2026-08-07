@@ -40,6 +40,43 @@ public class Document {
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DocumentVersion> versions = new HashSet<>();
 
+    @Column(name = "document_type", nullable = false)
+    private String documentType = "Other";
+
+    @Column(name = "academic_year", nullable = false)
+    private String academicYear = "infinite";
+
+    @Column(nullable = false)
+    private String status = "PROJECT";
+
+    @Column(nullable = false)
+    private String program = "both";
+
+    @Column(nullable = false)
+    private String process = "other";
+
+    @Column(name = "approval_date")
+    private java.time.LocalDate approvalDate;
+
+    @Column(name = "document_number")
+    private String documentNumber;
+
+    @Column(name = "responsible_name")
+    private String responsibleName;
+
+    @Column(name = "responsible_title")
+    private String responsibleTitle;
+
+    @Column(name = "responsible_unit")
+    private String responsibleUnit;
+
+    @Column(name = "decommissioned_at")
+    private LocalDateTime decommissionedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "successor_document_id")
+    private Document successorDocument;
+
     public Document() {}
 
     public Document(UUID id, Category category, String title, String description) {
@@ -48,6 +85,42 @@ public class Document {
         this.title = title;
         this.description = description;
     }
+
+    public String getDocumentType() { return documentType; }
+    public void setDocumentType(String documentType) { this.documentType = documentType; }
+
+    public String getAcademicYear() { return academicYear; }
+    public void setAcademicYear(String academicYear) { this.academicYear = academicYear; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getProgram() { return program; }
+    public void setProgram(String program) { this.program = program; }
+
+    public String getProcess() { return process; }
+    public void setProcess(String process) { this.process = process; }
+
+    public java.time.LocalDate getApprovalDate() { return approvalDate; }
+    public void setApprovalDate(java.time.LocalDate approvalDate) { this.approvalDate = approvalDate; }
+
+    public String getDocumentNumber() { return documentNumber; }
+    public void setDocumentNumber(String documentNumber) { this.documentNumber = documentNumber; }
+
+    public String getResponsibleName() { return responsibleName; }
+    public void setResponsibleName(String responsibleName) { this.responsibleName = responsibleName; }
+
+    public String getResponsibleTitle() { return responsibleTitle; }
+    public void setResponsibleTitle(String responsibleTitle) { this.responsibleTitle = responsibleTitle; }
+
+    public String getResponsibleUnit() { return responsibleUnit; }
+    public void setResponsibleUnit(String responsibleUnit) { this.responsibleUnit = responsibleUnit; }
+
+    public LocalDateTime getDecommissionedAt() { return decommissionedAt; }
+    public void setDecommissionedAt(LocalDateTime decommissionedAt) { this.decommissionedAt = decommissionedAt; }
+
+    public Document getSuccessorDocument() { return successorDocument; }
+    public void setSuccessorDocument(Document successorDocument) { this.successorDocument = successorDocument; }
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
