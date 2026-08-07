@@ -220,6 +220,58 @@ public class NotificationTriggerIntegrationTest {
     }
 
     @Test
+    public void testTelegramMarkdownV2Escaping() {
+        // Setup deterministic ID and Time
+        String fixedNotifId = "notif_escaping_9999";
+        idProvider.setFixedStringId(fixedNotifId);
+
+        LocalDateTime fixedTime = LocalDateTime.of(2026, 8, 7, 12, 0, 0);
+        timeProvider.setFixedDateTime(fixedTime);
+
+        // 1. Create a Category with special characters
+        UUID categoryId = UUID.randomUUID();
+        Category category = new Category(categoryId, "Категория! _специальная_");
+        categoryRepository.save(category);
+
+        // 2. Create a Document with special characters
+        UUID documentId = UUID.randomUUID();
+        Document doc = new Document(documentId, category, "Положение [о] стипендиях (аспирантура) *2026*", "Test doc desc");
+
+        // Add a version
+        DocumentVersion version = new DocumentVersion();
+        version.setId(UUID.randomUUID());
+        version.setDocument(doc);
+        version.setVersionNumber(1);
+        version.setFileUrl("https://kb.crie.ru/files/v1.pdf");
+        version.setFileType("PDF");
+        version.setStatus("ACTIVE");
+        version.setAuthorName("Петров П.П. & Сидоров С.С.");
+        version.setChangesSummary("Первоначальное наполнение.");
+        doc.setVersions(Set.of(version));
+
+        documentRepository.save(doc);
+
+        // 3. Fire quarterly review trigger via REST controller
+        String triggerUrl = baseUrl + "/api/v1/notifications/trigger/quarterly-review?documentId=" + documentId;
+        ResponseEntity<Map> response = restTemplate.postForEntity(triggerUrl, null, Map.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // 4. Retrieve and verify that special characters are escaped in Telegram message
+        List<TelegramNotificationRequest> telegramList = notificationDispatcher.getDispatchedTelegram();
+        assertEquals(1, telegramList.size());
+
+        TelegramNotificationRequest telegramNotif = telegramList.get(0);
+        String renderedMsg = telegramNotif.getRenderedMessage();
+        assertNotNull(renderedMsg);
+
+        // Category name: "Категория! _специальная_" -> "Категория\! \_специальная\_"
+        assertTrue(renderedMsg.contains("Категория\\! \\_специальная\\_"));
+
+        // Title: "Положение [о] стипендиях (аспирантура) *2026*" -> "Положение \[о\] стипендиях \(аспирантура\) \*2026\*"
+        assertTrue(renderedMsg.contains("Положение \\[о\\] стипендиях \\(аспирантура\\) \\*2026\\*"));
+    }
+
+    @Test
     public void testDispatchSecurityRequiresBearerToken() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
