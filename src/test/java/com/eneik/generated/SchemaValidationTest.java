@@ -29,6 +29,8 @@ public class SchemaValidationTest {
         assertTrue(tablesStr.contains("categories"));
         assertTrue(tablesStr.contains("documents"));
         assertTrue(tablesStr.contains("document_versions"));
+        assertTrue(tablesStr.contains("tags"));
+        assertTrue(tablesStr.contains("document_tags"));
     }
 
     @Test
@@ -57,5 +59,20 @@ public class SchemaValidationTest {
 
         assertEquals(1, archivedVersions.size());
         assertEquals(1, archivedVersions.get(0).get("version_number"));
+    }
+
+    @Test
+    public void testSeededTagsAndRoles() {
+        // Verify seeded tags
+        List<Map<String, Object>> tags = jdbcTemplate.queryForList("SELECT name FROM tags ORDER BY name");
+        assertEquals(2, tags.size());
+        assertEquals("Budget", tags.get(0).get("name"));
+        assertEquals("Load", tags.get(1).get("name"));
+
+        // Verify seeded roles
+        List<Map<String, Object>> roles = jdbcTemplate.queryForList("SELECT name FROM roles WHERE name IN ('Economist', 'HR') ORDER BY name");
+        assertEquals(2, roles.size());
+        assertEquals("Economist", roles.get(0).get("name"));
+        assertEquals("HR", roles.get(1).get("name"));
     }
 }
