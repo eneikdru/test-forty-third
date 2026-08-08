@@ -468,4 +468,46 @@ public class TaskReconciliationTest {
             taskService.updateTaskStatus(taskId, "done");
         });
     }
+
+    @Test
+    public void testUpdateTaskStatusRejectsTransitionToDoneWhenPrOpenAndUnmerged() throws Exception {
+        UUID taskId = UUID.randomUUID();
+        Task task = new Task(taskId, "Open Unmerged PR Task", "in_progress", 1001, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth for PR 1001: open and NOT merged
+        gitHubService.registerPrStatus(1001, "open", false);
+
+        // Attempting to transition to 'done' should be rejected
+        mockMvc.perform(put("/api/v1/tasks/" + taskId + "/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("status", "done"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("CONSTRAINT_VIOLATION")))
+                .andExpect(jsonPath("$.message", containsString("is not merged")));
+
+        // Verify task status remains 'in_progress'
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("in_progress", reloaded.getStatus());
+    }
+
+    @Test
+    public void testReconciliationRevertsDoneTaskWithOpenPrToInProgress() throws Exception {
+        UUID taskId = UUID.randomUUID();
+        // Task starts at 'done' internally
+        Task task = new Task(taskId, "Task with Open PR Mismatch", "done", 1002, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: open and unmerged
+        gitHubService.registerPrStatus(1002, "open", false);
+
+        // Trigger reconciliation
+        mockMvc.perform(post("/api/v1/tasks/reconcile"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reconciledCount", is(1)));
+
+        // Verify that the task status has been reverted to 'in_progress'
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("in_progress", reloaded.getStatus());
+    }
 }
