@@ -1,0 +1,34 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Patch the internal task status synchronization logic to correctly identify and handle PRs that were closed on GitHub without being merged, preventing tasks from being falsely marked as done."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Fix PR closure status synchronization",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the PR sync patch for this epic, I want to accurately detect unmerged closures, so that the internal task status is updated or reverted appropriately.",
+          "acceptanceCriteria": "Given an internal task associated with a GitHub PR\nWhen the PR is closed without being merged\nThen the synchronization logic must not mark the task as done\nAnd integration tests verify the unmerged closure scenario correctly",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Task synchronization loop",
+          "sixSigmaMetric": "Reduce false-positive done tasks due to closed-unmerged PRs from current rate to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
