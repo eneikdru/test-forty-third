@@ -208,8 +208,8 @@ public class TaskReconciliationTest {
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("failed", reloaded.getStatus());
 
-        // Verify that updateStatusAtomically was indeed called with "failed" status for this task
-        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("failed"), eq("in_progress"));
+        // Verify that updateStatusAndPrStateAtomically was indeed called with "failed" status for this task
+        verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(eq(taskId), eq("failed"), eq("closed"), eq(false), any(), eq("in_progress"));
     }
 
     @Test
@@ -232,8 +232,8 @@ public class TaskReconciliationTest {
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("done", reloaded.getStatus());
 
-        // Verify that updateStatusAtomically was indeed called with "done" status for this task
-        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("done"), eq("in_progress"));
+        // Verify that updateStatusAndPrStateAtomically was indeed called with "done" status for this task
+        verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(eq(taskId), eq("done"), eq("closed"), eq(true), any(), eq("in_progress"));
     }
 
     @Test
@@ -346,5 +346,27 @@ public class TaskReconciliationTest {
             assertNull(t.getGithubPrState());
             assertNull(t.getGithubPrMerged());
         }
+    }
+
+    @Test
+    public void testReconciliationUpdatesCachedPrStateOnCloseWithoutMerge() throws Exception {
+        UUID taskId = UUID.randomUUID();
+        // Task starts at 'done' internally, but cached PR state is 'open' / false
+        Task task = new Task(taskId, "Task to be corrected", "done", 77, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and unmerged
+        gitHubService.registerPrStatus(77, "closed", false);
+
+        // Trigger reconciliation
+        mockMvc.perform(post("/api/v1/tasks/reconcile"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reconciledCount", is(1)));
+
+        // Verify task status is 'failed' and cached PR state is corrected to 'closed' / false
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus());
+        assertEquals("closed", reloaded.getGithubPrState());
+        assertFalse(reloaded.getGithubPrMerged());
     }
 }

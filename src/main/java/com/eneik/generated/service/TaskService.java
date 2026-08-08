@@ -74,19 +74,38 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + id));
 
-        if ("done".equalsIgnoreCase(targetStatus) && task.getGithubPrNumber() != null) {
+        String githubPrState = task.getGithubPrState();
+        Boolean githubPrMerged = task.getGithubPrMerged();
+
+        if (task.getGithubPrNumber() != null) {
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
-            if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
-                throw new IllegalStateException(
-                        "Cannot transition task status to 'done' because associated PR #"
-                        + task.getGithubPrNumber() + " is closed without being merged."
-                );
+            githubPrState = prStatus.getState();
+            githubPrMerged = prStatus.isMerged();
+
+            if ("done".equalsIgnoreCase(targetStatus)) {
+                if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
+                    throw new IllegalStateException(
+                            "Cannot transition task status to 'done' because associated PR #"
+                            + task.getGithubPrNumber() + " is closed without being merged."
+                    );
+                }
             }
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+            id, targetStatus, githubPrState, githubPrMerged, now, task.getStatus()
+        );
+
+        if (updatedRows == 0) {
+            throw new IllegalStateException("Task status has been modified concurrently by another process.");
+        }
+
         task.setStatus(targetStatus);
-        task.setUpdatedAt(LocalDateTime.now());
-        return taskRepository.save(task);
+        task.setGithubPrState(githubPrState);
+        task.setGithubPrMerged(githubPrMerged);
+        task.setUpdatedAt(now);
+        return task;
     }
 
     /**
@@ -122,7 +141,9 @@ public class TaskService {
                     log.warn("syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
                             task.getId(), task.getGithubPrNumber());
 
-                    int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", "done");
+                    int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                        task.getId(), "failed", prStatus.getState(), prStatus.isMerged(), LocalDateTime.now(), "done"
+                    );
                     if (updatedRows > 0) {
                         reconciledCount++;
                     }
@@ -135,7 +156,9 @@ public class TaskService {
                         log.info("syncTaskStatusesWithGitHub: task {} has merged PR#{}, transitioning status to done",
                                 task.getId(), task.getGithubPrNumber());
 
-                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "done", task.getStatus());
+                        int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                            task.getId(), "done", prStatus.getState(), prStatus.isMerged(), LocalDateTime.now(), task.getStatus()
+                        );
                         if (updatedRows > 0) {
                             reconciledCount++;
                         }
@@ -144,7 +167,9 @@ public class TaskService {
                         log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, transitioning status to failed",
                                 task.getId(), task.getGithubPrNumber());
 
-                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", task.getStatus());
+                        int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                            task.getId(), "failed", prStatus.getState(), prStatus.isMerged(), LocalDateTime.now(), task.getStatus()
+                        );
                         if (updatedRows > 0) {
                             reconciledCount++;
                         }
