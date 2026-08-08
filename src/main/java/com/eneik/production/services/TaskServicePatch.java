@@ -39,11 +39,18 @@ public class TaskServicePatch extends TaskService {
 
         if ("done".equalsIgnoreCase(targetStatus) && task.getGithubPrNumber() != null) {
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
-            if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
-                throw new IllegalStateException(
-                        "Cannot transition task status to 'done' because associated PR #"
-                        + task.getGithubPrNumber() + " is closed without being merged."
-                );
+            if (!prStatus.isMerged()) {
+                if ("closed".equalsIgnoreCase(prStatus.getState())) {
+                    throw new IllegalStateException(
+                            "Cannot transition task status to 'done' because associated PR #"
+                            + task.getGithubPrNumber() + " is closed without being merged."
+                    );
+                } else {
+                    throw new IllegalStateException(
+                            "Cannot transition task status to 'done' because associated PR #"
+                            + task.getGithubPrNumber() + " is not merged."
+                    );
+                }
             }
         }
 
@@ -60,8 +67,13 @@ public class TaskServicePatch extends TaskService {
      * its status is reverted to 'failed'.
      */
     private boolean revertToUnmergedPrState(Task task, GitHubService.PrStatus prStatus) {
-        log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
-                task.getId(), task.getGithubPrNumber());
+        if ("closed".equalsIgnoreCase(prStatus.getState())) {
+            log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
+                    task.getId(), task.getGithubPrNumber());
+        } else {
+            log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is marked done but PR#{} is not merged",
+                    task.getId(), task.getGithubPrNumber());
+        }
         int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
                 task.getId(), "failed", task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
         );
@@ -81,7 +93,7 @@ public class TaskServicePatch extends TaskService {
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
 
             if ("done".equalsIgnoreCase(task.getStatus())) {
-                if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
+                if (!prStatus.isMerged()) {
                     if (revertToUnmergedPrState(task, prStatus)) {
                         reconciledCount++;
                     }

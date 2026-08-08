@@ -84,4 +84,39 @@ public class TaskServicePatchTest {
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("failed", reloaded.getStatus(), "Internal task status must be reverted to reflect the unmerged PR state 'failed'");
     }
+
+    @Test
+    public void testTransitionToDoneFailsWhenPrIsOpenAndUnmerged() {
+        UUID taskId = UUID.randomUUID();
+        Task task = new Task(taskId, "Task With Open PR", "in_progress", 777, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // GitHub PR is open and unmerged
+        gitHubService.registerPrStatus(777, "open", false);
+
+        try {
+            taskService.updateTaskStatus(taskId, "done");
+            org.junit.jupiter.api.Assertions.fail("Should have thrown IllegalStateException because PR is open and unmerged");
+        } catch (IllegalStateException e) {
+            assertTrue(e.getMessage().contains("is not merged"), "Expected exception message to contain 'is not merged'");
+        }
+
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("in_progress", reloaded.getStatus());
+    }
+
+    @Test
+    public void testReconciliationRevertsDoneTaskToFailedWhenPrIsOpenAndUnmerged() {
+        UUID taskId = UUID.randomUUID();
+        Task task = new Task(taskId, "Done Task with Open PR", "done", 888, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // GitHub PR is open and unmerged
+        gitHubService.registerPrStatus(888, "open", false);
+
+        taskService.syncTaskStatusesWithGitHub();
+
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus(), "Task should be reverted to failed status since its open PR is unmerged");
+    }
 }
