@@ -36,7 +36,17 @@ public class AuthService {
             throw new IllegalArgumentException("Username and password must not be empty");
         }
 
-        Optional<User> userOpt = userRepository.findByUsername(username);
+        String targetUsername = username.trim();
+        Optional<User> userOpt = userRepository.findByUsername(targetUsername);
+
+        // Support corporate credentials format (e.g. username@company.com or username@corp.edu)
+        if (userOpt.isEmpty() && targetUsername.contains("@")) {
+            String stripped = targetUsername.substring(0, targetUsername.indexOf("@"));
+            if (!stripped.isEmpty()) {
+                userOpt = userRepository.findByUsername(stripped);
+            }
+        }
+
         if (userOpt.isEmpty()) {
             throw new SecurityException("Invalid username or password");
         }
@@ -47,7 +57,7 @@ public class AuthService {
         }
 
         String rawToken = generateSecureToken();
-        String tokenHash = passwordEncoder.encode(rawToken);
+        String tokenHash = hashToken(rawToken);
 
         UserSession session = new UserSession(
                 UUID.randomUUID(),
@@ -60,6 +70,16 @@ public class AuthService {
         userSessionRepository.save(session);
 
         return rawToken;
+    }
+
+    private String hashToken(String token) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Failed to hash token", e);
+        }
     }
 
     private String generateSecureToken() {

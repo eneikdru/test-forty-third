@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface UserSessionRepository extends JpaRepository<UserSession, UUID> {
+    java.util.Optional<UserSession> findByTokenHash(String tokenHash);
 }

@@ -4,7 +4,10 @@ import com.eneik.production.auth.model.User;
 import com.eneik.production.auth.model.UserSession;
 import com.eneik.production.auth.repository.UserRepository;
 import com.eneik.production.auth.repository.UserSessionRepository;
+import com.eneik.generated.repository.UserRoleRepository;
+import com.eneik.generated.model.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,9 @@ public class AuthIntegrationTest {
     private UserSessionRepository userSessionRepository;
 
     @Autowired
+    private UserRoleRepository userRoleRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -51,6 +57,7 @@ public class AuthIntegrationTest {
     @BeforeEach
     public void setUp() {
         userSessionRepository.deleteAll();
+        userRoleRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -142,5 +149,86 @@ public class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is("BAD_REQUEST")));
+    }
+
+    @Test
+    public void testLoginWithCorporateCredentialsEmail() throws Exception {
+        User user = new User(
+                UUID.randomUUID(),
+                "admin",
+                passwordEncoder.encode("supersecret"),
+                LocalDateTime.now()
+        );
+        userRepository.save(user);
+
+        // Login with a corporate email format where the username is the prefix
+        Map<String, String> creds = Map.of(
+                "username", "admin@corp.university.ru",
+                "password", "supersecret"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(creds)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("success")));
+    }
+
+    @Test
+    public void testSessionAuthenticationCorrectlyOverridesUnverifiedHeaders() throws Exception {
+        UUID userId = UUID.randomUUID();
+        User user = new User(
+                userId,
+                "john_doe",
+                passwordEncoder.encode("mypassword"),
+                LocalDateTime.now()
+        );
+        userRepository.save(user);
+
+        UserRole role = new UserRole(
+                UUID.randomUUID(),
+                userId,
+                "Teacher"
+        );
+        userRoleRepository.save(role);
+
+        // Log in to get a valid secure session token
+        Map<String, String> creds = Map.of(
+                "username", "john_doe",
+                "password", "mypassword"
+        );
+
+        MvcResult loginResult = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(creds)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String setCookieHeader = loginResult.getResponse().getHeader("Set-Cookie");
+        assertNotNull(setCookieHeader);
+        String sessionToken = null;
+        for (String part : setCookieHeader.split(";")) {
+            if (part.trim().startsWith("session_token=")) {
+                sessionToken = part.trim().substring("session_token=".length());
+                break;
+            }
+        }
+        assertNotNull(sessionToken);
+
+        // Perform search request with valid session_token but a conflicting untrusted role header 'X-User-Role: InvalidRole'.
+        // The secure filter should ignore the header, resolve the role from DB ('Teacher'), and authorize the request!
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/documents/search")
+                        .param("q", "test")
+                        .cookie(new Cookie("session_token", sessionToken))
+                        .header("X-User-Role", "InvalidRole"))
+                .andExpect(status().isOk());
+
+        // Perform request with an INVALID session token.
+        // Unverified headers/roles should be blocked and ignored, resulting in UNAUTHORIZED / ACCESS_DENIED.
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/documents/search")
+                        .param("q", "test")
+                        .cookie(new Cookie("session_token", "invalid_token_123456789012345678901234567890"))
+                        .header("X-User-Role", "Teacher"))
+                .andExpect(status().isUnauthorized());
     }
 }
