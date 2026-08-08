@@ -46,11 +46,12 @@ public class AuthService {
             throw new SecurityException("Invalid username or password");
         }
 
+        UUID sessionId = UUID.randomUUID();
         String rawToken = generateSecureToken();
         String tokenHash = passwordEncoder.encode(rawToken);
 
         UserSession session = new UserSession(
-                UUID.randomUUID(),
+                sessionId,
                 user.getId(),
                 tokenHash,
                 timeProvider.now().plusHours(24),
@@ -59,7 +60,7 @@ public class AuthService {
         );
         userSessionRepository.save(session);
 
-        return rawToken;
+        return sessionId.toString() + ":" + rawToken;
     }
 
     private String generateSecureToken() {
