@@ -247,4 +247,42 @@ public class DocumentSearchControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(doc3.getId().toString(), doc4.getId().toString())));
     }
+
+    @Test
+    public void testSearchDocumentsPagination() throws Exception {
+        // Create 12 documents with "ФГОС" in title to have 12 search results
+        for (int i = 1; i <= 12; i++) {
+            createDocument("ФГОС Тест " + i, "Описание " + i, "both", "Position");
+        }
+
+        // Test 1: Given a search request without pagination parameters, When total results exceed default page size (10),
+        // Then it falls back to a default page size and returns a paginated response with totalCount.
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ФГОС"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCount", is(12)))
+                .andExpect(jsonPath("$.data", hasSize(10)));
+
+        // Test 2: Given a search request with page parameters, When the total results exceed the page size,
+        // Then the API returns the requested page of documents and the total count.
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ФГОС")
+                        .param("page", "2")
+                        .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCount", is(12)))
+                .andExpect(jsonPath("$.data", hasSize(5)));
+
+        // Test 3: Given a search request with a specific page number, When that page has no results,
+        // Then the API returns an empty array.
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ФГОС")
+                        .param("page", "5")
+                        .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
 }

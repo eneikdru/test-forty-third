@@ -292,4 +292,50 @@ public class DocumentControllerTest {
         org.junit.jupiter.api.Assertions.assertEquals(UUID.fromString(documentId), viewEvent.getDocumentId());
         org.junit.jupiter.api.Assertions.assertEquals(userId, viewEvent.getUserId());
     }
+
+    @Test
+    public void testGetDocumentsPagination() throws Exception {
+        // Create 12 dummy documents
+        for (int i = 1; i <= 12; i++) {
+            Document doc = new Document();
+            doc.setId(UUID.randomUUID());
+            doc.setTitle("Document Number " + i);
+            doc.setDocumentType("Position");
+            doc.setAcademicYear("infinite");
+            doc.setProgram("both");
+            doc.setProcess("other");
+            doc.setDocumentNumber("DOC-" + i);
+            doc.setStatus("ACTIVE");
+            doc.setCreatedAt(timeProvider.now());
+            doc.setUpdatedAt(timeProvider.now());
+            documentRepository.save(doc);
+        }
+
+        // Test 1: Given a request without pagination parameters, When total results exceed default page size (10),
+        // Then it falls back to a default page size and returns a paginated response with totalCount.
+        mockMvc.perform(get("/api/documents")
+                        .header("X-User-Role", "Student"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCount", is(12)))
+                .andExpect(jsonPath("$.data", hasSize(10)));
+
+        // Test 2: Given a request with page parameters, When the total results exceed the page size,
+        // Then the API returns the requested page of documents and the total count.
+        mockMvc.perform(get("/api/documents")
+                        .header("X-User-Role", "Student")
+                        .param("page", "2")
+                        .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCount", is(12)))
+                .andExpect(jsonPath("$.data", hasSize(5)));
+
+        // Test 3: Given a list request with a specific page number, When that page has no results,
+        // Then the API returns an empty array.
+        mockMvc.perform(get("/api/documents")
+                        .header("X-User-Role", "Student")
+                        .param("page", "5")
+                        .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
 }
