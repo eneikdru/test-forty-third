@@ -390,4 +390,33 @@ public class TaskReconciliationTest {
             assertNull(t.getGithubPrMerged());
         }
     }
+
+    @Test
+    public void testUpdateTaskStatusThrowsIllegalStateExceptionOnConcurrentModification() {
+        UUID taskId = UUID.randomUUID();
+        Task task = new Task(taskId, "Concurrent Task", "in_progress", null, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // Stub updateStatusAtomically to simulate a concurrent write conflict (returning 0 rows updated)
+        doReturn(0).when(taskRepository).updateStatusAtomically(eq(taskId), anyString(), anyString());
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            taskService.updateTaskStatus(taskId, "failed");
+        });
+
+        assertTrue(exception.getMessage().contains("concurrent state change"));
+    }
+
+    @Test
+    public void testTaskServiceUpdateTaskStatusRejectsTransitionToDoneWhenPrClosedWithoutMerge() {
+        UUID taskId = UUID.randomUUID();
+        Task task = new Task(taskId, "Unmerged Unit Task", "in_progress", 999, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        gitHubService.registerPrStatus(999, "closed", false);
+
+        assertThrows(IllegalStateException.class, () -> {
+            taskService.updateTaskStatus(taskId, "done");
+        });
+    }
 }
