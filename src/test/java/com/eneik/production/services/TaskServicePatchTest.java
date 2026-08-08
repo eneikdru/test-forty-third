@@ -68,4 +68,20 @@ public class TaskServicePatchTest {
         // Should correctly transition from 'done' to 'failed'
         assertEquals("failed", updated.getStatus());
     }
+
+    @Test
+    public void testDoneTaskWithClosedUnmergedPrRevertsToFailedState() {
+        UUID taskId = UUID.randomUUID();
+        // Given a task with an internal status of 'done' and an associated GitHub PR (number 555)
+        Task task = new Task(taskId, "Done Task With Unmerged PR", "done", 555, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // When the system checks the PR state and finds it closed but not merged
+        gitHubService.registerPrStatus(555, "closed", false);
+        taskService.syncTaskStatusesWithGitHub();
+
+        // Then the internal task status must not be 'done' and must be reverted to reflect the unmerged PR state (failed)
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus(), "Internal task status must be reverted to reflect the unmerged PR state 'failed'");
+    }
 }

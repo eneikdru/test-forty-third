@@ -54,6 +54,20 @@ public class TaskServicePatch extends TaskService {
         return taskRepository.findById(id).orElseThrow();
     }
 
+    /**
+     * Reverts the task status to the appropriate unmerged PR state.
+     * When a task is marked 'done' internally but its associated GitHub PR is closed and unmerged,
+     * its status is reverted to 'failed'.
+     */
+    private boolean revertToUnmergedPrState(Task task, GitHubService.PrStatus prStatus) {
+        log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
+                task.getId(), task.getGithubPrNumber());
+        int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                task.getId(), "failed", task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
+        );
+        return updatedRows > 0;
+    }
+
     @Override
     public int syncTaskStatusesWithGitHub() {
         List<Task> tasks = taskRepository.findAll();
@@ -68,13 +82,7 @@ public class TaskServicePatch extends TaskService {
 
             if ("done".equalsIgnoreCase(task.getStatus())) {
                 if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
-                    log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
-                            task.getId(), task.getGithubPrNumber());
-
-                    int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                            task.getId(), "failed", task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
-                    );
-                    if (updatedRows > 0) {
+                    if (revertToUnmergedPrState(task, prStatus)) {
                         reconciledCount++;
                     }
                 }
