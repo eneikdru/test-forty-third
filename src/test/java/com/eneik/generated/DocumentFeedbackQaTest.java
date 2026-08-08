@@ -68,6 +68,8 @@ public class DocumentFeedbackQaTest {
         timeProvider.reset();
 
         // Clear tables and mock notification system
+        jdbcTemplate.update("DELETE FROM document_comments");
+        jdbcTemplate.update("DELETE FROM document_actualization_requests");
         jdbcTemplate.update("DELETE FROM analytics_events");
         jdbcTemplate.update("DELETE FROM document_schema_tags");
         jdbcTemplate.update("DELETE FROM document_versions");
