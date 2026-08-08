@@ -1,10 +1,12 @@
 <script>
   import { onMount } from 'svelte';
+  import DocumentViewModal from './DocumentViewModal.svelte';
 
   // Props
   let { selectedRole = 'Economist' } = $props();
 
   // Svelte 5 state runes
+  let selectedDoc = $state(null);
   let searchQuery = $state('');
   let selectedProgram = $state('all'); // 'all', 'postgraduate', 'residency', 'both'
   let selectedDocType = $state('all'); // 'all', 'Position', 'Procedure', 'Project', 'Other'
@@ -17,7 +19,7 @@
   // Local/Fallback documents representing the required ЦНИИ documents
   const localDocuments = [
     {
-      id: 'local-1',
+      id: '00000000-0000-0000-0000-000000000011',
       title: 'ФГОС ВО по специальности 32.08.12 Эпидемиология',
       description: 'Федеральный государственный образовательный стандарт высшего образования по специальности Эпидемиология.',
       documentType: 'Position',
@@ -32,7 +34,7 @@
       fileType: 'PDF'
     },
     {
-      id: 'local-2',
+      id: '00000000-0000-0000-0000-000000000012',
       title: 'Регламент проведения ГИА и кандидатских экзаменов ЦНИИ',
       description: 'Инструкции и правила проведения государственной итоговой аттестации и кандидатских экзаменов по профильным дисциплинам.',
       documentType: 'Procedure',
@@ -47,7 +49,7 @@
       fileType: 'Doc'
     },
     {
-      id: 'local-3',
+      id: '00000000-0000-0000-0000-000000000013',
       title: 'Шаблоны протоколов ГЭК и отчётов по практике',
       description: 'Утверждённые образцы протоколов государственной экзаменационной комиссии, характеристик и отчётов по прохождению учебной и производственной практики.',
       documentType: 'Project',
@@ -62,7 +64,7 @@
       fileType: 'Table'
     },
     {
-      id: 'local-4',
+      id: '00000000-0000-0000-0000-000000000014',
       title: 'Вопросы к кандидатским экзаменам по профильным дисциплинам',
       description: 'Полный перечень вопросов к кандидатским экзаменам и ГИА для аспирантов по эпидемиологии и инфекционным болезням.',
       documentType: 'Other',
@@ -77,7 +79,7 @@
       fileType: 'PDF'
     },
     {
-      id: 'local-5',
+      id: '00000000-0000-0000-0000-000000000015',
       title: 'Положение о практике, академическом отпуске и ВСОКО',
       description: 'Регламент прохождения практики, предоставления академического отпуска, поощрения обучающихся и функционирования внутренней системы оценки качества образования (ВСОКО).',
       documentType: 'Position',
@@ -92,7 +94,7 @@
       fileType: 'Doc'
     },
     {
-      id: 'local-6',
+      id: '00000000-0000-0000-0000-000000000016',
       title: 'ФГОС ВО по специальности 31.08.35 Инфекционные болезни',
       description: 'Федеральный государственный образовательный стандарт ординатуры по направлению Инфекционные болезни.',
       documentType: 'Position',
@@ -107,7 +109,7 @@
       fileType: 'PDF'
     },
     {
-      id: 'local-7',
+      id: '00000000-0000-0000-0000-000000000017',
       title: 'Шаблоны заявлений на академический отпуск и портфолио',
       description: 'Архив документов и бланков заявлений для оформления отпуска, портфолио достижений и свидетельств.',
       documentType: 'Project',
@@ -122,7 +124,7 @@
       fileType: 'Doc'
     },
     {
-      id: 'local-8',
+      id: '00000000-0000-0000-0000-000000000018',
       title: 'Глоссарий терминов эпидемиологического учёта',
       description: 'Официальный терминологический справочник и список сокращений, используемых в системе эпидемиологического надзора РФ.',
       documentType: 'Other',
@@ -425,7 +427,14 @@
       {#each filteredDocuments as doc}
         {@const fileMeta = getFileTypeIcon(doc.fileType, doc.title)}
         <!-- Карточка документа (Белый фон, тонкая рамка, 0.25rem скругления, hover ambient-shadow, Inter) -->
-        <article class="col-span-4 md:col-span-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[0.25rem] p-4 flex flex-col justify-between h-56 transition-all duration-200 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] cursor-pointer hover:border-slate-300 relative group">
+        <article
+          onclick={() => selectedDoc = doc}
+          onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectedDoc = doc; } }}
+          tabindex="0"
+          role="button"
+          aria-label="Просмотреть {doc.title}"
+          class="col-span-4 md:col-span-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[0.25rem] p-4 flex flex-col justify-between h-56 transition-all duration-200 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] cursor-pointer hover:border-slate-300 relative group"
+        >
 
           <!-- Иконка типа документа сверху справа -->
           <div class="absolute top-4 right-4 flex items-center gap-1">
@@ -478,4 +487,7 @@
     {/if}
   </div>
 
+  {#if selectedDoc}
+    <DocumentViewModal document={selectedDoc} onClose={() => selectedDoc = null} {selectedRole} />
+  {/if}
 </div>
