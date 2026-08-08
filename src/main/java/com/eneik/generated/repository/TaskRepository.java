@@ -14,7 +14,7 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
-    @Query("UPDATE Task t SET t.status = :newStatus WHERE t.id = :id AND t.status = :expectedOldStatus")
+    @Query("UPDATE Task t SET t.status = :newStatus, t.updatedAt = CURRENT_TIMESTAMP WHERE t.id = :id AND t.status = :expectedOldStatus")
     int updateStatusAtomically(
         @Param("id") UUID id,
         @Param("newStatus") String newStatus,

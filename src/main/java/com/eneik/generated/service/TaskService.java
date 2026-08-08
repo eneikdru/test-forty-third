@@ -74,6 +74,8 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + id));
 
+        String expectedOldStatus = task.getStatus();
+
         if ("done".equalsIgnoreCase(targetStatus) && task.getGithubPrNumber() != null) {
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
             if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
@@ -84,9 +86,15 @@ public class TaskService {
             }
         }
 
-        task.setStatus(targetStatus);
-        task.setUpdatedAt(LocalDateTime.now());
-        return taskRepository.save(task);
+        int updatedRows = taskRepository.updateStatusAtomically(id, targetStatus, expectedOldStatus);
+        if (updatedRows == 0) {
+            throw new IllegalStateException(
+                    "Failed to update task status atomically due to a concurrent state change."
+            );
+        }
+
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Task lost during update."));
     }
 
     /**
