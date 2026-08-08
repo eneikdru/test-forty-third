@@ -1,7 +1,9 @@
 package com.eneik.generated;
 
+import com.eneik.generated.model.UserRole;
 import com.eneik.generated.repository.DocumentRepository;
 import com.eneik.generated.repository.DocumentVersionRepository;
+import com.eneik.generated.repository.UserRoleRepository;
 import com.eneik.generated.util.IdProvider;
 import com.eneik.generated.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -45,6 +47,9 @@ public class FilePersistenceAndRetrievalTest {
     private DocumentVersionRepository documentVersionRepository;
 
     @Autowired
+    private UserRoleRepository userRoleRepository;
+
+    @Autowired
     private IdProvider idProvider;
 
     @Autowired
@@ -61,6 +66,7 @@ public class FilePersistenceAndRetrievalTest {
         jdbcTemplate.update("DELETE FROM document_schema_tags");
         jdbcTemplate.update("DELETE FROM document_versions");
         jdbcTemplate.update("DELETE FROM documents");
+        userRoleRepository.deleteAll();
     }
 
     @AfterEach
@@ -134,5 +140,34 @@ public class FilePersistenceAndRetrievalTest {
         mockMvc.perform(get(nonexistentFileUrl))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code", is("UNAUTHORIZED")));
+    }
+
+    @Test
+    public void testDownloadFileWithArbitraryRoleReturns403Forbidden() throws Exception {
+        String nonexistentFileUrl = "/api/files/" + UUID.randomUUID() + "/v1/missing.pdf";
+        mockMvc.perform(get(nonexistentFileUrl)
+                        .header("X-User-Role", "arbitrary_attacker_role"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code", is("ACCESS_DENIED")))
+                .andExpect(jsonPath("$.message", containsString("Access forbidden")));
+    }
+
+    @Test
+    public void testDownloadFileWithMismatchedUserIdAndRoleInDatabaseReturns403() throws Exception {
+        UUID userId = UUID.randomUUID();
+        // Save mismatched user role mapping in the DB
+        UserRole userRole = new UserRole(
+                UUID.randomUUID(), userId, "Student"
+        );
+        userRoleRepository.save(userRole);
+
+        String nonexistentFileUrl = "/api/files/" + UUID.randomUUID() + "/v1/missing.pdf";
+        // Attempting to access as Teacher role but passing the above userId (who only has Student role in DB)
+        mockMvc.perform(get(nonexistentFileUrl)
+                        .header("X-User-Role", "Teacher")
+                        .header("X-User-Id", userId.toString()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code", is("ACCESS_DENIED")))
+                .andExpect(jsonPath("$.message", containsString("User ID does not have the specified role")));
     }
 }

@@ -1,5 +1,7 @@
 package com.eneik.generated.controller;
 
+import com.eneik.generated.model.UserRole;
+import com.eneik.generated.repository.UserRoleRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,6 +21,17 @@ import java.util.UUID;
 public class FileDownloadController {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileDownloadController.class);
+
+    private final UserRoleRepository userRoleRepository;
+
+    private static final java.util.Set<String> ALLOWED_ROLES = java.util.Set.of(
+        "administrator", "content_manager", "content manager", "contentmanager",
+        "teacher", "student", "economist", "postgraduate", "resident", "hr"
+    );
+
+    public FileDownloadController(UserRoleRepository userRoleRepository) {
+        this.userRoleRepository = userRoleRepository;
+    }
 
     @GetMapping("/{documentId}/v{versionNumber}/{filename}")
     public ResponseEntity<?> downloadFile(
@@ -30,6 +44,29 @@ public class FileDownloadController {
         if (role == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+
+        // Strict allowed roles validation to prevent arbitrary client-provided role bypass
+        if (!ALLOWED_ROLES.contains(role.trim().toLowerCase())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("ACCESS_DENIED", "Access forbidden for user role: " + role));
+        }
+
+        // Database cross-verification if user ID is supplied to prevent client-header spoofing
+        String xUserId = request.getHeader("X-User-Id");
+        if (xUserId != null && !xUserId.trim().isEmpty()) {
+            try {
+                UUID userId = UUID.fromString(xUserId.trim());
+                List<UserRole> dbUserRoles = userRoleRepository.findByUserId(userId);
+                boolean hasMatchedRole = dbUserRoles.stream()
+                        .anyMatch(ur -> ur.getRoleName().equalsIgnoreCase(role));
+                if (!hasMatchedRole && !dbUserRoles.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body(new ErrorResponse("ACCESS_DENIED", "User ID does not have the specified role in the database"));
+                }
+            } catch (IllegalArgumentException e) {
+                // Ignore invalid UUID format
+            }
         }
 
         // Sanitize the filename to prevent directory traversal
