@@ -9,6 +9,14 @@
   let selectedProgram = $state('all'); // 'all', 'postgraduate', 'residency', 'both'
   let selectedDocType = $state('all'); // 'all', 'Position', 'Procedure', 'Project', 'Other'
   let selectedProcess = $state('all'); // 'all', 'admission', 'certification', 'stipends', 'practice', 'result_tracking', 'other'
+  let selectedEduLevel = $state('all'); // 'all', 'higher', 'postgraduate_qualification'
+  let selectedDateFilter = $state('all'); // 'all', '7days', '30days', 'year'
+
+  // Favorites & Saved Searches
+  let favorites = $state([]);
+  let savedSearches = $state([]);
+  let activeSuggestionIndex = $state(-1);
+  let showSuggestions = $state(false);
 
   let documents = $state([]);
   let loading = $state(false);
@@ -29,7 +37,8 @@
       documentNumber: 'ФГОС-32.08.12',
       version: '1.0',
       schemaTags: ['Load', 'Book'],
-      fileType: 'PDF'
+      fileType: 'PDF',
+      educationLevel: 'postgraduate_qualification'
     },
     {
       id: 'local-2',
@@ -44,7 +53,8 @@
       documentNumber: 'РЕГ-ГИА-2026',
       version: '2.0',
       schemaTags: ['Book', 'Glossary'],
-      fileType: 'Doc'
+      fileType: 'Doc',
+      educationLevel: 'postgraduate_qualification'
     },
     {
       id: 'local-3',
@@ -59,7 +69,8 @@
       documentNumber: 'ШАБ-ГЭК-ПРАК',
       version: '1.0',
       schemaTags: ['Load'],
-      fileType: 'Table'
+      fileType: 'Table',
+      educationLevel: 'higher'
     },
     {
       id: 'local-4',
@@ -74,7 +85,8 @@
       documentNumber: 'ВОП-КАНД-2025',
       version: '1.0',
       schemaTags: ['Book'],
-      fileType: 'PDF'
+      fileType: 'PDF',
+      educationLevel: 'postgraduate_qualification'
     },
     {
       id: 'local-5',
@@ -89,7 +101,8 @@
       documentNumber: 'ПОЛ-ВСОКО-01',
       version: '1.2',
       schemaTags: ['Load', 'Glossary'],
-      fileType: 'Doc'
+      fileType: 'Doc',
+      educationLevel: 'higher'
     },
     {
       id: 'local-6',
@@ -104,7 +117,8 @@
       documentNumber: 'ФГОС-31.08.35',
       version: '1.0',
       schemaTags: ['Book'],
-      fileType: 'PDF'
+      fileType: 'PDF',
+      educationLevel: 'postgraduate_qualification'
     },
     {
       id: 'local-7',
@@ -119,7 +133,8 @@
       documentNumber: 'ШАБ-ЗАЯВ-ПОРТ',
       version: '0.9',
       schemaTags: ['Glossary'],
-      fileType: 'Doc'
+      fileType: 'Doc',
+      educationLevel: 'higher'
     },
     {
       id: 'local-8',
@@ -134,7 +149,8 @@
       documentNumber: 'СПР-ГЛОС-2025',
       version: '1.5',
       schemaTags: ['Glossary'],
-      fileType: 'Table'
+      fileType: 'Table',
+      educationLevel: 'higher'
     }
   ];
 
@@ -190,9 +206,8 @@
     return { icon: 'article', color: 'text-[#3182CE]', bg: 'bg-[#EBF8FF]', border: 'border-[#BEE3F8]', label: 'Документ' };
   }
 
-  // Reactive derived filtered list
-  let filteredDocuments = $derived.by(() => {
-    // Merge API-loaded and local documents (avoiding duplicates)
+  // Combined unfiltered list
+  let combinedUnfiltered = $derived.by(() => {
     let combined = [...documents];
     const combinedIds = new Set(combined.map(d => d.id));
 
@@ -201,9 +216,33 @@
         combined.push(localDoc);
       }
     }
+    return combined;
+  });
 
-    // Apply filtering on combined list
-    return combined.filter(doc => {
+  // Filter logic helper for dates relative to "2026-09-20"
+  function matchesDateFilter(approvalDateStr, filter) {
+    if (filter === 'all') return true;
+    if (!approvalDateStr) return false;
+    const approvalDate = new Date(approvalDateStr);
+    const refDate = new Date('2026-09-20'); // stable anchor date
+    const diffTime = Math.abs(refDate - approvalDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (filter === '7days') {
+      return diffDays <= 7;
+    }
+    if (filter === '30days') {
+      return diffDays <= 30;
+    }
+    if (filter === 'year') {
+      return approvalDate.getFullYear() === 2026;
+    }
+    return true;
+  }
+
+  // Reactive derived filtered list
+  let filteredDocuments = $derived.by(() => {
+    return combinedUnfiltered.filter(doc => {
       // 1. Search Query Filter
       if (searchQuery.trim() !== '') {
         const q = searchQuery.toLowerCase();
@@ -228,15 +267,109 @@
         if (doc.process !== selectedProcess) return false;
       }
 
+      // 5. Education Level Filter
+      if (selectedEduLevel !== 'all') {
+        const eduLevel = doc.educationLevel || 'higher';
+        if (eduLevel !== selectedEduLevel) return false;
+      }
+
+      // 6. Date Filter
+      if (selectedDateFilter !== 'all') {
+        if (!matchesDateFilter(doc.approvalDate, selectedDateFilter)) return false;
+      }
+
       return true;
     });
   });
+
+  // Filtered favorite documents
+  let favoriteDocuments = $derived.by(() => {
+    return combinedUnfiltered.filter(doc => favorites.includes(doc.id));
+  });
+
+  // Fuzzy search and Typo Correction calculation
+  let typoCorrection = $derived.by(() => {
+    const q = searchQuery.trim();
+    if (!q || q.length < 3) return null;
+    const normalizedQ = q.toLowerCase();
+
+    // If query matches any document directly, don't suggest correction
+    const hasExactMatch = combinedUnfiltered.some(doc =>
+      doc.title.toLowerCase().includes(normalizedQ) ||
+      (doc.documentNumber && doc.documentNumber.toLowerCase().includes(normalizedQ))
+    );
+    if (hasExactMatch) return null;
+
+    let bestMatch = null;
+    let bestSim = 0.0;
+
+    for (const doc of combinedUnfiltered) {
+      const title = doc.title;
+      const sim = getFuzzySimilarity(normalizedQ, title.toLowerCase());
+      if (sim > bestSim && sim > 0.5 && sim < 1.0) {
+        bestSim = sim;
+        bestMatch = title;
+      }
+    }
+    return bestMatch;
+  });
+
+  // Live Auto-suggestions as user types
+  let suggestionsList = $derived.by(() => {
+    const q = searchQuery.trim();
+    if (!q || q.length < 2) return [];
+    const normalizedQ = q.toLowerCase();
+
+    return combinedUnfiltered
+      .filter(doc => doc.title.toLowerCase().includes(normalizedQ))
+      .slice(0, 5)
+      .map(doc => doc.title);
+  });
+
+  function getFuzzySimilarity(s1, s2) {
+    if (s1.length < 3 || s2.length < 3) return 0.0;
+    const words1 = s1.split(/\s+/);
+    const words2 = s2.split(/\s+/);
+
+    // Look for similarity of any word
+    let maxWordSim = 0.0;
+    for (const w1 of words1) {
+      if (w1.length < 3) continue;
+      for (const w2 of words2) {
+        if (w2.length < 3) continue;
+        const dist = getLevenshteinDistance(w1, w2);
+        const maxLen = Math.max(w1.length, w2.length);
+        const sim = 1.0 - ((double) => dist / maxLen)();
+        if (sim > maxWordSim) {
+          maxWordSim = sim;
+        }
+      }
+    }
+    return maxWordSim;
+  }
+
+  function getLevenshteinDistance(s1, s2) {
+    const dp = Array(s2.length + 1).fill(0).map((_, i) => i);
+    for (let i = 1; i <= s1.length; i++) {
+      let prev = dp[0];
+      dp[0] = i;
+      for (let j = 1; j <= s2.length; j++) {
+        const temp = dp[j];
+        if (s1[i - 1] === s2[j - 1]) {
+          dp[j] = prev;
+        } else {
+          dp[j] = Math.min(dp[j - 1], dp[j], prev) + 1;
+        }
+        prev = temp;
+      }
+    }
+    return dp[s2.length];
+  }
 
   async function fetchBackendDocuments() {
     loading = true;
     errorMessage = '';
     try {
-      // Call search with empty query to get all documents matching current role
       const res = await fetch(`/api/documents/search?q=${encodeURIComponent(searchQuery)}`, {
         headers: {
           'X-User-Role': selectedRole
@@ -244,7 +377,6 @@
       });
       if (res.ok) {
         const data = await res.json();
-        // The endpoint returns list of SearchResultResponse with structure { document, rank }
         documents = data.map(item => ({
           id: item.document.id,
           title: item.document.title,
@@ -257,10 +389,10 @@
           approvalDate: item.document.approvalDate,
           documentNumber: item.document.documentNumber,
           version: item.document.version,
-          schemaTags: item.document.schemaTags || []
+          schemaTags: item.document.schemaTags || [],
+          educationLevel: item.document.academicYear && item.document.academicYear.includes('2026') ? 'postgraduate_qualification' : 'higher'
         }));
       } else {
-        // Silent recovery to local data on unauthorized/forbidden
         console.warn('Backend documents loaded from local storage due to API status');
       }
     } catch (err) {
@@ -270,13 +402,98 @@
     }
   }
 
-  // Trigger search on query/role changes
+  // Toggle Favorites
+  function toggleFavorite(id, event) {
+    if (event) event.stopPropagation();
+    if (favorites.includes(id)) {
+      favorites = favorites.filter(favId => favId !== id);
+    } else {
+      favorites = [...favorites, id];
+    }
+    try {
+      localStorage.setItem('kb_favorites_v1', JSON.stringify(favorites));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // Save Searches
+  function saveCurrentSearch() {
+    const q = searchQuery.trim();
+    if (q && !savedSearches.includes(q)) {
+      savedSearches = [q, ...savedSearches].slice(0, 8); // limit to 8
+      try {
+        localStorage.setItem('kb_saved_searches_v1', JSON.stringify(savedSearches));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
+  function deleteSavedSearch(q, event) {
+    if (event) event.stopPropagation();
+    savedSearches = savedSearches.filter(item => item !== q);
+    try {
+      localStorage.setItem('kb_saved_searches_v1', JSON.stringify(savedSearches));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function selectSavedSearch(q) {
+    searchQuery = q;
+    showSuggestions = false;
+  }
+
+  // Handle keys for suggestions
+  function handleKeyDown(event) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      activeSuggestionIndex = (activeSuggestionIndex + 1) % suggestionsList.length;
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      activeSuggestionIndex = (activeSuggestionIndex - 1 + suggestionsList.length) % suggestionsList.length;
+    } else if (event.key === 'Enter') {
+      if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestionsList.length) {
+        event.preventDefault();
+        searchQuery = suggestionsList[activeSuggestionIndex];
+        showSuggestions = false;
+        activeSuggestionIndex = -1;
+      } else {
+        saveCurrentSearch();
+      }
+    } else if (event.key === 'Escape') {
+      showSuggestions = false;
+      activeSuggestionIndex = -1;
+    }
+  }
+
   $effect(() => {
     fetchBackendDocuments();
   });
 
   onMount(() => {
     fetchBackendDocuments();
+    try {
+      const storedFavs = localStorage.getItem('kb_favorites_v1');
+      if (storedFavs) {
+        favorites = JSON.parse(storedFavs);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    try {
+      const storedSearches = localStorage.getItem('kb_saved_searches_v1');
+      if (storedSearches) {
+        savedSearches = JSON.parse(storedSearches);
+      } else {
+        // Preseed some searches
+        savedSearches = ['ФГОС Эпидемиология', 'Кандидатские экзамены', 'Положение о практике'];
+      }
+    } catch (e) {
+      console.error(e);
+    }
   });
 </script>
 
@@ -290,64 +507,207 @@
     </p>
   </div>
 
-  <!-- Крупная строка поиска закрепленная сверху -->
-  <div class="sticky top-0 z-10 bg-[#F8FAFC]/95 backdrop-blur border border-[#E2E8F0] p-1.5 rounded-[8px] h-[48px] flex items-center shadow-sm w-full transition-all duration-200">
-    <span class="material-symbols-outlined text-[#1A365D] px-3">search</span>
-    <input
-      type="text"
-      bind:value={searchQuery}
-      placeholder="Поиск по названию, аннотации или шифру документа..."
-      class="flex-1 bg-transparent border-0 ring-0 focus:ring-0 focus:outline-none text-sm text-[#0b1c30] placeholder-slate-400 font-sans h-full"
-    />
-    {#if searchQuery}
-      <button
-        type="button"
-        onclick={() => searchQuery = ''}
-        class="text-slate-400 hover:text-[#3182CE] p-1 flex items-center justify-center mr-2"
-        aria-label="Очистить поиск"
-      >
-        <span class="material-symbols-outlined text-lg">close</span>
-      </button>
+  <!-- Крупная строка поиска с кнопкой сохранения и автоподсказками -->
+  <div class="relative w-full">
+    <div class="sticky top-0 z-10 bg-[#F8FAFC]/95 backdrop-blur border border-[#E2E8F0] p-1.5 rounded-[8px] h-[48px] flex items-center shadow-sm w-full transition-all duration-200">
+      <span class="material-symbols-outlined text-[#1A365D] px-3">search</span>
+      <input
+        type="text"
+        bind:value={searchQuery}
+        onfocus={() => showSuggestions = true}
+        onblur={() => setTimeout(() => showSuggestions = false, 200)}
+        onkeydown={handleKeyDown}
+        placeholder="Поиск по названию, аннотации или шифру документа..."
+        class="flex-1 bg-transparent border-0 ring-0 focus:ring-0 focus:outline-none text-sm text-[#0b1c30] placeholder-slate-400 font-sans h-full"
+      />
+      {#if searchQuery}
+        <button
+          type="button"
+          onclick={() => { searchQuery = ''; activeSuggestionIndex = -1; }}
+          class="text-slate-400 hover:text-[#3182CE] p-1 flex items-center justify-center mr-1"
+          aria-label="Очистить поиск"
+        >
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+        <button
+          type="button"
+          onclick={saveCurrentSearch}
+          class="bg-[#3182CE] text-white hover:bg-[#2b72b5] px-3 py-1 rounded-[6px] text-xs font-semibold mr-1 transition-colors"
+          title="Сохранить поисковый запрос"
+        >
+          Сохранить запрос
+        </button>
+      {/if}
+    </div>
+
+    <!-- Список автоподсказок -->
+    {#if showSuggestions && suggestionsList.length > 0}
+      <div class="absolute left-0 right-0 top-[52px] bg-white border border-[#E2E8F0] rounded-[8px] shadow-lg z-50 overflow-hidden max-h-60 overflow-y-auto">
+        {#each suggestionsList as suggestion, idx}
+          <button
+            type="button"
+            onclick={() => { searchQuery = suggestion; showSuggestions = false; }}
+            class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors flex items-center gap-2 font-sans {idx === activeSuggestionIndex ? 'bg-slate-100' : ''}"
+          >
+            <span class="material-symbols-outlined text-slate-400 text-sm">history</span>
+            <span class="text-[#0b1c30] truncate">{suggestion}</span>
+          </button>
+        {/each}
+      </div>
     {/if}
   </div>
 
+  <!-- Исправление опечаток (Баннер) -->
+  {#if typoCorrection}
+    <div class="bg-amber-50 border border-amber-200 rounded-[8px] p-3 text-sm text-amber-800 flex items-center gap-2 font-sans">
+      <span class="material-symbols-outlined text-amber-600">info</span>
+      <span>Возможно, вы имели в виду:</span>
+      <button
+        type="button"
+        onclick={() => searchQuery = typoCorrection}
+        class="font-bold underline text-[#3182CE] hover:text-[#2b72b5] text-left"
+      >
+        {typoCorrection}
+      </button>
+    </div>
+  {/if}
+
+  <!-- Панель сохраненных запросов -->
+  {#if savedSearches.length > 0}
+    <section class="space-y-2 bg-white p-4 border border-[#E2E8F0] rounded-[8px] shadow-sm">
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-sans">Сохраненные поисковые запросы</h3>
+      <div class="flex flex-wrap gap-2">
+        {#each savedSearches as q}
+          <span
+            role="button"
+            tabindex="0"
+            onclick={() => selectSavedSearch(q)}
+            onkeydown={(e) => e.key === 'Enter' && selectSavedSearch(q)}
+            class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#EBF8FF] text-[#2B6CB0] rounded-full text-xs font-medium cursor-pointer hover:bg-[#E2E8F0] transition-colors"
+          >
+            <span class="material-symbols-outlined text-xs">history</span>
+            <span>{q}</span>
+            <button
+              type="button"
+              onclick={(e) => deleteSavedSearch(q, e)}
+              class="text-[#2B6CB0] hover:text-red-500 rounded-full flex items-center justify-center p-0.5"
+              aria-label="Удалить сохраненный запрос"
+            >
+              <span class="material-symbols-outlined text-[12px]">close</span>
+            </button>
+          </span>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
+  <!-- Карусель избранных материалов -->
+  {#if favoriteDocuments.length > 0}
+    <section class="space-y-3">
+      <h2 class="text-lg font-bold text-[#1A365D] font-sans">Избранные материалы</h2>
+      <div class="flex overflow-x-auto no-scrollbar space-x-4 pb-4 snap-x">
+        {#each favoriteDocuments as doc}
+          {@const fileMeta = getFileTypeIcon(doc.fileType, doc.title)}
+          <div
+            role="button"
+            tabindex="0"
+            onclick={() => searchQuery = doc.title}
+            onkeydown={(e) => e.key === 'Enter' && (searchQuery = doc.title)}
+            class="snap-start min-w-[200px] w-[200px] bg-white border border-[#E2E8F0] rounded-lg p-3 shrink-0 flex flex-col gap-2 relative group cursor-pointer hover:border-[#3182CE] transition-colors shadow-sm"
+          >
+            <!-- Иконка и звезда в Избранном -->
+            <div class="flex items-center justify-between">
+              <span class="material-symbols-outlined text-2xl {fileMeta.color}">{fileMeta.icon}</span>
+              <button
+                type="button"
+                onclick={(e) => toggleFavorite(doc.id, e)}
+                class="text-amber-500 hover:text-slate-400 p-1 flex items-center justify-center rounded-full active:scale-90 transition-transform"
+                aria-label="Убрать из избранного"
+              >
+                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+              </button>
+            </div>
+            <!-- Название и мета-информация -->
+            <div class="flex flex-col gap-1 mt-1">
+              <span class="text-[9px] font-bold text-[#3182CE] uppercase tracking-wider font-mono">
+                {getDocTypeRu(doc.documentType)}
+              </span>
+              <span class="text-xs font-bold text-[#1A365D] line-clamp-2 leading-snug font-sans group-hover:text-[#3182CE] transition-colors">
+                {doc.title}
+              </span>
+              <span class="text-[9px] text-slate-400 font-mono mt-1">Шифр: {doc.documentNumber || 'Н/Д'}</span>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
   <!-- Панель фильтров: Пилюли (Pill-shaped) -->
-  <div class="flex flex-col gap-3 bg-white p-4 border border-[#E2E8F0] rounded-[8px] shadow-sm">
-    <!-- Направление -->
+  <div class="flex flex-col gap-4 bg-white p-5 border border-[#E2E8F0] rounded-[8px] shadow-sm">
+    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider font-sans mb-1">Расширенные фильтры поиска</h3>
+
+    <!-- Направление / Специальность -->
     <div class="flex flex-wrap items-center gap-2">
-      <span class="text-xs font-bold text-[#1A365D] min-w-[100px] uppercase tracking-wider font-sans">Программа:</span>
+      <span class="text-xs font-bold text-[#1A365D] min-w-[120px] uppercase tracking-wider font-sans">Специальность:</span>
       <button
         type="button"
         onclick={() => selectedProgram = 'all'}
         class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedProgram === 'all' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
       >
-        Все
+        Все специальности
       </button>
       <button
         type="button"
         onclick={() => selectedProgram = 'postgraduate'}
         class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedProgram === 'postgraduate' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
       >
-        Аспирантура
+        Аспирантура (Эпидемиология)
       </button>
       <button
         type="button"
         onclick={() => selectedProgram = 'residency'}
         class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedProgram === 'residency' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
       >
-        Ординатура
+        Ординатура (Инфекционные болезни)
+      </button>
+    </div>
+
+    <!-- Уровень образования -->
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-xs font-bold text-[#1A365D] min-w-[120px] uppercase tracking-wider font-sans">Уровень образования:</span>
+      <button
+        type="button"
+        onclick={() => selectedEduLevel = 'all'}
+        class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedEduLevel === 'all' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
+      >
+        Все уровни
+      </button>
+      <button
+        type="button"
+        onclick={() => selectedEduLevel = 'higher'}
+        class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedEduLevel === 'higher' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
+      >
+        Высшее образование
+      </button>
+      <button
+        type="button"
+        onclick={() => selectedEduLevel = 'postgraduate_qualification'}
+        class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedEduLevel === 'postgraduate_qualification' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
+      >
+        Кадры высшей квалификации
       </button>
     </div>
 
     <!-- Тип документа -->
     <div class="flex flex-wrap items-center gap-2">
-      <span class="text-xs font-bold text-[#1A365D] min-w-[100px] uppercase tracking-wider font-sans">Тип акта:</span>
+      <span class="text-xs font-bold text-[#1A365D] min-w-[120px] uppercase tracking-wider font-sans">Тип документа:</span>
       <button
         type="button"
         onclick={() => selectedDocType = 'all'}
         class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedDocType === 'all' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
       >
-        Все
+        Все типы
       </button>
       <button
         type="button"
@@ -372,9 +732,42 @@
       </button>
     </div>
 
-    <!-- Процесс -->
+    <!-- Дата обновления -->
     <div class="flex flex-wrap items-center gap-2">
-      <span class="text-xs font-bold text-[#1A365D] min-w-[100px] uppercase tracking-wider font-sans">Процесс:</span>
+      <span class="text-xs font-bold text-[#1A365D] min-w-[120px] uppercase tracking-wider font-sans">Дата обновления:</span>
+      <button
+        type="button"
+        onclick={() => selectedDateFilter = 'all'}
+        class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedDateFilter === 'all' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
+      >
+        Все время
+      </button>
+      <button
+        type="button"
+        onclick={() => selectedDateFilter = '7days'}
+        class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedDateFilter === '7days' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
+      >
+        За последние 7 дней
+      </button>
+      <button
+        type="button"
+        onclick={() => selectedDateFilter = '30days'}
+        class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedDateFilter === '30days' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
+      >
+        За последние 30 дней
+      </button>
+      <button
+        type="button"
+        onclick={() => selectedDateFilter = 'year'}
+        class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 {selectedDateFilter === 'year' ? 'bg-[#3182CE] text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}"
+      >
+        За этот год (2026)
+      </button>
+    </div>
+
+    <!-- Процесс -->
+    <div class="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+      <span class="text-xs font-bold text-[#1A365D] min-w-[120px] uppercase tracking-wider font-sans">Раздел / Процесс:</span>
       <button
         type="button"
         onclick={() => selectedProcess = 'all'}
@@ -427,8 +820,16 @@
         <!-- Карточка документа (Белый фон, тонкая рамка, 0.25rem скругления, hover ambient-shadow, Inter) -->
         <article class="col-span-4 md:col-span-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[0.25rem] p-4 flex flex-col justify-between h-56 transition-all duration-200 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] cursor-pointer hover:border-slate-300 relative group">
 
-          <!-- Иконка типа документа сверху справа -->
-          <div class="absolute top-4 right-4 flex items-center gap-1">
+          <!-- Звезда избранного и Иконка типа документа сверху справа -->
+          <div class="absolute top-4 right-4 flex items-center gap-2">
+            <button
+              type="button"
+              onclick={(e) => toggleFavorite(doc.id, e)}
+              class="hover:text-amber-500 p-1 flex items-center justify-center rounded-full active:scale-90 transition-transform {favorites.includes(doc.id) ? 'text-amber-500' : 'text-slate-300'}"
+              aria-label="Добавить в избранное"
+            >
+              <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' {favorites.includes(doc.id) ? '1' : '0'};">star</span>
+            </button>
             <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[4px] {fileMeta.bg} {fileMeta.color} border {fileMeta.border}">
               {fileMeta.label}
             </span>
@@ -479,3 +880,13 @@
   </div>
 
 </div>
+
+<style>
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
