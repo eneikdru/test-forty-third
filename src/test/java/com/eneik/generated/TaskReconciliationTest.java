@@ -204,12 +204,12 @@ public class TaskReconciliationTest {
         // Trigger synchronization via scheduler
         taskSyncScheduler.runSyncJob();
 
-        // Verify that the task status was updated to 'failed' rather than 'done'
+        // Verify that tasks with PRs closed without merge remain active and retain their current status (e.g. 'in_progress')
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("failed", reloaded.getStatus());
+        assertEquals("in_progress", reloaded.getStatus());
 
-        // Verify that updateStatusAtomically was indeed called with "failed" status for this task
-        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("failed"), eq("in_progress"));
+        // Verify that updateStatusAtomically was NOT called to fail/done this task since it retains status
+        verify(taskRepository, never()).updateStatusAtomically(eq(taskId), anyString(), anyString());
     }
 
     @Test

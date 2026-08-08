@@ -140,14 +140,9 @@ public class TaskService {
                             reconciledCount++;
                         }
                     } else {
-                        // PR is closed and unmerged -> update task status to failed
-                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, transitioning status to failed",
-                                task.getId(), task.getGithubPrNumber());
-
-                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", task.getStatus());
-                        if (updatedRows > 0) {
-                            reconciledCount++;
-                        }
+                        // PR is closed and unmerged -> tasks with PRs closed without merge remain active (retain current status)
+                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, retaining current status '{}'",
+                                task.getId(), task.getGithubPrNumber(), task.getStatus());
                     }
                 }
             }
