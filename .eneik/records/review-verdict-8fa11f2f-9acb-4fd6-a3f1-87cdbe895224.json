@@ -1,0 +1,19 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "block",
+      "criticalReason": "Direct contradiction of Acceptance Criteria: the AC requires reverting the task status to an 'appropriate active/blocked state', but the code changes it to 'failed' (a terminal state) for a closed, unmerged PR.",
+      "concerns": [
+        {
+          "text": "Modifying generated file src/test/java/com/eneik/generated/TaskReconciliationTest.java directly instead of creating a new test file.",
+          "severity": "high"
+        },
+        {
+          "text": "Using unseeded UUID.randomUUID() in tests violates the deterministic test boundary requirement.",
+          "severity": "high"
+        }
+      ]
+    }
+  ]
+}
