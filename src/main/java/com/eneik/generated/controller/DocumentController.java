@@ -3,9 +3,13 @@ package com.eneik.generated.controller;
 import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.model.SchemaTag;
+import com.eneik.generated.model.DocumentComment;
+import com.eneik.generated.model.DocumentActualizationRequest;
 import com.eneik.generated.repository.DocumentRepository;
 import com.eneik.generated.repository.DocumentVersionRepository;
 import com.eneik.generated.repository.SchemaTagRepository;
+import com.eneik.generated.repository.DocumentCommentRepository;
+import com.eneik.generated.repository.DocumentActualizationRequestRepository;
 import com.eneik.generated.dto.TelegramNotificationRequest;
 import com.eneik.generated.service.AnalyticsService;
 import com.eneik.generated.service.NotificationDispatcher;
@@ -34,6 +38,8 @@ public class DocumentController {
     private final DocumentRepository documentRepository;
     private final DocumentVersionRepository documentVersionRepository;
     private final SchemaTagRepository schemaTagRepository;
+    private final DocumentCommentRepository documentCommentRepository;
+    private final DocumentActualizationRequestRepository documentActualizationRequestRepository;
     private final IdProvider idProvider;
     private final TimeProvider timeProvider;
     private final NotificationService notificationService;
@@ -48,6 +54,8 @@ public class DocumentController {
     public DocumentController(DocumentRepository documentRepository,
                               DocumentVersionRepository documentVersionRepository,
                               SchemaTagRepository schemaTagRepository,
+                              DocumentCommentRepository documentCommentRepository,
+                              DocumentActualizationRequestRepository documentActualizationRequestRepository,
                               IdProvider idProvider,
                               TimeProvider timeProvider,
                               NotificationService notificationService,
@@ -56,6 +64,8 @@ public class DocumentController {
         this.documentRepository = documentRepository;
         this.documentVersionRepository = documentVersionRepository;
         this.schemaTagRepository = schemaTagRepository;
+        this.documentCommentRepository = documentCommentRepository;
+        this.documentActualizationRequestRepository = documentActualizationRequestRepository;
         this.idProvider = idProvider;
         this.timeProvider = timeProvider;
         this.notificationService = notificationService;
@@ -450,10 +460,6 @@ public class DocumentController {
         return res;
     }
 
-    // Simple in-memory storage for comments and actualization requests
-    private static final Map<UUID, List<Map<String, Object>>> inMemoryComments = new java.util.concurrent.ConcurrentHashMap<>();
-    private static final Map<UUID, List<Map<String, Object>>> inMemoryActualizations = new java.util.concurrent.ConcurrentHashMap<>();
-
     private String escapeMarkdownV2(String text) {
         if (text == null) {
             return "";
@@ -482,7 +488,17 @@ public class DocumentController {
                     .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
         }
 
-        List<Map<String, Object>> comments = inMemoryComments.getOrDefault(id, new ArrayList<>());
+        List<DocumentComment> list = documentCommentRepository.findByDocumentIdOrderByCreatedAtAsc(id);
+        List<Map<String, Object>> comments = new ArrayList<>();
+        for (DocumentComment dc : list) {
+            Map<String, Object> comment = new HashMap<>();
+            comment.put("id", dc.getId().toString());
+            comment.put("userId", dc.getUserId().toString());
+            comment.put("userName", dc.getUserName());
+            comment.put("text", dc.getText());
+            comment.put("createdAt", dc.getCreatedAt().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT));
+            comments.add(comment);
+        }
         return ResponseEntity.ok(comments);
     }
 
@@ -510,14 +526,24 @@ public class DocumentController {
                     .body(new ErrorResponse("NOT_FOUND", "Document not found"));
         }
 
+        UUID commentUuid = idProvider.generateUuid();
+        UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+        DocumentComment dc = new DocumentComment();
+        dc.setId(commentUuid);
+        dc.setDocument(docOpt.get());
+        dc.setUserId(userId);
+        dc.setUserName(role);
+        dc.setText(text);
+        dc.setCreatedAt(timeProvider.now());
+        documentCommentRepository.save(dc);
+
         Map<String, Object> comment = new HashMap<>();
-        comment.put("id", idProvider.generateUuid().toString());
-        comment.put("userId", "00000000-0000-0000-0000-000000000001");
+        comment.put("id", commentUuid.toString());
+        comment.put("userId", userId.toString());
         comment.put("userName", role);
         comment.put("text", text);
-        comment.put("createdAt", timeProvider.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT));
-
-        inMemoryComments.computeIfAbsent(id, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(comment);
+        comment.put("createdAt", dc.getCreatedAt().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT));
 
         // Notify content managers via Telegram/Max Dispatcher
         TelegramNotificationRequest notifyRequest = new TelegramNotificationRequest();
@@ -572,15 +598,25 @@ public class DocumentController {
                     .body(new ErrorResponse("NOT_FOUND", "Document not found"));
         }
 
+        UUID reqUuid = idProvider.generateUuid();
+        UUID requesterId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+        DocumentActualizationRequest dar = new DocumentActualizationRequest();
+        dar.setId(reqUuid);
+        dar.setDocument(docOpt.get());
+        dar.setRequesterId(requesterId);
+        dar.setReason(reason);
+        dar.setStatus("PENDING");
+        dar.setCreatedAt(timeProvider.now());
+        documentActualizationRequestRepository.save(dar);
+
         Map<String, Object> req = new HashMap<>();
-        req.put("id", idProvider.generateUuid().toString());
+        req.put("id", reqUuid.toString());
         req.put("documentId", id.toString());
-        req.put("requesterId", "00000000-0000-0000-0000-000000000002");
+        req.put("requesterId", requesterId.toString());
         req.put("reason", reason);
         req.put("status", "PENDING");
-        req.put("createdAt", timeProvider.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT));
-
-        inMemoryActualizations.computeIfAbsent(id, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(req);
+        req.put("createdAt", dar.getCreatedAt().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT));
 
         // Notify content managers via Telegram/Max Dispatcher
         TelegramNotificationRequest notifyRequest = new TelegramNotificationRequest();
