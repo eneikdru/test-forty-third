@@ -263,6 +263,8 @@ public class TaskReconciliationTest {
             UUID taskId = UUID.randomUUID();
             Task failedTask = new Task(taskId, "Failed Task " + i, "failed", 200 + i, "closed", false);
             taskRepository.saveAndFlush(failedTask);
+            // Register GitHub truth for the PR: closed and NOT merged
+            gitHubService.registerPrStatus(200 + i, "closed", false);
         }
 
         // Verify state is blocked with 5 failed tasks
@@ -285,11 +287,23 @@ public class TaskReconciliationTest {
                 .andExpect(jsonPath("$.state", is("ACTIVE")))
                 .andExpect(jsonPath("$.failedTasksCount", is(0)));
 
-        // Verify tasks statuses became 'open'
+        // Trigger synchronization via scheduler to make sure they do not revert to failed
+        taskSyncScheduler.runSyncJob();
+
+        // Verify tasks statuses remained 'open' and github PR details are cleared/dissociated
         List<Task> tasks = taskRepository.findAll();
         assertFalse(tasks.isEmpty());
         for (Task t : tasks) {
             assertEquals("open", t.getStatus());
+            assertNull(t.getGithubPrNumber());
+            assertNull(t.getGithubPrState());
+            assertNull(t.getGithubPrMerged());
         }
+
+        // Verify state is still ACTIVE with 0 failed tasks
+        mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is("ACTIVE")))
+                .andExpect(jsonPath("$.failedTasksCount", is(0)));
     }
 }
