@@ -208,8 +208,8 @@ public class TaskReconciliationTest {
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("failed", reloaded.getStatus());
 
-        // Verify that updateStatusAtomically was indeed called with "failed" status for this task
-        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("failed"), eq("in_progress"));
+        // Verify that updateStatusAndPrDetailsAtomically was indeed called with "failed" status for this task
+        verify(taskRepository, times(1)).updateStatusAndPrDetailsAtomically(eq(taskId), eq("failed"), eq("in_progress"), eq("closed"), eq(false), any());
     }
 
     @Test
@@ -232,8 +232,54 @@ public class TaskReconciliationTest {
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("done", reloaded.getStatus());
 
-        // Verify that updateStatusAtomically was indeed called with "done" status for this task
-        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("done"), eq("in_progress"));
+        // Verify that updateStatusAndPrDetailsAtomically was indeed called with "done" status for this task
+        verify(taskRepository, times(1)).updateStatusAndPrDetailsAtomically(eq(taskId), eq("done"), eq("in_progress"), eq("closed"), eq(true), any());
+    }
+
+    @Test
+    public void testScheduledSyncReconcilesCaseInsensitiveDoneStatusToFailedWhenPrClosedAndUnmerged() {
+        // Reset spy invocation count
+        reset(taskRepository);
+
+        UUID taskId = UUID.randomUUID();
+        // Task starts at uppercase 'DONE' internally, but with stale/null PR details
+        Task task = new Task(taskId, "Case Insensitive Mismatched Task", "DONE", 91, null, null);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and UNMERGED
+        gitHubService.registerPrStatus(91, "closed", false);
+
+        // Trigger synchronization via scheduler
+        taskSyncScheduler.runSyncJob();
+
+        // Verify that the task status was successfully corrected to 'failed' (proving no case-sensitivity failure)
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus());
+        assertEquals("closed", reloaded.getGithubPrState());
+        assertEquals(false, reloaded.getGithubPrMerged());
+
+        // Verify that updateStatusAndPrDetailsAtomically was indeed called with correct original status case "DONE"
+        verify(taskRepository, times(1)).updateStatusAndPrDetailsAtomically(eq(taskId), eq("failed"), eq("DONE"), eq("closed"), eq(false), any());
+    }
+
+    @Test
+    public void testScheduledSyncDoesNotPerformRedundantNoOpUpdatesForAlreadyFailedTask() {
+        // Reset spy invocation count
+        reset(taskRepository);
+
+        UUID taskId = UUID.randomUUID();
+        // Task starts at 'failed' internally with correct PR details
+        Task task = new Task(taskId, "Already Failed Task", "failed", 92, "closed", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and UNMERGED
+        gitHubService.registerPrStatus(92, "closed", false);
+
+        // Trigger synchronization via scheduler
+        taskSyncScheduler.runSyncJob();
+
+        // Verify that no atomic update method was called, since the status is already correct
+        verify(taskRepository, never()).updateStatusAndPrDetailsAtomically(any(), any(), any(), any(), any(), any());
     }
 
     @Test

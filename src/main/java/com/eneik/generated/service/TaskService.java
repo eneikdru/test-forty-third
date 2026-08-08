@@ -74,14 +74,18 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + id));
 
-        if ("done".equalsIgnoreCase(targetStatus) && task.getGithubPrNumber() != null) {
+        if (task.getGithubPrNumber() != null) {
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
-            if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
-                throw new IllegalStateException(
-                        "Cannot transition task status to 'done' because associated PR #"
-                        + task.getGithubPrNumber() + " is closed without being merged."
-                );
+            if ("done".equalsIgnoreCase(targetStatus)) {
+                if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
+                    throw new IllegalStateException(
+                            "Cannot transition task status to 'done' because associated PR #"
+                            + task.getGithubPrNumber() + " is closed without being merged."
+                    );
+                }
             }
+            task.setGithubPrState(prStatus.getState());
+            task.setGithubPrMerged(prStatus.isMerged());
         }
 
         task.setStatus(targetStatus);
@@ -122,31 +126,54 @@ public class TaskService {
                     log.warn("syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
                             task.getId(), task.getGithubPrNumber());
 
-                    int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", "done");
+                    int updatedRows = taskRepository.updateStatusAndPrDetailsAtomically(
+                            task.getId(),
+                            "failed",
+                            task.getStatus(),
+                            prStatus.getState(),
+                            prStatus.isMerged(),
+                            LocalDateTime.now()
+                    );
                     if (updatedRows > 0) {
                         reconciledCount++;
                     }
                 }
             } else {
-                // Task is not done
+                // Task is not done (e.g., "open", "in_progress", "failed")
                 if ("closed".equalsIgnoreCase(prStatus.getState())) {
                     if (prStatus.isMerged()) {
                         // PR is closed and merged -> update task status to done
                         log.info("syncTaskStatusesWithGitHub: task {} has merged PR#{}, transitioning status to done",
                                 task.getId(), task.getGithubPrNumber());
 
-                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "done", task.getStatus());
+                        int updatedRows = taskRepository.updateStatusAndPrDetailsAtomically(
+                                task.getId(),
+                                "done",
+                                task.getStatus(),
+                                prStatus.getState(),
+                                prStatus.isMerged(),
+                                LocalDateTime.now()
+                        );
                         if (updatedRows > 0) {
                             reconciledCount++;
                         }
                     } else {
-                        // PR is closed and unmerged -> update task status to failed
-                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, transitioning status to failed",
-                                task.getId(), task.getGithubPrNumber());
+                        // PR is closed and unmerged -> update task status to failed (if not already failed)
+                        if (!"failed".equalsIgnoreCase(task.getStatus())) {
+                            log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, transitioning status to failed",
+                                    task.getId(), task.getGithubPrNumber());
 
-                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", task.getStatus());
-                        if (updatedRows > 0) {
-                            reconciledCount++;
+                            int updatedRows = taskRepository.updateStatusAndPrDetailsAtomically(
+                                    task.getId(),
+                                    "failed",
+                                    task.getStatus(),
+                                    prStatus.getState(),
+                                    prStatus.isMerged(),
+                                    LocalDateTime.now()
+                            );
+                            if (updatedRows > 0) {
+                                reconciledCount++;
+                            }
                         }
                     }
                 }
