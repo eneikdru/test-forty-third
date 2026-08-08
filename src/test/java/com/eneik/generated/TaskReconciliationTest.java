@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.eneik.generated.service.TaskSyncScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.core.read.ListAppender;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -146,6 +149,52 @@ public class TaskReconciliationTest {
         // Verify that the task status has been corrected to 'failed'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("failed", reloaded.getStatus());
+    }
+
+    @Test
+    public void testReconciliationCorrectsMismatchStatusToFailedAndEmitsTelemetryLog() throws Exception {
+        // Reset spy invocation count
+        reset(taskRepository);
+
+        UUID taskId = UUID.randomUUID();
+        // Task starts at 'done' internally
+        Task task = new Task(taskId, "Mismatched Task Telemetry", "done", 53, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and unmerged
+        gitHubService.registerPrStatus(53, "closed", false);
+
+        // Setup Logback ListAppender to capture telemetry logs
+        Logger logger = (Logger) org.slf4j.LoggerFactory.getLogger(TaskService.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        try {
+            // Trigger reconciliation via endpoint
+            mockMvc.perform(post("/api/v1/tasks/reconcile"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status", is("success")))
+                    .andExpect(jsonPath("$.reconciledCount", is(1)));
+
+            // Verify that the task status has been corrected to 'failed' and metadata is updated
+            Task reloaded = taskRepository.findById(taskId).orElseThrow();
+            assertEquals("failed", reloaded.getStatus());
+            assertEquals("closed", reloaded.getGithubPrState());
+            assertEquals(false, reloaded.getGithubPrMerged());
+
+            // Verify atomically-guarded database update occurred
+            verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(
+                    eq(taskId), eq("failed"), eq("done"), eq("closed"), eq(false), any()
+            );
+
+            // Assert that the [TELEMETRY][TASK_RECONCILIATION] log was emitted
+            boolean telemetryLogged = listAppender.list.stream()
+                    .anyMatch(event -> event.getFormattedMessage().contains("[TELEMETRY][TASK_RECONCILIATION]"));
+            assertTrue(telemetryLogged, "Expected log event with telemetry prefix was not found.");
+        } finally {
+            logger.detachAppender(listAppender);
+        }
     }
 
     @Test
