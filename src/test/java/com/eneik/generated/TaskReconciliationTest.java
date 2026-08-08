@@ -347,4 +347,45 @@ public class TaskReconciliationTest {
             assertNull(t.getGithubPrMerged());
         }
     }
+
+    @Test
+    public void testSyncTaskDonePrClosedWithoutMergeTransitionsToFailed() {
+        UUID taskId = UUID.randomUUID();
+        // Task starts at 'done' internally
+        Task task = new Task(taskId, "Done Task With Unmerged PR", "done", 404, "closed", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and unmerged
+        gitHubService.registerPrStatus(404, "closed", false);
+
+        // Run sync
+        int count = taskService.syncTaskStatusesWithGitHub();
+        assertEquals(1, count);
+
+        // Verify state transitioned to failed
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus());
+    }
+
+    @Test
+    public void testUpdateTaskStatusThrowsOnConcurrencyConflict() {
+        UUID taskId = UUID.randomUUID();
+        Task task = new Task(taskId, "Concurrent Update Task", "open", null, null, null);
+        taskRepository.saveAndFlush(task);
+
+        // Now, we simulate a concurrency conflict:
+        // We stub findById to return the task with status "open"
+        doReturn(java.util.Optional.of(new Task(taskId, "Concurrent Update Task", "open", null, null, null)))
+                .when(taskRepository).findById(taskId);
+
+        // Update the database directly so that the actual row status is "done"
+        jdbcTemplate.update("UPDATE tasks SET status = 'done' WHERE id = ?", taskId);
+
+        // When we call updateTaskStatus, it should detect the conflict and throw an IllegalStateException
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            taskService.updateTaskStatus(taskId, "in_progress");
+        });
+
+        assertTrue(exception.getMessage().contains("Concurrency conflict detected"));
+    }
 }

@@ -84,9 +84,16 @@ public class TaskService {
             }
         }
 
-        task.setStatus(targetStatus);
-        task.setUpdatedAt(LocalDateTime.now());
-        return taskRepository.save(task);
+        int updated = taskRepository.updateStatusAtomically(id, targetStatus, task.getStatus());
+        if (updated == 0) {
+            throw new IllegalStateException(
+                    "Concurrency conflict detected: could not atomically transition task status from '"
+                    + task.getStatus() + "' to '" + targetStatus + "'."
+            );
+        }
+
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + id));
     }
 
     /**
@@ -115,14 +122,15 @@ public class TaskService {
             }
 
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
+            String currentStatus = task.getStatus();
 
-            if ("done".equalsIgnoreCase(task.getStatus())) {
+            if ("done".equalsIgnoreCase(currentStatus)) {
                 // Task is done but PR is closed and unmerged -> update status to failed
                 if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
                     log.warn("syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
                             task.getId(), task.getGithubPrNumber());
 
-                    int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", "done");
+                    int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", currentStatus);
                     if (updatedRows > 0) {
                         reconciledCount++;
                     }
@@ -132,21 +140,25 @@ public class TaskService {
                 if ("closed".equalsIgnoreCase(prStatus.getState())) {
                     if (prStatus.isMerged()) {
                         // PR is closed and merged -> update task status to done
-                        log.info("syncTaskStatusesWithGitHub: task {} has merged PR#{}, transitioning status to done",
-                                task.getId(), task.getGithubPrNumber());
+                        if (!"done".equalsIgnoreCase(currentStatus)) {
+                            log.info("syncTaskStatusesWithGitHub: task {} has merged PR#{}, transitioning status to done",
+                                    task.getId(), task.getGithubPrNumber());
 
-                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "done", task.getStatus());
-                        if (updatedRows > 0) {
-                            reconciledCount++;
+                            int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "done", currentStatus);
+                            if (updatedRows > 0) {
+                                reconciledCount++;
+                            }
                         }
                     } else {
                         // PR is closed and unmerged -> update task status to failed
-                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, transitioning status to failed",
-                                task.getId(), task.getGithubPrNumber());
+                        if (!"failed".equalsIgnoreCase(currentStatus)) {
+                            log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, transitioning status to failed",
+                                    task.getId(), task.getGithubPrNumber());
 
-                        int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", task.getStatus());
-                        if (updatedRows > 0) {
-                            reconciledCount++;
+                            int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", currentStatus);
+                            if (updatedRows > 0) {
+                                reconciledCount++;
+                            }
                         }
                     }
                 }
