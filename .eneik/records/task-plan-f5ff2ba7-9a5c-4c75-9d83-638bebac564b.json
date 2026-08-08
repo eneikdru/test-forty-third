@@ -1,0 +1,66 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The system must persist uploaded file contents to disk or cloud storage.",
+        "R2: The system must expose a functional retrieval endpoint at the generated document URL."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Implement file persistence and retrieval endpoints for document storage",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the document storage requirements for this epic, I want to patch the existing file handling logic to persist files and expose a download endpoint, so that the coverage audit gap is resolved.",
+          "acceptanceCriteria": "Given a document upload request with a file,\nWhen the upload endpoint is called,\nThen the server stores the file contents persistently.\nGiven a generated document URL for a previously uploaded file,\nWhen a GET request is made to the endpoint,\nThen the actual file contents are returned successfully.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Document file storage persistence and retrieval gap",
+          "sixSigmaMetric": "Increase successful document download rate from 0% to 100% for newly uploaded files",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: The system must correct the discrepancy where internal tasks are marked 'done' while their corresponding GitHub PRs are not merged."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch task status synchronization logic to strictly follow GitHub PR state",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the GitHub synchronization fix for this epic, I want to update the internal status reconciliation logic to reject 'done' status for tasks with unmerged PRs, so that systemic mismatches are eliminated.",
+          "acceptanceCriteria": "Given a task with an internal status of 'done' and an associated GitHub PR that is closed but not merged,\nWhen the task status reconciliation runs,\nThen the task status is reverted from 'done' to an appropriate active/blocked state.\nGiven a task with an associated GitHub PR that is merged,\nWhen the task status reconciliation runs,\nThen the task status is correctly verified and remains 'done'.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Task status reconciliation drift between internal system and GitHub",
+          "sixSigmaMetric": "Reduce false positive 'done' task status reports from current error rate to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
