@@ -208,8 +208,8 @@ public class TaskReconciliationTest {
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("failed", reloaded.getStatus());
 
-        // Verify that updateStatusAtomically was indeed called with "failed" status for this task
-        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("failed"), eq("in_progress"));
+        // Verify that updateStatusAndPrStateAtomically was indeed called with "failed" status for this task
+        verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(eq(taskId), eq("failed"), eq("in_progress"), eq("closed"), eq(false), any());
     }
 
     @Test
@@ -232,8 +232,32 @@ public class TaskReconciliationTest {
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("done", reloaded.getStatus());
 
-        // Verify that updateStatusAtomically was indeed called with "done" status for this task
-        verify(taskRepository, times(1)).updateStatusAtomically(eq(taskId), eq("done"), eq("in_progress"));
+        // Verify that updateStatusAndPrStateAtomically was indeed called with "done" status for this task
+        verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(eq(taskId), eq("done"), eq("in_progress"), eq("closed"), eq(true), any());
+    }
+
+    @Test
+    public void testTaskClosedAndUnmergedVerifyInternalStatusNotDoneAndPrStateMapped() throws Exception {
+        UUID taskId = UUID.randomUUID();
+        Task task = new Task(taskId, "Task to close", "in_progress", 777, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register PR 777 as closed and unmerged
+        gitHubService.registerPrStatus(777, "closed", false);
+
+        // Run sync job
+        taskSyncScheduler.runSyncJob();
+
+        // Reload the task
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+
+        // Internal status is failed, NOT done
+        assertNotEquals("done", reloaded.getStatus());
+        assertEquals("failed", reloaded.getStatus());
+
+        // Internal PR fields are updated correctly
+        assertEquals("closed", reloaded.getGithubPrState());
+        assertEquals(false, reloaded.getGithubPrMerged());
     }
 
     @Test
