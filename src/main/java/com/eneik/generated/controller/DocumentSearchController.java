@@ -34,6 +34,8 @@ public class DocumentSearchController {
             @RequestParam("q") String query,
             @RequestParam(value = "program", required = false) String program,
             @RequestParam(value = "documentType", required = false) String documentType,
+            @RequestParam(value = "educationLevel", required = false) String educationLevel,
+            @RequestParam(value = "updateDate", required = false) String updateDate,
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "size", required = false) Integer size) {
 
@@ -49,7 +51,7 @@ public class DocumentSearchController {
         }
 
         try {
-            List<DocumentSearchService.SearchResult> searchResults = documentSearchService.search(query, program, documentType);
+            List<DocumentSearchService.SearchResult> searchResults = documentSearchService.search(query, program, documentType, educationLevel, updateDate);
 
             List<SearchResultResponse> responseList = searchResults.stream()
                     .map(this::mapToSearchResultResponse)
@@ -132,6 +134,8 @@ public class DocumentSearchController {
             docRes.setDocumentNumber("123-P");
         }
 
+        docRes.setEducationLevel(doc.getEducationLevel());
+
         // Determine latest version number
         Optional<DocumentVersion> latestVersion = doc.getVersions().stream()
                 .max(Comparator.comparing(DocumentVersion::getVersionNumber));
@@ -191,6 +195,7 @@ public class DocumentSearchController {
         private String status;
         private String approvalDate;
         private String documentNumber;
+        private String educationLevel;
         private String version;
         private String updatedAt;
         private List<String> schemaTags;
@@ -215,6 +220,8 @@ public class DocumentSearchController {
         public void setApprovalDate(String approvalDate) { this.approvalDate = approvalDate; }
         public String getDocumentNumber() { return documentNumber; }
         public void setDocumentNumber(String documentNumber) { this.documentNumber = documentNumber; }
+        public String getEducationLevel() { return educationLevel; }
+        public void setEducationLevel(String educationLevel) { this.educationLevel = educationLevel; }
         public String getVersion() { return version; }
         public void setVersion(String version) { this.version = version; }
         public String getUpdatedAt() { return updatedAt; }

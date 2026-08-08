@@ -5,6 +5,7 @@ import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.model.DocumentLmsMetadata;
 import com.eneik.generated.repository.DocumentRepository;
 import com.eneik.generated.repository.DocumentLmsMetadataRepository;
+import com.eneik.generated.util.TimeProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ public class DocumentSearchService {
 
     private final DocumentRepository documentRepository;
     private final DocumentLmsMetadataRepository lmsMetadataRepository;
+    private final TimeProvider timeProvider;
 
     private static final List<List<String>> SYNONYM_GROUPS = List.of(
         List.of("фгос", "федеральный государственный образовательный стандарт", "федерального государственного образовательного стандарта", "федеральному государственному образовательному стандарту", "федеральном государственном образовательном стандарте", "федеральные государственные образовательные стандарты"),
@@ -31,41 +33,85 @@ public class DocumentSearchService {
         List.of("цнии", "центральный научно-исследовательский институт", "центрального научно-исследовательного института", "центральному научно-исследовательскому институту", "центральным научно-исследовательским институтом")
     );
 
-    public DocumentSearchService(DocumentRepository documentRepository, DocumentLmsMetadataRepository lmsMetadataRepository) {
+    public DocumentSearchService(DocumentRepository documentRepository, DocumentLmsMetadataRepository lmsMetadataRepository, TimeProvider timeProvider) {
         this.documentRepository = documentRepository;
         this.lmsMetadataRepository = lmsMetadataRepository;
+        this.timeProvider = timeProvider;
     }
 
     @Transactional(readOnly = true)
     public List<SearchResult> search(String query, String programFilter, String documentTypeFilter) {
+        return search(query, programFilter, documentTypeFilter, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SearchResult> search(String query, String programFilter, String documentTypeFilter, String educationLevelFilter, String updateDateFilter) {
         if (query == null || query.trim().isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<Document> allDocs = documentRepository.findAll();
+        // Parse program filter to List<String>
+        List<String> programList = null;
+        if (programFilter != null && !programFilter.trim().isEmpty()) {
+            programList = new ArrayList<>();
+            if ("postgraduate".equalsIgnoreCase(programFilter)) {
+                programList.add("postgraduate");
+                programList.add("both");
+            } else if ("residency".equalsIgnoreCase(programFilter)) {
+                programList.add("residency");
+                programList.add("both");
+            } else if ("both".equalsIgnoreCase(programFilter)) {
+                programList.add("both");
+            }
+        }
 
-        // 1. Filter by program and documentType
-        List<Document> filteredDocs = allDocs.stream()
-            .filter(doc -> {
-                if (programFilter != null && !programFilter.trim().isEmpty()) {
-                    String p = doc.getProgram();
-                    if ("postgraduate".equalsIgnoreCase(programFilter)) {
-                        return "postgraduate".equalsIgnoreCase(p) || "both".equalsIgnoreCase(p);
-                    } else if ("residency".equalsIgnoreCase(programFilter)) {
-                        return "residency".equalsIgnoreCase(p) || "both".equalsIgnoreCase(p);
-                    } else if ("both".equalsIgnoreCase(programFilter)) {
-                        return "both".equalsIgnoreCase(p);
+        // Parse documentType to Enum
+        com.eneik.generated.model.DocumentType docTypeEnum = null;
+        if (documentTypeFilter != null && !documentTypeFilter.trim().isEmpty()) {
+            for (com.eneik.generated.model.DocumentType t : com.eneik.generated.model.DocumentType.values()) {
+                if (t.name().equalsIgnoreCase(documentTypeFilter)) {
+                    docTypeEnum = t;
+                    break;
+                }
+            }
+        }
+
+        // Normalize education level filter
+        String eduLevel = (educationLevelFilter != null && !educationLevelFilter.trim().isEmpty()) ? educationLevelFilter : null;
+
+        // Parse update date filter
+        java.time.LocalDateTime updateDateStart = null;
+        java.time.LocalDateTime updateDateEnd = null;
+        if (updateDateFilter != null && !updateDateFilter.trim().isEmpty()) {
+            java.time.LocalDateTime anchor = timeProvider.now();
+            if ("7days".equalsIgnoreCase(updateDateFilter)) {
+                updateDateStart = anchor.minusDays(7);
+            } else if ("30days".equalsIgnoreCase(updateDateFilter)) {
+                updateDateStart = anchor.minusDays(30);
+            } else if ("year".equalsIgnoreCase(updateDateFilter)) {
+                updateDateStart = java.time.LocalDateTime.of(anchor.getYear(), 1, 1, 0, 0);
+                updateDateEnd = java.time.LocalDateTime.of(anchor.getYear(), 12, 31, 23, 59, 59);
+            } else {
+                try {
+                    updateDateStart = java.time.LocalDateTime.parse(updateDateFilter);
+                } catch (Exception e) {
+                    try {
+                        updateDateStart = java.time.LocalDate.parse(updateDateFilter).atStartOfDay();
+                    } catch (Exception ex) {
+                        // ignore
                     }
                 }
-                return true;
-            })
-            .filter(doc -> {
-                if (documentTypeFilter != null && !documentTypeFilter.trim().isEmpty()) {
-                    return documentTypeFilter.equalsIgnoreCase(doc.getDocumentType());
-                }
-                return true;
-            })
-            .collect(Collectors.toList());
+            }
+        }
+
+        // Query database directly with filters
+        List<Document> filteredDocs = documentRepository.findWithFilters(
+            programList,
+            docTypeEnum,
+            eduLevel,
+            updateDateStart,
+            updateDateEnd
+        );
 
         // 2. Identify active synonym groups in the search query
         String normalizedQuery = normalizeText(query);

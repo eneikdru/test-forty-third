@@ -63,6 +63,9 @@ public class Document {
     @Column(name = "document_number")
     private String documentNumber;
 
+    @Column(name = "education_level")
+    private String educationLevel;
+
     @Column(name = "responsible_name")
     private String responsibleName;
 
@@ -151,6 +154,9 @@ public class Document {
 
     public String getDocumentNumber() { return documentNumber; }
     public void setDocumentNumber(String documentNumber) { this.documentNumber = documentNumber; }
+
+    public String getEducationLevel() { return educationLevel; }
+    public void setEducationLevel(String educationLevel) { this.educationLevel = educationLevel; }
 
     public String getResponsibleName() { return responsibleName; }
     public void setResponsibleName(String responsibleName) { this.responsibleName = responsibleName; }

@@ -5,6 +5,7 @@ import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.repository.CategoryRepository;
 import com.eneik.generated.repository.DocumentRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,17 +38,26 @@ public class DocumentSearchControllerTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private com.eneik.generated.util.TimeProvider timeProvider;
+
     private Category testCategory;
 
     @BeforeEach
     public void setup() {
         documentRepository.deleteAll();
         categoryRepository.deleteAll();
+        timeProvider.setFixedDateTime(LocalDateTime.of(2026, 9, 20, 0, 0));
 
         testCategory = new Category();
         testCategory.setId(UUID.randomUUID());
         testCategory.setName("Тестовая категория");
         categoryRepository.save(testCategory);
+    }
+
+    @AfterEach
+    public void teardown() {
+        timeProvider.reset();
     }
 
     private Document createDocument(String title, String description, String program, String docType) {
@@ -284,5 +294,93 @@ public class DocumentSearchControllerTest {
                         .param("size", "5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    private Document createFilteredDocument(String title, String description, String program, String docType, String educationLevel, LocalDateTime updatedAt) {
+        Document doc = new Document();
+        doc.setId(UUID.randomUUID());
+        doc.setCategory(testCategory);
+        doc.setTitle(title);
+        doc.setDescription(description);
+        doc.setProgram(program);
+        doc.setDocumentType(docType);
+        doc.setStatus("ACTIVE");
+        doc.setEducationLevel(educationLevel);
+        doc.setUpdatedAt(updatedAt);
+        return documentRepository.save(doc);
+    }
+
+    @Test
+    public void testSearchWithEducationLevelAndUpdateDateFilters() throws Exception {
+        // Clear setup
+        documentRepository.deleteAll();
+
+        // Create 3 documents with different education level and update dates in 2026
+        // Anchor reference date is 2026-09-20T00:00:00
+        Document docA = createFilteredDocument(
+            "Регламент ГИА Аспирантов ЦНИИ", "Процедура проведения аттестации.",
+            "postgraduate", "Procedure", "postgraduate_qualification", LocalDateTime.of(2026, 9, 18, 12, 0)
+        ); // updated 2 days before anchor (within 7days, 30days, year)
+
+        Document docB = createFilteredDocument(
+            "Правила Ординатуры ЦНИИ", "Процедура поступления.",
+            "residency", "Procedure", "higher", LocalDateTime.of(2026, 9, 15, 12, 0)
+        ); // updated 5 days before anchor (within 7days, 30days, year)
+
+        Document docC = createFilteredDocument(
+            "Старые правила ЦНИИ", "Порядок и формы.",
+            "both", "Other", "higher", LocalDateTime.of(2026, 1, 10, 10, 0)
+        ); // updated in Jan 2026 (within year, NOT within 7days or 30days)
+
+        // 1. Filter by educationLevel "postgraduate_qualification" -> only docA
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ЦНИИ")
+                        .param("educationLevel", "postgraduate_qualification")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].document.id", is(docA.getId().toString())));
+
+        // 2. Filter by educationLevel "higher" -> docB and docC
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ЦНИИ")
+                        .param("educationLevel", "higher")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(docB.getId().toString(), docC.getId().toString())));
+
+        // 3. Filter by educationLevel "higher" AND updateDate "7days" -> only docB (docC is too old)
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ЦНИИ")
+                        .param("educationLevel", "higher")
+                        .param("updateDate", "7days")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].document.id", is(docB.getId().toString())));
+
+        // 4. Filter by updateDate "30days" -> docA and docB
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ЦНИИ")
+                        .param("updateDate", "30days")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(docA.getId().toString(), docB.getId().toString())));
+
+        // 5. Filter by updateDate "year" -> docA, docB, docC
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ЦНИИ")
+                        .param("updateDate", "year")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(docA.getId().toString(), docB.getId().toString(), docC.getId().toString())));
     }
 }
