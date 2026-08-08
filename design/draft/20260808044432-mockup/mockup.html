@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Document Viewer - Project Proposal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "surface-container-highest": "#e0e3e5",
+                            "on-secondary": "#ffffff",
+                            "surface-container-lowest": "#ffffff",
+                            "on-tertiary-fixed": "#0b1c30",
+                            "surface-bright": "#f7f9fb",
+                            "surface-container-low": "#f2f4f6",
+                            "tertiary-container": "#0b1c30",
+                            "on-tertiary-fixed-variant": "#38485d",
+                            "on-surface": "#191c1e",
+                            "secondary": "#0058be",
+                            "surface": "#f7f9fb",
+                            "surface-variant": "#e0e3e5",
+                            "inverse-primary": "#bec6e0",
+                            "secondary-fixed": "#d8e2ff",
+                            "outline": "#76777d",
+                            "on-secondary-container": "#fefcff",
+                            "secondary-container": "#2170e4",
+                            "error-container": "#ffdad6",
+                            "primary-fixed-dim": "#bec6e0",
+                            "on-primary": "#ffffff",
+                            "on-tertiary-container": "#75859d",
+                            "surface-container-high": "#e6e8ea",
+                            "outline-variant": "#c6c6cd",
+                            "on-error-container": "#93000a",
+                            "on-primary-fixed": "#131b2e",
+                            "background": "#f7f9fb",
+                            "tertiary": "#000000",
+                            "on-background": "#191c1e",
+                            "on-error": "#ffffff",
+                            "tertiary-fixed-dim": "#b7c8e1",
+                            "primary": "#000000",
+                            "inverse-on-surface": "#eff1f3",
+                            "surface-dim": "#d8dadc",
+                            "on-primary-container": "#7c839b",
+                            "on-tertiary": "#ffffff",
+                            "on-secondary-fixed": "#001a42",
+                            "on-primary-fixed-variant": "#3f465c",
+                            "surface-container": "#eceef0",
+                            "on-surface-variant": "#45464d",
+                            "inverse-surface": "#2d3133",
+                            "tertiary-fixed": "#d3e4fe",
+                            "primary-fixed": "#dae2fd",
+                            "on-secondary-fixed-variant": "#004395",
+                            "secondary-fixed-dim": "#adc6ff",
+                            "error": "#ba1a1a",
+                            "surface-tint": "#565e74",
+                            "primary-container": "#131b2e"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.125rem",
+                            "lg": "0.25rem",
+                            "xl": "0.5rem",
+                            "full": "0.75rem"
+                    },
+                    "spacing": {
+                            "gutter-mobile": "12px",
+                            "stack-md": "16px",
+                            "inset-square": "16px",
+                            "stack-sm": "8px",
+                            "margin-mobile": "16px",
+                            "stack-lg": "24px",
+                            "inset-squish": "8px 16px",
+                            "base": "4px"
+                    },
+                    "fontFamily": {
+                            "headline-sm": ["Inter"],
+                            "headline-md": ["Inter"],
+                            "body-lg": ["Inter"],
+                            "body-md": ["Inter"],
+                            "label-md": ["Inter"],
+                            "display-lg": ["Inter"],
+                            "code-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                            "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                            "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                            "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                            "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "code-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased h-screen flex flex-col overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim font-headline-sm text-headline-sm w-full sticky top-0 z-50 border-b border-outline-variant dark:border-outline flat no shadows transition-colors duration-200 flex items-center justify-between px-margin-mobile h-14 w-full">
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-surface-variant text-center flex-1 truncate px-4">Project Alpha Proposal</span>
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</header>
+<!-- Document Content Canvas -->
+<main class="flex-1 overflow-y-auto px-margin-mobile py-stack-lg relative bg-surface-container-lowest">
+<!-- Document Metadata -->
+<div class="mb-stack-lg">
+<div class="flex items-center gap-stack-sm mb-stack-sm">
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-1 rounded font-label-md text-label-md">DRAFT</span>
+<span class="text-on-surface-variant font-body-md text-body-md">Last edited by Sarah Jenkins, 2 hours ago</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-stack-md">Q3 Enterprise Expansion Initiative</h1>
+</div>
+<!-- Document Body (Simulated) -->
+<div class="font-body-lg text-body-lg text-on-surface-variant space-y-stack-md leading-relaxed">
+<p>
+                The objective of the Q3 Enterprise Expansion Initiative is to solidify our market presence in the APAC region while streamlining our internal deployment pipelines. This proposal outlines the phased rollout strategy, key performance indicators (KPIs), and resource allocation required to achieve our target of a 25% increase in active enterprise seats by EOQ.
+            </p>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mt-stack-lg mb-stack-sm">1. Executive Summary</h2>
+<p>
+                Following the successful beta launch in Q2, we have identified three primary verticals ripe for expansion: financial services, healthcare, and logistics. By tailoring our core document management suite to meet the stringent compliance and security requirements of these sectors, we can significantly reduce the sales cycle.
+            </p>
+<div class="relative inline-block w-full my-stack-md group">
+<div class="p-stack-md bg-surface-container-low rounded border border-outline-variant/50">
+<h3 class="font-label-md text-label-md text-on-surface mb-stack-sm uppercase tracking-wider">Key Deliverables</h3>
+<ul class="list-disc pl-5 space-y-2 font-body-md text-body-md">
+<li>Localized compliance modules (GDPR, HIPAA equivalent for APAC).</li>
+<li>Dedicated enterprise support tier with 1hr SLA.</li>
+<li>Automated migration tools for legacy systems.</li>
+</ul>
+</div>
+<!-- Inline Comment Badge -->
+<button class="absolute -right-3 -top-3 bg-secondary text-on-secondary rounded-full w-6 h-6 flex items-center justify-center shadow-md border-2 border-surface-container-lowest transform hover:scale-110 transition-transform">
+<span class="font-label-md text-[10px]">2</span>
+</button>
+</div>
+<p>
+                The primary challenge lies in scaling our infrastructure to support the projected increase in concurrent active connections during peak business hours in the target timezones. Preliminary load testing indicates a need for a 40% increase in database read-replica provisioning.
+            </p>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mt-stack-lg mb-stack-sm">2. Resource Allocation</h2>
+<p>
+                To support this initiative, we propose reallocating two senior DevOps engineers from the internal tooling team to the APAC deployment squad for a duration of six weeks. Furthermore, an additional budget of $150,000 is requested for localized marketing campaigns and strategic partnerships.
+            </p>
+<p>
+                 Please review the attached spreadsheet for a detailed breakdown of the projected ROI and risk mitigation strategies. Pending approval from the steering committee, kickoff is scheduled for August 1st.
+            </p>
+</div>
+<!-- Bottom spacing for FABs -->
+<div class="h-24"></div>
+</main>
+<!-- Feedback / Action Bottom Bar -->
+<div class="bg-surface/90 backdrop-blur-md border-t border-outline-variant p-margin-mobile flex justify-between items-center gap-stack-md sticky bottom-0 z-40">
+<!-- View Comments Button -->
+<button class="flex items-center gap-stack-sm px-inset-squish py-2 border border-outline rounded text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span>View Comments (2)</span>
+</button>
+<!-- Primary Actions -->
+<div class="flex gap-stack-sm">
+<button class="flex items-center justify-center px-inset-squish py-2 border border-secondary text-secondary rounded font-label-md text-label-md hover:bg-secondary-fixed/50 transition-colors">
+<span class="material-symbols-outlined mr-1 text-[18px]" data-icon="edit_note">edit_note</span>
+                Request Update
+            </button>
+<button class="flex items-center justify-center px-inset-squish py-2 bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined mr-1 text-[18px]" data-icon="add_comment">add_comment</span>
+                Add Comment
+            </button>
+</div>
+</div>
+</body></html>
