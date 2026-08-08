@@ -144,15 +144,18 @@ public class TaskService {
                             reconciledCount++;
                         }
                     } else {
-                        // PR is closed and unmerged -> update task status to failed
-                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, transitioning status to failed",
-                                task.getId(), task.getGithubPrNumber());
+                        // PR is closed and unmerged -> retain current active/non-done status (keep its status instead of transitioning to failed)
+                        // Only perform update if the stored database PR state or merged status does not yet match GitHub reality
+                        if (!"closed".equalsIgnoreCase(task.getGithubPrState()) || task.getGithubPrMerged() == null || task.getGithubPrMerged()) {
+                            log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, retaining status {}",
+                                    task.getId(), task.getGithubPrNumber(), task.getStatus());
 
-                        int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                                task.getId(), "failed", task.getStatus(), prStatus.getState(), prStatus.isMerged(), LocalDateTime.now()
-                        );
-                        if (updatedRows > 0) {
-                            reconciledCount++;
+                            int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                                    task.getId(), task.getStatus(), task.getStatus(), prStatus.getState(), prStatus.isMerged(), LocalDateTime.now()
+                                    );
+                            if (updatedRows > 0) {
+                                reconciledCount++;
+                            }
                         }
                     }
                 }

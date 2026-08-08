@@ -195,7 +195,7 @@ public class TaskReconciliationTest {
 
         UUID taskId = UUID.randomUUID();
         // Task starts at 'in_progress' internally
-        Task task = new Task(taskId, "Closed But Unmerged Task", "in_progress", 88, "closed", false);
+        Task task = new Task(taskId, "Closed But Unmerged Task", "in_progress", 88, "open", false);
         taskRepository.saveAndFlush(task);
 
         // Register GitHub truth: closed and UNMERGED
@@ -204,12 +204,12 @@ public class TaskReconciliationTest {
         // Trigger synchronization via scheduler
         taskSyncScheduler.runSyncJob();
 
-        // Verify that the task status was updated to 'failed' rather than 'done'
+        // Verify that the task status remains 'in_progress' rather than transitioning to 'failed' or 'done'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("failed", reloaded.getStatus());
+        assertEquals("in_progress", reloaded.getStatus());
 
-        // Verify that updateStatusAndPrStateAtomically was indeed called with "failed" status for this task
-        verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(eq(taskId), eq("failed"), eq("in_progress"), eq("closed"), eq(false), any());
+        // Verify that updateStatusAndPrStateAtomically was indeed called with "in_progress" status for this task
+        verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(eq(taskId), eq("in_progress"), eq("in_progress"), eq("closed"), eq(false), any());
     }
 
     @Test
@@ -251,13 +251,32 @@ public class TaskReconciliationTest {
         // Reload the task
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
 
-        // Internal status is failed, NOT done
+        // Internal status is in_progress, NOT done, NOT failed
         assertNotEquals("done", reloaded.getStatus());
-        assertEquals("failed", reloaded.getStatus());
+        assertNotEquals("failed", reloaded.getStatus());
+        assertEquals("in_progress", reloaded.getStatus());
 
         // Internal PR fields are updated correctly
         assertEquals("closed", reloaded.getGithubPrState());
         assertEquals(false, reloaded.getGithubPrMerged());
+    }
+
+    @Test
+    public void testActiveInternalTaskLinkedToPrRemainsActiveWhenPrClosedButNotMerged() {
+        UUID taskId = UUID.randomUUID();
+        // Given an active internal task (status 'open') linked to a GitHub PR 123
+        Task task = new Task(taskId, "Active Task linked to PR", "open", 123, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // When the GitHub PR is closed but not merged
+        gitHubService.registerPrStatus(123, "closed", false);
+        taskService.syncTaskStatusesWithGitHub();
+
+        // Then the internal task retains a non-done/active status
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("open", reloaded.getStatus());
+        assertEquals("closed", reloaded.getGithubPrState());
+        assertFalse(reloaded.getGithubPrMerged());
     }
 
     @Test
