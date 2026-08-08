@@ -1,0 +1,32 @@
+{
+  "gaps": [
+    {
+      "title": "Corporate Authentication and Session Management",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When accessing the system, I want to authenticate using my corporate credentials or login/password, so that my identity is verified and my role permissions are enforced securely.",
+      "acceptanceCriteria": "Given an unauthenticated user, When they provide valid login credentials, Then the system issues a secure session token rather than trusting unverified HTTP headers.",
+      "reason": "literal brief requirement: 'авторизация через корпоративную учётную запись или по логину/паролю'"
+    },
+    {
+      "title": "Database Persistence for Comments and Actualization Requests",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When viewing or reviewing a document, I want to submit comments and update requests, so that my feedback is stored persistently and content managers are notified.",
+      "acceptanceCriteria": "Given a document view, When a user submits a comment or update request, Then the data is written to persistent database storage instead of being stored only in ephemeral in-memory maps.",
+      "reason": "literal brief requirement: 'возможность комментирования и отправки запросов на актуализацию'"
+    },
+    {
+      "title": "Update Date and Education Level Backend Search Filters",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When searching for documents, I want to filter by update date and education level on the backend, so that only relevant files are queried and returned.",
+      "acceptanceCriteria": "Given a search or document list query, When the user applies update date or education level filters, Then the backend queries the database using these criteria rather than relying on frontend-only simulation.",
+      "reason": "literal brief requirement: 'фильтры по типу документа, специальности, уровню образования, дате обновления'"
+    },
+    {
+      "title": "Document File Storage and Download Endpoints",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When uploading a new document version, I want the system to persist the file contents and provide a download URL, so that users can view and download the actual materials.",
+      "acceptanceCriteria": "Given a document upload request, When a file is uploaded, Then the server stores the actual file contents on disk or cloud storage and exposes a functional retrieval endpoint at the generated URL.",
+      "reason": "domain-standard expectation: Any knowledge base supporting file uploads must persist the files and expose endpoints to retrieve them."
+    }
+  ]
+}
