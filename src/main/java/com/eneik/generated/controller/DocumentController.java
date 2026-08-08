@@ -264,7 +264,9 @@ public class DocumentController {
             HttpServletRequest request,
             @RequestParam(value = "categoryId", required = false) UUID categoryId,
             @RequestParam(value = "program", required = false) String program,
-            @RequestParam(value = "process", required = false) String process) {
+            @RequestParam(value = "process", required = false) String process,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
 
         String role = extractRole(request);
         if (role == null) {
@@ -272,15 +274,70 @@ public class DocumentController {
                     .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
         }
 
-        List<Document> documents = documentRepository.findAll();
-        List<DocumentResponseDTO> responses = documents.stream()
+        List<Document> documentsList = documentRepository.findAll();
+        List<DocumentResponseDTO> responses = documentsList.stream()
                 .filter(doc -> categoryId == null || (doc.getCategory() != null && doc.getCategory().getId().equals(categoryId)))
                 .filter(doc -> program == null || program.equalsIgnoreCase(doc.getProgram()))
                 .filter(doc -> process == null || process.equalsIgnoreCase(doc.getProcess()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
 
+        boolean hasPaginationParams = (page != null || size != null);
+        int defaultPageSize = 10;
+        int pageSize = (size != null) ? Math.max(1, size) : defaultPageSize;
+
+        int pageIndex = 0;
+        if (page != null) {
+            pageIndex = (page > 1) ? (page - 1) : 0;
+        }
+
+        int offset = pageIndex * pageSize;
+        int totalResults = responses.size();
+
+        if (page != null && offset >= totalResults) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        List<DocumentResponseDTO> pageData;
+        if (offset >= totalResults) {
+            pageData = Collections.emptyList();
+        } else {
+            int toIndex = Math.min(offset + pageSize, totalResults);
+            pageData = responses.subList(offset, toIndex);
+        }
+
+        if (hasPaginationParams || totalResults > pageSize) {
+            return ResponseEntity.ok(new PaginatedResponse<>(totalResults, pageData));
+        }
+
         return ResponseEntity.ok(responses);
+    }
+
+    public static class PaginatedResponse<T> {
+        private long totalCount;
+        private long total;
+        private List<T> data;
+        private List<T> results;
+        private List<T> documents;
+
+        public PaginatedResponse(long totalCount, List<T> data) {
+            this.totalCount = totalCount;
+            this.total = totalCount;
+            this.data = data;
+            this.results = data;
+            this.documents = data;
+        }
+
+        public long getTotalCount() { return totalCount; }
+        public void setTotalCount(long totalCount) { this.totalCount = totalCount; }
+        public long getTotal() { return total; }
+        public void setTotal(long total) { this.total = total; }
+        public List<T> getData() { return data; }
+        public void setData(List<T> data) { this.data = data; }
+        public List<T> getResults() { return results; }
+        public void setResults(List<T> results) { this.results = results; }
+        public List<T> getDocuments() { return documents; }
+        public void setDocuments(List<T> documents) { this.documents = documents; }
     }
 
     @GetMapping("/{id}")

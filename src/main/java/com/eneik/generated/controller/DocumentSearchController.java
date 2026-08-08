@@ -33,7 +33,9 @@ public class DocumentSearchController {
             HttpServletRequest request,
             @RequestParam("q") String query,
             @RequestParam(value = "program", required = false) String program,
-            @RequestParam(value = "documentType", required = false) String documentType) {
+            @RequestParam(value = "documentType", required = false) String documentType,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
 
         String role = extractRole(request);
         if (role == null) {
@@ -52,6 +54,34 @@ public class DocumentSearchController {
             List<SearchResultResponse> responseList = searchResults.stream()
                     .map(this::mapToSearchResultResponse)
                     .collect(Collectors.toList());
+
+            boolean hasPaginationParams = (page != null || size != null);
+            int defaultPageSize = 10;
+            int pageSize = (size != null) ? Math.max(1, size) : defaultPageSize;
+
+            int pageIndex = 0;
+            if (page != null) {
+                pageIndex = (page > 1) ? (page - 1) : 0;
+            }
+
+            int offset = pageIndex * pageSize;
+            int totalResults = responseList.size();
+
+            if (page != null && offset >= totalResults) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+
+            List<SearchResultResponse> pageData;
+            if (offset >= totalResults) {
+                pageData = Collections.emptyList();
+            } else {
+                int toIndex = Math.min(offset + pageSize, totalResults);
+                pageData = responseList.subList(offset, toIndex);
+            }
+
+            if (hasPaginationParams || totalResults > pageSize) {
+                return ResponseEntity.ok(new DocumentController.PaginatedResponse<>(totalResults, pageData));
+            }
 
             return ResponseEntity.ok(responseList);
 
