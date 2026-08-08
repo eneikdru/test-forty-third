@@ -1,0 +1,145 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Implement saved searches and favorites for document retrieval",
+        "R2: Provide real-time auto-suggestions and typo correction in the search bar",
+        "R3: Apply document type, specialty, education level, and update date filters to search results"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch search components with advanced filters, auto-suggestions, and favorites",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing the search enhancements for this epic, I want to integrate filters, suggestions, and favorites into the existing search interface, so that users experience a seamless document retrieval process.",
+          "acceptanceCriteria": "Given the existing search interface,\nWhen a user applies filters, types a query, or favorites a document,\nThen the system correctly filters results, provides suggestions, and saves preferences.",
+          "leanValue": "valuable",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Search query formulation time",
+          "sixSigmaMetric": "Decrease average search refinement time by 30%",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "title": "Verify search enhancements across the test pyramid",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When verifying the search enhancements for this epic, I want to ensure auto-suggestions, filters, and favorites work flawlessly, so that the search experience is robust and error-free.",
+          "acceptanceCriteria": "Given the patched search implementation,\nWhen E2E tests are executed for filters and favorites,\nThen the test suite confirms all new search capabilities function without regressions.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Search accuracy and regression rate",
+          "sixSigmaMetric": "Maintain 100% test pass rate for all new search capabilities",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: Enable comments and update requests on knowledge base documents"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch document view to support comments and update requests",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing document feedback for this epic, I want to add comment and update request actions to the document view, so that users can communicate content issues directly.",
+          "acceptanceCriteria": "Given a loaded document in the UI,\nWhen a user submits a comment or update request,\nThen the existing API is called to securely record the feedback and notify managers.",
+          "leanValue": "valuable",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Document feedback loop latency",
+          "sixSigmaMetric": "Reduce time to submit document feedback by 50%",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1"
+          ]
+        },
+        {
+          "title": "Verify document feedback mechanisms",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When testing the document feedback feature for this epic, I want to validate the comment submission flow, so that content managers reliably receive user feedback.",
+          "acceptanceCriteria": "Given the patched document view,\nWhen E2E tests simulate a user submitting a comment,\nThen the system successfully processes and records the submission without errors.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Feedback submission reliability",
+          "sixSigmaMetric": "Achieve 100% test coverage for the document feedback submission path",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "System Authentication and Session Management",
+      "jtbd": "When an educational center participant accesses the platform, I want to authenticate via corporate credentials or standard login, so that my identity is securely verified and role permissions are properly enforced.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "complicated",
+      "sixSigmaMetric": "Reduce unauthenticated session access attempts by 99%",
+      "tocConstraintRef": "System security and identity verification boundary",
+      "sourceIndex": 2,
+      "requirements": [
+        "R1: Support authentication via corporate account or login/password",
+        "R2: Issue and validate secure session tokens for user requests"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch existing security configuration to enforce robust authentication",
+          "roleTag": "BARCAN-TAG-07",
+          "jtbd": "When implementing authentication for this epic, I want to configure the security context to process corporate credentials and issue secure tokens, so that unverified access is blocked.",
+          "acceptanceCriteria": "Given an unauthenticated request to the platform,\nWhen the user provides valid corporate credentials,\nThen a secure session token is issued and the user is authenticated.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Authentication processing reliability",
+          "sixSigmaMetric": "Ensure 0% rate of unauthorized access due to missing token verification",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        },
+        {
+          "title": "Verify authentication and session token issuance",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When verifying the authentication flow for this epic, I want to test login and token validation, so that the system is proven secure against unverified headers.",
+          "acceptanceCriteria": "Given the updated authentication layer,\nWhen integration tests attempt login with both valid and invalid credentials,\nThen the tests verify that only valid logins receive a secure session token.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Security regression detection",
+          "sixSigmaMetric": "Maintain 100% pass rate for authentication security tests",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ]
+}
