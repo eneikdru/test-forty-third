@@ -1,0 +1,94 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "3d4cdd32-d66d-4307-8fdb-b0ddca107c95",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Authenticate via corporate credentials or standard login to issue a secure session token"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Enforce secure session token for authentication",
+          "roleTag": "BARCAN-TAG-07",
+          "jtbd": "When implementing the authentication logic for this epic, I want to issue secure session tokens upon valid login, so that the system's identity verification is securely enforced.",
+          "acceptanceCriteria": "Given an unauthenticated user\nWhen they provide valid login credentials\nThen the system issues a secure session token rather than trusting unverified HTTP headers\nGiven the need for test coverage\nWhen the authentication flow is tested\nThen the test validates that valid credentials yield a secure token and invalid ones are rejected",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Authentication verification gap",
+          "sixSigmaMetric": "Reduce unauthorized session creation to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Database Persistence for Comments and Update Requests",
+      "jtbd": "When viewing or reviewing a document, I want to submit comments and update requests, so that my feedback is stored persistently and content managers are notified.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Reduce data loss for comments and update requests to 0%",
+      "tocConstraintRef": "Ephemeral storage constraint for user feedback",
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: Store submitted comments and actualization requests in persistent database storage rather than ephemeral maps"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Implement database persistence for comments and actualization requests",
+          "roleTag": "BARCAN-TAG-08",
+          "jtbd": "When implementing data storage for this epic, I want to write comments and update requests to the database, so that feedback is persistently stored.",
+          "acceptanceCriteria": "Given a document view\nWhen a user submits a comment or update request\nThen the data is written to persistent database storage instead of being stored only in ephemeral in-memory maps\nGiven the need for test coverage\nWhen the persistence is tested\nThen the test validates that data is successfully saved and retrieved from the database",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "In-memory map persistence loss",
+          "sixSigmaMetric": "Increase feedback persistence rate from 0% to 100%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 2,
+      "requirements": [
+        "R1: Backend search filters for document update date and education level"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Implement backend search filters for update date and education level",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the search logic for this epic, I want to filter queries by update date and education level on the database level, so that search results are accurately scoped.",
+          "acceptanceCriteria": "Given a search query\nWhen the user applies update date or education level filters\nThen the backend queries the database using these criteria rather than relying on frontend-only simulation\nGiven the need for test coverage\nWhen the filters are tested\nThen the test validates that only relevant documents matching the criteria are returned",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Frontend simulated filtering bottleneck",
+          "sixSigmaMetric": "Reduce irrelevant document retrieval by 100% for targeted queries",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
