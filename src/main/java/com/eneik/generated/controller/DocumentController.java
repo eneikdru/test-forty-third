@@ -6,7 +6,9 @@ import com.eneik.generated.model.SchemaTag;
 import com.eneik.generated.repository.DocumentRepository;
 import com.eneik.generated.repository.DocumentVersionRepository;
 import com.eneik.generated.repository.SchemaTagRepository;
+import com.eneik.generated.dto.TelegramNotificationRequest;
 import com.eneik.generated.service.AnalyticsService;
+import com.eneik.generated.service.NotificationDispatcher;
 import com.eneik.generated.service.NotificationService;
 import com.eneik.generated.util.IdProvider;
 import com.eneik.generated.util.TimeProvider;
@@ -36,6 +38,7 @@ public class DocumentController {
     private final TimeProvider timeProvider;
     private final NotificationService notificationService;
     private final AnalyticsService analyticsService;
+    private final NotificationDispatcher notificationDispatcher;
 
     private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of("Position", "Procedure", "Project", "Other");
     private static final Set<String> ALLOWED_PROGRAMS = Set.of("postgraduate", "residency", "both");
@@ -48,7 +51,8 @@ public class DocumentController {
                               IdProvider idProvider,
                               TimeProvider timeProvider,
                               NotificationService notificationService,
-                              AnalyticsService analyticsService) {
+                              AnalyticsService analyticsService,
+                              NotificationDispatcher notificationDispatcher) {
         this.documentRepository = documentRepository;
         this.documentVersionRepository = documentVersionRepository;
         this.schemaTagRepository = schemaTagRepository;
@@ -56,6 +60,7 @@ public class DocumentController {
         this.timeProvider = timeProvider;
         this.notificationService = notificationService;
         this.analyticsService = analyticsService;
+        this.notificationDispatcher = notificationDispatcher;
     }
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -443,6 +448,167 @@ public class DocumentController {
                 .collect(Collectors.toList()));
 
         return res;
+    }
+
+    // Simple in-memory storage for comments and actualization requests
+    private static final Map<UUID, List<Map<String, Object>>> inMemoryComments = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<UUID, List<Map<String, Object>>> inMemoryActualizations = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private String escapeMarkdownV2(String text) {
+        if (text == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '_' || c == '*' || c == '[' || c == ']' || c == '(' || c == ')' || c == '~' || c == '`' ||
+                c == '>' || c == '#' || c == '+' || c == '=' || c == '|' || c == '{' || c == '}' || c == '.' ||
+                c == '!' || c == '-' || c == '\\' || c == '\'') {
+                sb.append('\\');
+            }
+            sb.append(c);
+        }
+        return sb.toString();
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<?> getComments(
+            HttpServletRequest request,
+            @PathVariable("id") UUID id) {
+
+        String role = extractRole(request);
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+
+        List<Map<String, Object>> comments = inMemoryComments.getOrDefault(id, new ArrayList<>());
+        return ResponseEntity.ok(comments);
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<?> postComment(
+            HttpServletRequest request,
+            @PathVariable("id") UUID id,
+            @RequestBody Map<String, String> body) {
+
+        String role = extractRole(request);
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+
+        String text = body.get("text");
+        if (text == null || text.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("BAD_REQUEST", "Comment text is required"));
+        }
+
+        Optional<Document> docOpt = documentRepository.findById(id);
+        if (docOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("NOT_FOUND", "Document not found"));
+        }
+
+        Map<String, Object> comment = new HashMap<>();
+        comment.put("id", idProvider.generateUuid().toString());
+        comment.put("userId", "00000000-0000-0000-0000-000000000001");
+        comment.put("userName", role);
+        comment.put("text", text);
+        comment.put("createdAt", timeProvider.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT));
+
+        inMemoryComments.computeIfAbsent(id, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(comment);
+
+        // Notify content managers via Telegram/Max Dispatcher
+        TelegramNotificationRequest notifyRequest = new TelegramNotificationRequest();
+        notifyRequest.setNotificationId(idProvider.generateNotificationId());
+        notifyRequest.setEventType("comment.added");
+        notifyRequest.setRecipientType("channel_or_chat");
+        notifyRequest.setTargetId("@cniiep_edu_updates");
+        notifyRequest.setTemplateLanguage("ru");
+        notifyRequest.setMessageFormat("markdown_v2");
+
+        TelegramNotificationRequest.PayloadDetails payload = new TelegramNotificationRequest.PayloadDetails();
+        payload.setDocumentId(id.toString());
+        payload.setTitle(docOpt.get().getTitle());
+        payload.setActionType("комментарий");
+        payload.setAuthorName(role);
+        payload.setUpdateSummary("Добавлен комментарий: " + text);
+        payload.setDirectLink("https://kb.crie.ru/documents/" + id);
+        notifyRequest.setPayload(payload);
+
+        String renderedMessage = "💬 *Новый комментарий к документу в Базе Знаний*\n\n" +
+                "📝 *Документ:* " + escapeMarkdownV2(docOpt.get().getTitle()) + "\n" +
+                "👤 *Автор:* " + escapeMarkdownV2(role) + "\n" +
+                "💬 *Текст:* " + escapeMarkdownV2(text);
+        notifyRequest.setRenderedMessage(renderedMessage);
+
+        notificationDispatcher.dispatchTelegram(notifyRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(comment);
+    }
+
+    @PostMapping("/{id}/actualization-requests")
+    public ResponseEntity<?> postActualizationRequest(
+            HttpServletRequest request,
+            @PathVariable("id") UUID id,
+            @RequestBody Map<String, String> body) {
+
+        String role = extractRole(request);
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+
+        String reason = body.get("reason");
+        if (reason == null || reason.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("BAD_REQUEST", "Actualization reason is required"));
+        }
+
+        Optional<Document> docOpt = documentRepository.findById(id);
+        if (docOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("NOT_FOUND", "Document not found"));
+        }
+
+        Map<String, Object> req = new HashMap<>();
+        req.put("id", idProvider.generateUuid().toString());
+        req.put("documentId", id.toString());
+        req.put("requesterId", "00000000-0000-0000-0000-000000000002");
+        req.put("reason", reason);
+        req.put("status", "PENDING");
+        req.put("createdAt", timeProvider.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT));
+
+        inMemoryActualizations.computeIfAbsent(id, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(req);
+
+        // Notify content managers via Telegram/Max Dispatcher
+        TelegramNotificationRequest notifyRequest = new TelegramNotificationRequest();
+        notifyRequest.setNotificationId(idProvider.generateNotificationId());
+        notifyRequest.setEventType("actualization.requested");
+        notifyRequest.setRecipientType("channel_or_chat");
+        notifyRequest.setTargetId("@cniiep_edu_updates");
+        notifyRequest.setTemplateLanguage("ru");
+        notifyRequest.setMessageFormat("markdown_v2");
+
+        TelegramNotificationRequest.PayloadDetails payload = new TelegramNotificationRequest.PayloadDetails();
+        payload.setDocumentId(id.toString());
+        payload.setTitle(docOpt.get().getTitle());
+        payload.setActionType("запрос_актуализации");
+        payload.setAuthorName(role);
+        payload.setUpdateSummary("Запрос на актуализацию: " + reason);
+        payload.setDirectLink("https://kb.crie.ru/documents/" + id);
+        notifyRequest.setPayload(payload);
+
+        String renderedMessage = "⚠️ *Запрос актуализации документа*\n\n" +
+                "📝 *Документ:* " + escapeMarkdownV2(docOpt.get().getTitle()) + "\n" +
+                "👤 *Заявитель:* " + escapeMarkdownV2(role) + "\n" +
+                "❔ *Причина:* " + escapeMarkdownV2(reason);
+        notifyRequest.setRenderedMessage(renderedMessage);
+
+        notificationDispatcher.dispatchTelegram(notifyRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(req);
     }
 
     // Response models

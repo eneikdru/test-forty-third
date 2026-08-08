@@ -1,11 +1,17 @@
 <script>
   import { onMount } from 'svelte';
+  import DocumentViewer from './DocumentViewer.svelte';
 
   // Props
   let { selectedRole = 'Economist' } = $props();
 
   // Svelte 5 state runes
+  let selectedDocument = $state(null);
   let searchQuery = $state('');
+
+  function selectDocument(doc) {
+    selectedDocument = doc;
+  }
   let selectedProgram = $state('all'); // 'all', 'postgraduate', 'residency', 'both'
   let selectedDocType = $state('all'); // 'all', 'Position', 'Procedure', 'Project', 'Other'
   let selectedProcess = $state('all'); // 'all', 'admission', 'certification', 'stipends', 'practice', 'result_tracking', 'other'
@@ -497,7 +503,10 @@
   });
 </script>
 
-<div class="flex flex-col gap-6 w-full max-w-[1200px] mx-auto px-5 md:px-0 bg-[#F9F9FF] min-h-screen text-[#0b1c30]">
+{#if selectedDocument}
+  <DocumentViewer {selectedDocument} {selectedRole} onBack={() => selectedDocument = null} />
+{:else}
+  <div class="flex flex-col gap-6 w-full max-w-[1200px] mx-auto px-5 md:px-0 bg-[#F9F9FF] min-h-screen text-[#0b1c30]">
 
   <!-- Заголовок базы знаний -->
   <div class="flex flex-col gap-1.5 mt-4">
@@ -611,8 +620,8 @@
           <div
             role="button"
             tabindex="0"
-            onclick={() => searchQuery = doc.title}
-            onkeydown={(e) => e.key === 'Enter' && (searchQuery = doc.title)}
+            onclick={() => selectDocument(doc)}
+            onkeydown={(e) => e.key === 'Enter' && selectDocument(doc)}
             class="snap-start min-w-[200px] w-[200px] bg-white border border-[#E2E8F0] rounded-lg p-3 shrink-0 flex flex-col gap-2 relative group cursor-pointer hover:border-[#3182CE] transition-colors shadow-sm"
           >
             <!-- Иконка и звезда в Избранном -->
@@ -818,7 +827,13 @@
       {#each filteredDocuments as doc}
         {@const fileMeta = getFileTypeIcon(doc.fileType, doc.title)}
         <!-- Карточка документа (Белый фон, тонкая рамка, 0.25rem скругления, hover ambient-shadow, Inter) -->
-        <article class="col-span-4 md:col-span-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[0.25rem] p-4 flex flex-col justify-between h-56 transition-all duration-200 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] cursor-pointer hover:border-slate-300 relative group">
+        <div
+          role="button"
+          tabindex="0"
+          onclick={() => selectDocument(doc)}
+          onkeydown={(e) => e.key === 'Enter' && selectDocument(doc)}
+          class="col-span-4 md:col-span-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[0.25rem] p-4 flex flex-col justify-between h-56 transition-all duration-200 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] cursor-pointer hover:border-slate-300 relative group text-left"
+        >
 
           <!-- Звезда избранного и Иконка типа документа сверху справа -->
           <div class="absolute top-4 right-4 flex items-center gap-2">
@@ -874,12 +889,13 @@
             </div>
           </div>
 
-        </article>
+        </div>
       {/each}
     {/if}
   </div>
 
 </div>
+{/if}
 
 <style>
   .no-scrollbar::-webkit-scrollbar {
