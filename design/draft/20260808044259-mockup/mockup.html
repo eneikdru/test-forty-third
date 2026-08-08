@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Search Documents</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#3b35a7",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-background": "#0b1c30",
+                    "primary": "#1f108e",
+                    "inverse-surface": "#213145",
+                    "secondary-fixed": "#e1e0ff",
+                    "secondary": "#4648d4",
+                    "secondary-fixed-dim": "#c0c1ff",
+                    "tertiary": "#511c00",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-secondary-fixed": "#07006c",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#c3c0ff",
+                    "on-tertiary-fixed-variant": "#7a3003",
+                    "on-surface-variant": "#464553",
+                    "outline-variant": "#c8c4d5",
+                    "on-surface": "#0b1c30",
+                    "surface-container": "#e5eeff",
+                    "outline": "#777584",
+                    "surface-dim": "#cbdbf5",
+                    "on-tertiary-fixed": "#351000",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#fe9562",
+                    "surface": "#f8f9ff",
+                    "surface-bright": "#f8f9ff",
+                    "background": "#f8f9ff",
+                    "primary-container": "#3730a3",
+                    "on-primary-fixed": "#0f0069",
+                    "secondary-container": "#6063ee",
+                    "on-secondary-container": "#fffbff",
+                    "tertiary-container": "#752c00",
+                    "primary-fixed": "#e2dfff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-tint": "#544fc0",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#2f2ebe",
+                    "surface-container-low": "#eff4ff",
+                    "on-primary-container": "#a9a7ff",
+                    "on-error-container": "#93000a",
+                    "surface-container-high": "#dce9ff",
+                    "tertiary-fixed": "#ffdbcc",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb694",
+                    "surface-variant": "#d3e4fe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "xl": "32px",
+                    "margin": "20px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased pb-[100px] pt-16">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface text-primary dark:text-inverse-primary fixed top-0 w-full bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline flex justify-between items-center h-16 px-margin w-full z-50 transition-transform duration-100">
+<button class="flex items-center justify-center p-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors rounded-full active:scale-95">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex-1 px-4">
+<div class="relative w-full">
+<input class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-2 pl-10 pr-4 text-body-md font-body-md outline-none transition-all placeholder:text-outline h-10" placeholder="Search Documents" type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-outline text-[20px]">search</span>
+</div>
+</div>
+<button class="flex items-center justify-center p-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors rounded-full active:scale-95">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+</header>
+<main class="px-margin py-lg space-y-xl max-w-md mx-auto">
+<!-- Filters (Scrollable Chips) -->
+<section class="-mx-margin px-margin">
+<div class="flex overflow-x-auto no-scrollbar space-x-sm pb-2">
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform">PDFs</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform">Shared with me</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform">Last 7 days</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform">Images</button>
+</div>
+</section>
+<!-- Search Suggestions -->
+<section class="space-y-md">
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-wider">Recent Searches</h3>
+<div class="flex flex-wrap gap-sm">
+<span class="inline-flex items-center px-3 py-1.5 bg-[rgba(99,102,241,0.1)] text-secondary rounded-full font-label-md text-label-md cursor-pointer hover:bg-[rgba(99,102,241,0.2)] transition-colors">
+<span class="material-symbols-outlined text-[16px] mr-1 opacity-70">history</span>
+                    Q3 Financial Report
+                </span>
+<span class="inline-flex items-center px-3 py-1.5 bg-[rgba(99,102,241,0.1)] text-secondary rounded-full font-label-md text-label-md cursor-pointer hover:bg-[rgba(99,102,241,0.2)] transition-colors">
+<span class="material-symbols-outlined text-[16px] mr-1 opacity-70">history</span>
+                    Marketing Assets 2024
+                </span>
+<span class="inline-flex items-center px-3 py-1.5 bg-[rgba(99,102,241,0.1)] text-secondary rounded-full font-label-md text-label-md cursor-pointer hover:bg-[rgba(99,102,241,0.2)] transition-colors">
+<span class="material-symbols-outlined text-[16px] mr-1 opacity-70">history</span>
+                    Client Contract V2
+                </span>
+</div>
+</section>
+<!-- Favorites Carousel -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Your Favorites</h2>
+<button class="text-secondary font-label-md text-label-md hover:underline">View All</button>
+</div>
+<div class="-mx-margin px-margin">
+<div class="flex overflow-x-auto no-scrollbar space-x-md pb-4 snap-x">
+<!-- Favorite Card 1 -->
+<div class="snap-start min-w-[140px] w-[140px] bg-surface-container-lowest border border-outline-variant rounded-lg p-sm shrink-0 flex flex-col gap-sm relative group cursor-pointer hover:border-primary transition-colors">
+<div class="w-full h-20 bg-surface-variant rounded-md overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-80" data-alt="A modern, minimalist corporate office document cover page showing an abstract geometric design in shades of blue and indigo. High contrast, clean lines, professional aesthetic, soft studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH4yxwRlvYBCVc3wnnP0u3UKRpjwhshkWGbGX88GN9XS6mN6OGAMD5yZ08TAAYBg9PslVSEc5x9hCQo9UjiEhqvZdRXoWL3fSOwg_ZUYmRwEopnWqfaNttoygQyBknEpKPX_A8J8lgKUNf3jlBOXp66eTbJzw-96JAb-aQEfVLsRwRAcj14osXc19_biOyEvbSpoKD_CrSAZ_620wRozIWaaAfnjAvc21zYxnxU5bAtiqbQeWV_yUPy2yyCRpRE6_7UQobTSXwES0"/>
+<div class="absolute top-1 right-1 bg-surface/80 rounded-full p-1 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface truncate">Q4 Strategy.pdf</span>
+<span class="text-[10px] text-outline">Modified yesterday</span>
+</div>
+</div>
+<!-- Favorite Card 2 -->
+<div class="snap-start min-w-[140px] w-[140px] bg-surface-container-lowest border border-outline-variant rounded-lg p-sm shrink-0 flex flex-col gap-sm relative group cursor-pointer hover:border-primary transition-colors">
+<div class="w-full h-20 bg-surface-variant rounded-md overflow-hidden relative flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] text-primary/40">image</span>
+<div class="absolute top-1 right-1 bg-surface/80 rounded-full p-1 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface truncate">Logo_Final_Pack.zip</span>
+<span class="text-[10px] text-outline">2 days ago</span>
+</div>
+</div>
+<!-- Favorite Card 3 -->
+<div class="snap-start min-w-[140px] w-[140px] bg-surface-container-lowest border border-outline-variant rounded-lg p-sm shrink-0 flex flex-col gap-sm relative group cursor-pointer hover:border-primary transition-colors">
+<div class="w-full h-20 bg-surface-variant rounded-md overflow-hidden relative flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] text-primary/40">description</span>
+<div class="absolute top-1 right-1 bg-surface/80 rounded-full p-1 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface truncate">Team_Onboarding.doc</span>
+<span class="text-[10px] text-outline">Last week</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Search Results Area (Empty State or Initial List) -->
+<section class="space-y-sm pb-xl">
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-2">Suggested Results</h3>
+<!-- Result Item -->
+<div class="flex items-center justify-between p-3 bg-surface-container-lowest border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+</div>
+<div class="flex flex-col max-w-[200px]">
+<span class="font-body-md text-body-md text-on-surface truncate font-medium">Annual Budget Review 2025.xlsx</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Spreadsheet • Modified 2 hrs ago</span>
+</div>
+</div>
+<button class="p-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="star">star</span>
+</button>
+</div>
+<!-- Result Item -->
+<div class="flex items-center justify-between p-3 bg-surface-container-lowest border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<div class="flex flex-col max-w-[200px]">
+<span class="font-body-md text-body-md text-on-surface truncate font-medium">Design_System_Guidelines.pdf</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">PDF • Modified Yesterday</span>
+</div>
+</div>
+<button class="p-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="star">star</span>
+</button>
+</div>
+<!-- Result Item -->
+<div class="flex items-center justify-between p-3 bg-surface-container-lowest border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded bg-tertiary-container/30 flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+</div>
+<div class="flex flex-col max-w-[200px]">
+<span class="font-body-md text-body-md text-on-surface truncate font-medium">Project Phoenix Assets</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Folder • 12 items</span>
+</div>
+</div>
+<button class="p-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="star">star</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface dark:bg-surface text-primary dark:text-inverse-primary fixed bottom-0 w-full z-50 bg-surface dark:bg-surface border-t border-outline-variant dark:border-outline fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-2 pb-safe md:hidden shadow-[0_-4px_12px_rgba(55,48,163,0.05)]">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-5 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="description">description</span>
+<span class="font-label-sm text-label-sm">Documents</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container rounded-full px-5 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="search" data-weight="fill" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-label-sm text-label-sm">Search</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-5 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="star">star</span>
+<span class="font-label-sm text-label-sm">Favorites</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-5 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</button>
+</nav>
+</body></html>
