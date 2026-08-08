@@ -3,6 +3,7 @@ package com.eneik.generated.controller;
 import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.model.SchemaTag;
+import com.eneik.generated.service.AuthSessionService;
 import com.eneik.generated.service.FinancialDocumentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -22,9 +23,11 @@ import java.util.stream.Collectors;
 public class FinancialDocumentController {
 
     private final FinancialDocumentService financialDocumentService;
+    private final AuthSessionService authSessionService;
 
-    public FinancialDocumentController(FinancialDocumentService financialDocumentService) {
+    public FinancialDocumentController(FinancialDocumentService financialDocumentService, AuthSessionService authSessionService) {
         this.financialDocumentService = financialDocumentService;
+        this.authSessionService = authSessionService;
     }
 
     @GetMapping("/budget")
@@ -142,19 +145,40 @@ public class FinancialDocumentController {
         }
     }
 
+    private String extractToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7).trim();
+        }
+        jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie c : cookies) {
+                if ("auth_token".equals(c.getName())) {
+                    return c.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     private String extractRole(HttpServletRequest request) {
+        String token = extractToken(request);
+        if (token != null) {
+            AuthSessionService.SessionInfo session = authSessionService.getSession(token);
+            if (session != null) {
+                return session.getRole();
+            }
+        }
+
         String xUserRole = request.getHeader("X-User-Role");
         if (xUserRole != null && !xUserRole.trim().isEmpty()) {
+            AuthSessionService.SessionInfo session = authSessionService.getSession(xUserRole.trim());
+            if (session != null) {
+                return session.getRole();
+            }
             return xUserRole.trim();
         }
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7).trim();
-            if (!token.isEmpty()) {
-                return token;
-            }
-        }
         return null;
     }
 

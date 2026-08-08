@@ -7,6 +7,7 @@ import com.eneik.generated.repository.DocumentRepository;
 import com.eneik.generated.repository.DocumentVersionRepository;
 import com.eneik.generated.repository.SchemaTagRepository;
 import com.eneik.generated.service.AnalyticsService;
+import com.eneik.generated.service.AuthSessionService;
 import com.eneik.generated.service.NotificationService;
 import com.eneik.generated.util.IdProvider;
 import com.eneik.generated.util.TimeProvider;
@@ -36,6 +37,7 @@ public class DocumentController {
     private final TimeProvider timeProvider;
     private final NotificationService notificationService;
     private final AnalyticsService analyticsService;
+    private final AuthSessionService authSessionService;
 
     private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of("Position", "Procedure", "Project", "Other");
     private static final Set<String> ALLOWED_PROGRAMS = Set.of("postgraduate", "residency", "both");
@@ -48,7 +50,8 @@ public class DocumentController {
                               IdProvider idProvider,
                               TimeProvider timeProvider,
                               NotificationService notificationService,
-                              AnalyticsService analyticsService) {
+                              AnalyticsService analyticsService,
+                              AuthSessionService authSessionService) {
         this.documentRepository = documentRepository;
         this.documentVersionRepository = documentVersionRepository;
         this.schemaTagRepository = schemaTagRepository;
@@ -56,6 +59,7 @@ public class DocumentController {
         this.timeProvider = timeProvider;
         this.notificationService = notificationService;
         this.analyticsService = analyticsService;
+        this.authSessionService = authSessionService;
     }
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -361,13 +365,22 @@ public class DocumentController {
 
         // Extract user ID
         UUID userId = null;
-        String xUserId = request.getHeader("X-User-Id");
-        try {
-            if (xUserId != null && !xUserId.trim().isEmpty()) {
-                userId = UUID.fromString(xUserId.trim());
+        String tokenForId = extractToken(request);
+        if (tokenForId != null) {
+            AuthSessionService.SessionInfo session = authSessionService.getSession(tokenForId);
+            if (session != null) {
+                userId = session.getUserId();
             }
-        } catch (IllegalArgumentException e) {
-            // Proceed with null
+        }
+        if (userId == null) {
+            String xUserId = request.getHeader("X-User-Id");
+            try {
+                if (xUserId != null && !xUserId.trim().isEmpty()) {
+                    userId = UUID.fromString(xUserId.trim());
+                }
+            } catch (IllegalArgumentException e) {
+                // Proceed with null
+            }
         }
 
         // Log VIEW event
@@ -394,19 +407,40 @@ public class DocumentController {
         return ResponseEntity.ok(details);
     }
 
+    private String extractToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7).trim();
+        }
+        jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie c : cookies) {
+                if ("auth_token".equals(c.getName())) {
+                    return c.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     private String extractRole(HttpServletRequest request) {
+        String token = extractToken(request);
+        if (token != null) {
+            AuthSessionService.SessionInfo session = authSessionService.getSession(token);
+            if (session != null) {
+                return session.getRole();
+            }
+        }
+
         String xUserRole = request.getHeader("X-User-Role");
         if (xUserRole != null && !xUserRole.trim().isEmpty()) {
+            AuthSessionService.SessionInfo session = authSessionService.getSession(xUserRole.trim());
+            if (session != null) {
+                return session.getRole();
+            }
             return xUserRole.trim();
         }
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7).trim();
-            if (!token.isEmpty()) {
-                return token;
-            }
-        }
         return null;
     }
 

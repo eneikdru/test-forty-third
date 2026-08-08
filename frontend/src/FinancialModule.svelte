@@ -5,7 +5,15 @@
   import OfflineMaterialSync from './components/OfflineMaterialSync.svelte';
 
   // Svelte 5 state runes
+  let token = $state(''); // Transient in-memory state (session cookie based)
   let selectedRole = $state('Economist'); // 'Economist', 'Teacher', 'Postgraduate'
+  let usernameState = $state('');
+
+  let loginUsername = $state('');
+  let loginPassword = $state('');
+  let loginError = $state('');
+  let loginLoading = $state(false);
+
   let activeCategory = $state('База знаний'); // 'База знаний' по умолчанию
   let activeSubTab = $state('Бюджет'); // 'Бюджет' или 'Нагрузка' (для экономиста)
   let budgetDocs = $state([]);
@@ -13,6 +21,66 @@
   let stipendDocs = $state([]);
   let loading = $state(false);
   let errorMessage = $state('');
+
+  function getHeaders() {
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = 'Bearer ' + token;
+    } else {
+      headers['X-User-Role'] = selectedRole;
+    }
+    return headers;
+  }
+
+  async function handleLogin(e) {
+    if (e) e.preventDefault();
+    loginError = '';
+    loginLoading = true;
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: loginUsername,
+          password: loginPassword
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        token = data.token;
+        selectedRole = data.role;
+        usernameState = data.username;
+        loginError = '';
+        fetchData();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        loginError = data.message || 'Неверное имя пользователя или пароль';
+      }
+    } catch (err) {
+      loginError = 'Ошибка сети. Не удалось подключиться к серверу.';
+    } finally {
+      loginLoading = false;
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST'
+      });
+    } catch (err) {
+      // Ignore network error on logout
+    }
+    token = '';
+    selectedRole = 'Economist';
+    usernameState = '';
+    // Clear docs as well
+    budgetDocs = [];
+    loadDocs = [];
+    stipendDocs = [];
+  }
 
   // Translation helpers for metadata to ensure 100% Russian language
   function getDocumentTypeName(type) {
@@ -184,11 +252,24 @@
         activeCategory = 'Стипендии';
       }
     }
-    fetchData();
+    if (token) {
+      fetchData();
+    }
   });
 
-  onMount(() => {
-    fetchData();
+  onMount(async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        token = data.token;
+        selectedRole = data.role;
+        usernameState = data.username;
+        fetchData();
+      }
+    } catch (err) {
+      console.error('Failed to restore session from cookie', err);
+    }
   });
 </script>
 
@@ -203,7 +284,103 @@
   }
 </style>
 
-<div class="min-h-screen flex flex-col md:flex-row bg-[#f8f9ff] text-[#0b1c30] antialiased">
+{#if !token}
+  <!-- РУССКАЯ ФОРМА ВХОДА (STRICT localizations, Lexicon Flux design system) -->
+  <div class="min-h-screen flex items-center justify-center bg-[#f8f9ff] p-4 font-sans">
+    <div class="w-full max-w-md bg-[#ffffff] border border-[#e2e8f0] rounded-lg shadow-sm p-8 flex flex-col gap-6" style="border-radius: 0.25rem;">
+      <div class="text-center">
+        <h2 class="text-2xl font-bold text-[#1a365d]">Вход в систему</h2>
+        <p class="text-sm text-[#45464d] mt-2">Введите корпоративные учетные данные</p>
+      </div>
+
+      {#if loginError}
+        <div class="bg-[#ffdad6] text-[#93000a] p-3 rounded border border-[#ba1a1a] text-sm font-semibold">
+          {loginError}
+        </div>
+      {/if}
+
+      <form onsubmit={handleLogin} class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label for="username-input" class="text-xs font-semibold text-[#45464d]">Имя пользователя</label>
+          <input
+            id="username-input"
+            type="text"
+            bind:value={loginUsername}
+            placeholder="например, economist"
+            required
+            class="bg-[#ffffff] border border-[#76777d] rounded px-3 py-2 text-sm focus:border-[#1a365d] focus:ring-1 focus:ring-[#1a365d] outline-none"
+            style="border-radius: 0.25rem;"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label for="password-input" class="text-xs font-semibold text-[#45464d]">Пароль</label>
+          <input
+            id="password-input"
+            type="password"
+            bind:value={loginPassword}
+            placeholder="Введите ваш пароль"
+            required
+            class="bg-[#ffffff] border border-[#76777d] rounded px-3 py-2 text-sm focus:border-[#1a365d] focus:ring-1 focus:ring-[#1a365d] outline-none"
+            style="border-radius: 0.25rem;"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loginLoading}
+          class="bg-[#1a365d] text-[#ffffff] font-semibold rounded py-2.5 text-sm hover:bg-[#2c4e7e] transition-colors mt-2 flex items-center justify-center gap-2"
+          style="border-radius: 0.25rem;"
+        >
+          {#if loginLoading}
+            <span class="material-symbols-outlined animate-spin text-lg">sync</span>
+          {/if}
+          <span>Войти</span>
+        </button>
+      </form>
+
+      <!-- Демонстрационные учетные данные для тестирования и QA -->
+      <div class="border-t border-[#e2e8f0] pt-4 mt-2">
+        <p class="text-xs font-bold text-[#45464d] mb-2 text-center">Демонстрационные учетные данные:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onclick={() => { loginUsername = 'economist'; loginPassword = 'economist_pass'; }}
+            class="bg-[#f0f4f8] text-xs text-[#1a365d] px-2 py-1.5 rounded text-left hover:bg-[#e1e9f0] border border-[#e2e8f0]"
+            style="border-radius: 0.25rem;"
+          >
+            <strong>Экономист:</strong><br/>economist / economist_pass
+          </button>
+          <button
+            type="button"
+            onclick={() => { loginUsername = 'teacher'; loginPassword = 'teacher_pass'; }}
+            class="bg-[#f0f4f8] text-xs text-[#1a365d] px-2 py-1.5 rounded text-left hover:bg-[#e1e9f0] border border-[#e2e8f0]"
+            style="border-radius: 0.25rem;"
+          >
+            <strong>Преподаватель:</strong><br/>teacher / teacher_pass
+          </button>
+          <button
+            type="button"
+            onclick={() => { loginUsername = 'postgraduate'; loginPassword = 'postgraduate_pass'; }}
+            class="bg-[#f0f4f8] text-xs text-[#1a365d] px-2 py-1.5 rounded text-left hover:bg-[#e1e9f0] border border-[#e2e8f0]"
+            style="border-radius: 0.25rem;"
+          >
+            <strong>Студент:</strong><br/>postgraduate / postgraduate_pass
+          </button>
+          <button
+            type="button"
+            onclick={() => { loginUsername = 'admin'; loginPassword = 'admin_pass'; }}
+            class="bg-[#f0f4f8] text-xs text-[#1a365d] px-2 py-1.5 rounded text-left hover:bg-[#e1e9f0] border border-[#e2e8f0]"
+            style="border-radius: 0.25rem;"
+          >
+            <strong>Админ:</strong><br/>admin / admin_pass
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{:else}
+  <div class="min-h-screen flex flex-col md:flex-row bg-[#f8f9ff] text-[#0b1c30] antialiased">
 
   <!-- Боковая панель навигации (для десктопа) -->
   <aside class="hidden md:flex flex-col w-64 bg-[#e5eeff] border-r border-[#c6c6cd] h-screen sticky top-0 z-40">
@@ -350,19 +527,19 @@
         </h1>
       </div>
 
-      <!-- Селектор роли для тестирования и переключения контекста -->
-      <div class="flex items-center gap-2">
-        <label for="role-select" class="text-xs font-semibold text-[#45464d]">Авторизация:</label>
-        <select
-          id="role-select"
-          bind:value={selectedRole}
-          class="bg-[#ffffff] border border-[#76777d] rounded px-3 py-1.5 text-sm text-[#0b1c30] font-semibold cursor-pointer focus:border-[#000000] focus:ring-0"
+      <!-- Отображение текущего пользователя и кнопка выхода -->
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-semibold text-[#45464d]">
+          Учетная запись: <span class="text-[#1a365d] font-bold">{usernameState}</span>
+        </span>
+        <button
+          type="button"
+          onclick={handleLogout}
+          class="bg-[#1a365d] text-[#ffffff] text-xs font-semibold rounded px-3 py-1.5 hover:bg-[#2c4e7e] transition-colors"
+          style="border-radius: 0.25rem;"
         >
-          <option value="Economist">Экономист</option>
-          <option value="Teacher">Преподаватель</option>
-          <option value="Postgraduate">Студент / Аспирант</option>
-          <option value="Admin">Администратор</option>
-        </select>
+          Выйти
+        </button>
       </div>
     </header>
 
@@ -384,10 +561,10 @@
           <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
         </div>
       {:else if activeCategory === 'База знаний'}
-        <OfflineMaterialSync />
-        <KnowledgeBase {selectedRole} />
+        <OfflineMaterialSync {selectedRole} {token} />
+        <KnowledgeBase {selectedRole} {token} />
       {:else if activeCategory === 'Интеграция' && selectedRole !== 'Postgraduate'}
-        <SettingsAndAnalytics />
+        <SettingsAndAnalytics {token} />
       {:else}
 
         <!-- Содержимое для Экономиста -->
@@ -850,3 +1027,4 @@
   </nav>
 
 </div>
+{/if}
