@@ -143,16 +143,27 @@ public class FinancialDocumentController {
     }
 
     private String extractRole(HttpServletRequest request) {
-        String xUserRole = request.getHeader("X-User-Role");
-        if (xUserRole != null && !xUserRole.trim().isEmpty()) {
-            return xUserRole.trim();
+        Object validatedRole = request.getAttribute("X-User-Role");
+        if (validatedRole != null) {
+            return (String) validatedRole;
         }
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7).trim();
-            if (!token.isEmpty()) {
-                return token;
+        if (Boolean.TRUE.equals(request.getAttribute("X-Session-Invalid"))) {
+            return null;
+        }
+
+        if (Boolean.TRUE.equals(request.getAttribute("X-Allow-Fallback"))) {
+            String xUserRole = request.getHeader("X-User-Role");
+            if (xUserRole != null && !xUserRole.trim().isEmpty()) {
+                return xUserRole.trim();
+            }
+
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7).trim();
+                if (!token.isEmpty()) {
+                    return token;
+                }
             }
         }
         return null;

@@ -48,9 +48,13 @@ public class AuthIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private com.eneik.generated.repository.UserRoleRepository userRoleRepository;
+
     @BeforeEach
     public void setUp() {
         userSessionRepository.deleteAll();
+        userRoleRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -142,5 +146,113 @@ public class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is("BAD_REQUEST")));
+    }
+
+    @Test
+    public void testSessionAuthenticationWithValidTokenInCookieAllowsAccess() throws Exception {
+        // 1. Seed user and roles
+        UUID userId = UUID.randomUUID();
+        User user = new User(
+                userId,
+                "teacher1",
+                passwordEncoder.encode("secret"),
+                LocalDateTime.now()
+        );
+        userRepository.save(user);
+
+        com.eneik.generated.model.UserRole role = new com.eneik.generated.model.UserRole(
+                UUID.randomUUID(),
+                userId,
+                "Teacher"
+        );
+        userRoleRepository.save(role);
+
+        // 2. Perform Login to obtain cookie
+        Map<String, String> creds = Map.of(
+                "username", "teacher1",
+                "password", "secret"
+        );
+
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(creds)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String setCookieHeader = result.getResponse().getHeader("Set-Cookie");
+        assertNotNull(setCookieHeader);
+        String sessionToken = setCookieHeader.split(";")[0].split("=")[1];
+
+        // 3. Make an authenticated request using Cookie
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("session_token", sessionToken);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/documents/search")
+                        .param("q", "anyquery")
+                        .cookie(cookie))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testSessionAuthenticationWithValidTokenInHeaderAllowsAccess() throws Exception {
+        // 1. Seed user and roles
+        UUID userId = UUID.randomUUID();
+        User user = new User(
+                userId,
+                "teacher2",
+                passwordEncoder.encode("secret"),
+                LocalDateTime.now()
+        );
+        userRepository.save(user);
+
+        com.eneik.generated.model.UserRole role = new com.eneik.generated.model.UserRole(
+                UUID.randomUUID(),
+                userId,
+                "Teacher"
+        );
+        userRoleRepository.save(role);
+
+        // 2. Perform Login to obtain cookie
+        Map<String, String> creds = Map.of(
+                "username", "teacher2",
+                "password", "secret"
+        );
+
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(creds)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String setCookieHeader = result.getResponse().getHeader("Set-Cookie");
+        assertNotNull(setCookieHeader);
+        String sessionToken = setCookieHeader.split(";")[0].split("=")[1];
+
+        // 3. Make an authenticated request using Bearer header
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/documents/search")
+                        .param("q", "anyquery")
+                        .header("Authorization", "Bearer " + sessionToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testSessionAuthenticationWithInvalidTokenBlocksAccess() throws Exception {
+        // Use an invalid session token to query search, and also send an X-User-Role header.
+        // It must reject because the session token invalidation overrides any headers (unverified headers blocked).
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/documents/search")
+                        .param("q", "anyquery")
+                        .cookie(new jakarta.servlet.http.Cookie("session_token", "invalid_token"))
+                        .header("X-User-Role", "Teacher"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code", is("UNAUTHORIZED")));
+    }
+
+    @Test
+    public void testFallbackHeadersRejectedWhenAllowFallbackIsFalse() throws Exception {
+        // When X-Allow-Fallback request attribute is false, unverified X-User-Role header must be completely ignored/blocked
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/documents/search")
+                        .param("q", "anyquery")
+                        .requestAttr("X-Allow-Fallback", false)
+                        .header("X-User-Role", "Teacher"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code", is("UNAUTHORIZED")));
     }
 }
