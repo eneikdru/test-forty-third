@@ -1,0 +1,36 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Reconcile task status where internal system incorrectly marks task as done when the PR is closed without merge.",
+        "R2: Unblock flow core task generation loop caused by tasks stuck due to sync failures."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch task synchronization logic and clear flow core loop",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the GitHub sync patch for this epic, I want to accurately propagate unmerged closed PR states and clear loops, so that the flow core can resume processing active work.",
+          "acceptanceCriteria": "Given a task linked to an unmerged closed PR,\nWhen the sync process runs and unit tests assert the state transition,\nThen the task status is reverted and the generation loop is cleared.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Task state reconciliation sync failures",
+          "sixSigmaMetric": "Reduce false positive done tasks from >0 to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ]
+}
