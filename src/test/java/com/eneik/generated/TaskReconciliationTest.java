@@ -306,4 +306,45 @@ public class TaskReconciliationTest {
                 .andExpect(jsonPath("$.state", is("ACTIVE")))
                 .andExpect(jsonPath("$.failedTasksCount", is(0)));
     }
+
+    @Test
+    public void testFlowCoreUnblockTransitionsFailedTasksWithCustomTargetStatus() throws Exception {
+        // Create failed tasks with a specific custom target status transition in mind
+        for (int i = 0; i < 3; i++) {
+            UUID taskId = UUID.randomUUID();
+            Task failedTask = new Task(taskId, "Custom Unblock Failed Task " + i, "failed", 300 + i, "closed", false);
+            taskRepository.saveAndFlush(failedTask);
+            gitHubService.registerPrStatus(300 + i, "closed", false);
+        }
+
+        // Verify initial state is blocked
+        mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is("BLOCKED_BY_FAILED_FRONTIER")))
+                .andExpect(jsonPath("$.failedTasksCount", is(3)));
+
+        // Execute the unblocking patch with custom targetStatus: "in_progress"
+        mockMvc.perform(post("/api/v1/tasks/flow-core/unblock")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("targetStatus", "in_progress"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("success")))
+                .andExpect(jsonPath("$.unblockedCount", is(3)));
+
+        // Verify flow core is active now
+        mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state", is("ACTIVE")))
+                .andExpect(jsonPath("$.failedTasksCount", is(0)));
+
+        // Verify tasks statuses became 'in_progress' and github PR details are cleared/dissociated
+        List<Task> tasks = taskRepository.findAll();
+        assertFalse(tasks.isEmpty());
+        for (Task t : tasks) {
+            assertEquals("in_progress", t.getStatus());
+            assertNull(t.getGithubPrNumber());
+            assertNull(t.getGithubPrState());
+            assertNull(t.getGithubPrMerged());
+        }
+    }
 }

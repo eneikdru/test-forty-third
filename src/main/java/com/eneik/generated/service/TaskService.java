@@ -53,7 +53,10 @@ public class TaskService {
      */
     public int unblockFlowCore(String targetStatus) {
         String resolvedTarget = (targetStatus == null || targetStatus.trim().isEmpty()) ? "open" : targetStatus;
-        return taskRepository.updateAllStatusAtomically("failed", resolvedTarget, LocalDateTime.now());
+        log.info("unblockFlowCore: Transitioning all failed tasks to '{}' to unblock Flow Core", resolvedTarget);
+        int updated = taskRepository.updateAllStatusAtomically("failed", resolvedTarget, LocalDateTime.now());
+        log.info("unblockFlowCore: Successfully transitioned {} failed tasks to '{}'", updated, resolvedTarget);
+        return updated;
     }
 
     public Optional<Task> getTask(UUID id) {
