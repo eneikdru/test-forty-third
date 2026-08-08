@@ -1,5 +1,6 @@
 package com.eneik.generated.controller;
 
+import com.eneik.generated.service.SessionService;
 import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.model.SchemaTag;
@@ -36,6 +37,7 @@ public class DocumentController {
     private final TimeProvider timeProvider;
     private final NotificationService notificationService;
     private final AnalyticsService analyticsService;
+    private final SessionService sessionService;
 
     private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of("Position", "Procedure", "Project", "Other");
     private static final Set<String> ALLOWED_PROGRAMS = Set.of("postgraduate", "residency", "both");
@@ -48,7 +50,8 @@ public class DocumentController {
                               IdProvider idProvider,
                               TimeProvider timeProvider,
                               NotificationService notificationService,
-                              AnalyticsService analyticsService) {
+                              AnalyticsService analyticsService,
+                              SessionService sessionService) {
         this.documentRepository = documentRepository;
         this.documentVersionRepository = documentVersionRepository;
         this.schemaTagRepository = schemaTagRepository;
@@ -56,6 +59,7 @@ public class DocumentController {
         this.timeProvider = timeProvider;
         this.notificationService = notificationService;
         this.analyticsService = analyticsService;
+        this.sessionService = sessionService;
     }
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -338,17 +342,21 @@ public class DocumentController {
     }
 
     private String extractRole(HttpServletRequest request) {
-        String xUserRole = request.getHeader("X-User-Role");
-        if (xUserRole != null && !xUserRole.trim().isEmpty()) {
-            return xUserRole.trim();
-        }
-
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7).trim();
             if (!token.isEmpty()) {
+                Optional<SessionService.UserSession> sessionOpt = sessionService.getSession(token);
+                if (sessionOpt.isPresent()) {
+                    return sessionOpt.get().getRole();
+                }
                 return token;
             }
+        }
+
+        String xUserRole = request.getHeader("X-User-Role");
+        if (xUserRole != null && !xUserRole.trim().isEmpty()) {
+            return xUserRole.trim();
         }
         return null;
     }

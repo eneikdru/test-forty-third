@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
 
   // Props
-  let { selectedRole = 'Economist' } = $props();
+  let { selectedRole = 'Economist', token = '' } = $props();
 
   // Svelte 5 state runes
   let searchQuery = $state('');
@@ -236,11 +236,16 @@
     loading = true;
     errorMessage = '';
     try {
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        headers['X-User-Role'] = selectedRole;
+      }
+
       // Call search with empty query to get all documents matching current role
       const res = await fetch(`/api/documents/search?q=${encodeURIComponent(searchQuery)}`, {
-        headers: {
-          'X-User-Role': selectedRole
-        }
+        headers: headers
       });
       if (res.ok) {
         const data = await res.json();

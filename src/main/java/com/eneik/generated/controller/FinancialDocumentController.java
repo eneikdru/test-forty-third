@@ -17,14 +17,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.eneik.generated.service.SessionService;
+
 @RestController
 @RequestMapping("/api/financial")
 public class FinancialDocumentController {
 
     private final FinancialDocumentService financialDocumentService;
+    private final SessionService sessionService;
 
-    public FinancialDocumentController(FinancialDocumentService financialDocumentService) {
+    public FinancialDocumentController(FinancialDocumentService financialDocumentService, SessionService sessionService) {
         this.financialDocumentService = financialDocumentService;
+        this.sessionService = sessionService;
     }
 
     @GetMapping("/budget")
@@ -143,17 +147,21 @@ public class FinancialDocumentController {
     }
 
     private String extractRole(HttpServletRequest request) {
-        String xUserRole = request.getHeader("X-User-Role");
-        if (xUserRole != null && !xUserRole.trim().isEmpty()) {
-            return xUserRole.trim();
-        }
-
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7).trim();
             if (!token.isEmpty()) {
+                Optional<SessionService.UserSession> sessionOpt = sessionService.getSession(token);
+                if (sessionOpt.isPresent()) {
+                    return sessionOpt.get().getRole();
+                }
                 return token;
             }
+        }
+
+        String xUserRole = request.getHeader("X-User-Role");
+        if (xUserRole != null && !xUserRole.trim().isEmpty()) {
+            return xUserRole.trim();
         }
         return null;
     }

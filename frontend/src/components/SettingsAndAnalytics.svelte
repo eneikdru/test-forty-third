@@ -1,6 +1,9 @@
 <script>
   import { onMount } from 'svelte';
 
+  // Props
+  let { token = '' } = $props();
+
   // Svelte 5 state runes
   let telegramChatId = $state('');
   let maxChatId = $state('');
@@ -18,7 +21,11 @@
     loadingPrefs = true;
     errorMessage = '';
     try {
-      const res = await fetch('/api/v1/notifications/preferences');
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const res = await fetch('/api/v1/notifications/preferences', { headers });
       if (res.ok) {
         const data = await res.json();
         telegramChatId = data.telegramChatId || '';
@@ -38,7 +45,11 @@
   async function fetchStats() {
     loadingStats = true;
     try {
-      const res = await fetch('/api/v1/analytics/download-stats');
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const res = await fetch('/api/v1/analytics/download-stats', { headers });
       if (res.ok) {
         stats = await res.json();
       }
@@ -57,11 +68,15 @@
     errorMessage = '';
 
     try {
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       const res = await fetch('/api/v1/notifications/preferences', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify({
           telegramChatId,
           maxChatId,

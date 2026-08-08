@@ -1,5 +1,6 @@
 package com.eneik.generated.controller;
 
+import com.eneik.generated.service.SessionService;
 import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.model.SchemaTag;
@@ -19,13 +20,15 @@ import java.util.stream.Collectors;
 public class DocumentSearchController {
 
     private final DocumentSearchService documentSearchService;
+    private final SessionService sessionService;
 
     private static final Set<String> ALLOWED_ROLES = Set.of(
         "administrator", "content_manager", "teacher", "student", "economist", "postgraduate", "resident", "hr"
     );
 
-    public DocumentSearchController(DocumentSearchService documentSearchService) {
+    public DocumentSearchController(DocumentSearchService documentSearchService, SessionService sessionService) {
         this.documentSearchService = documentSearchService;
+        this.sessionService = sessionService;
     }
 
     @GetMapping("/documents/search")
@@ -62,17 +65,21 @@ public class DocumentSearchController {
     }
 
     private String extractRole(HttpServletRequest request) {
-        String xUserRole = request.getHeader("X-User-Role");
-        if (xUserRole != null && !xUserRole.trim().isEmpty()) {
-            return xUserRole.trim();
-        }
-
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7).trim();
             if (!token.isEmpty()) {
+                Optional<SessionService.UserSession> sessionOpt = sessionService.getSession(token);
+                if (sessionOpt.isPresent()) {
+                    return sessionOpt.get().getRole();
+                }
                 return token;
             }
+        }
+
+        String xUserRole = request.getHeader("X-User-Role");
+        if (xUserRole != null && !xUserRole.trim().isEmpty()) {
+            return xUserRole.trim();
         }
         return null;
     }
