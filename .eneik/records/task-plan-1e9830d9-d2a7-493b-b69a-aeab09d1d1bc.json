@@ -1,0 +1,66 @@
+{
+  "epics": [
+    {
+      "existingEpicId": null,
+      "title": "Offline Material Creation and Sync",
+      "jtbd": "When an educational center participant has no internet access, I want to be able to add materials offline, so that my work is saved locally and synchronized to the server when connection is restored.",
+      "kanoClass": "Performance",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Increase offline material creation success rate from 0% to 100%",
+      "tocConstraintRef": "Network dependency during material creation",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Allow offline creation of materials with local storage caching",
+        "R2: Automatically synchronize locally saved materials to the backend upon network reconnection"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch frontend for offline material creation and sync",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing the offline cache for this epic, I want to patch the frontend local storage and sync logic, so that the offline creation outcome is achieved safely.",
+          "acceptanceCriteria": "Given an offline state, When a user adds a material, Then it is stored in the local cache.\nGiven a restored network connection, When the client reconnects, Then locally cached materials are synced to the backend API.\nGiven a successful sync, When the server confirms creation, Then the local cache is cleared of synced items.",
+          "leanValue": "valuable",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Frontend network dependency bottleneck",
+          "sixSigmaMetric": "Reduce document data loss rate due to network disconnects from 100% to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: Implement API pagination for document lists and search results"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch API endpoints for document pagination",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing pagination for this epic, I want to patch the existing document list and search endpoints, so that the faster page load outcome is achieved.",
+          "acceptanceCriteria": "Given a search request with page parameters, When the total results exceed the page size, Then the API returns the requested page of documents and the total count.\nGiven a list request with a specific page number, When that page has no results, Then the API returns an empty array.\nGiven a request without pagination parameters, When the endpoint is called, Then it falls back to a default page size.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Database query and network payload size bottleneck",
+          "sixSigmaMetric": "Reduce API response time for large datasets from >1000ms to <200ms",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
