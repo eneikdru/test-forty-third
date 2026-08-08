@@ -15,6 +15,9 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@ExtendWith(OutputCaptureExtension.class)
 public class TaskReconciliationTest {
 
     @Autowired
@@ -370,5 +374,29 @@ public class TaskReconciliationTest {
             assertNull(t.getGithubPrState());
             assertNull(t.getGithubPrMerged());
         }
+    }
+
+    @Test
+    public void testReconciliationEmitsTelemetryLog(CapturedOutput output) throws Exception {
+        UUID taskId = UUID.fromString("0bcb9d29-ad04-4c30-8448-e3cbacf70c4f");
+        // Task starts at 'done' internally
+        Task task = new Task(taskId, "Telemetry Test Task", "done", 53, "closed", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and unmerged
+        gitHubService.registerPrStatus(53, "closed", false);
+
+        // Trigger reconciliation
+        mockMvc.perform(post("/api/v1/tasks/reconcile"))
+                .andExpect(status().isOk());
+
+        // Verify that telemetry warning log with the specified prefix is emitted
+        String logs = output.getOut();
+        assertTrue(logs.contains("[TELEMETRY][TASK_RECONCILIATION]"),
+                "Log should contain telemetry reconciliation prefix");
+        assertTrue(logs.contains("0bcb9d29-ad04-4c30-8448-e3cbacf70c4f"),
+                "Log should contain task ID");
+        assertTrue(logs.contains("PR#53"),
+                "Log should contain PR number");
     }
 }

@@ -119,7 +119,7 @@ public class TaskService {
             if ("done".equalsIgnoreCase(task.getStatus())) {
                 // Task is done but PR is closed and unmerged -> update status to failed
                 if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
-                    log.warn("syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
+                    log.warn("[TELEMETRY][TASK_RECONCILIATION] task {} is marked done but PR#{} closed without merge",
                             task.getId(), task.getGithubPrNumber());
 
                     int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
