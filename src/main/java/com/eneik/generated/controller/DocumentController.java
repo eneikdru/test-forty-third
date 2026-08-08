@@ -201,12 +201,29 @@ public class DocumentController {
         if (filename == null || filename.isEmpty()) {
             filename = "document.pdf";
         }
-        version.setFileUrl("/api/files/" + finalDoc.getId() + "/v" + nextVersionNumber + "/" + filename);
+        // Sanitize the filename to prevent directory traversal
+        String sanitizedFilename = java.nio.file.Paths.get(filename).getFileName().toString();
+        if (sanitizedFilename == null || sanitizedFilename.isEmpty()) {
+            sanitizedFilename = "document.pdf";
+        }
+
+        version.setFileUrl("/api/files/" + finalDoc.getId() + "/v" + nextVersionNumber + "/" + sanitizedFilename);
+
+        // Persist file content to disk using stream to avoid OOM
+        try {
+            java.nio.file.Path targetPath = java.nio.file.Paths.get("data", "uploads", finalDoc.getId().toString(), "v" + nextVersionNumber, sanitizedFilename);
+            java.nio.file.Files.createDirectories(targetPath.getParent());
+            java.nio.file.Files.copy(file.getInputStream(), targetPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (java.io.IOException e) {
+            log.error("Failed to write uploaded file to disk", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("INTERNAL_SERVER_ERROR", "Failed to persist file content: " + e.getMessage()));
+        }
 
         String fileType = "PDF";
-        int lastDot = filename.lastIndexOf('.');
+        int lastDot = sanitizedFilename.lastIndexOf('.');
         if (lastDot != -1) {
-            fileType = filename.substring(lastDot + 1).toUpperCase();
+            fileType = sanitizedFilename.substring(lastDot + 1).toUpperCase();
         }
         version.setFileType(fileType);
         version.setStatus("ACTIVE");
