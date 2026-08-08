@@ -1,0 +1,53 @@
+{
+  "gaps": [
+    {
+      "title": "Saved Searches and Favorites",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When using the system frequently, I want to save my search queries and favorite materials, so that I can quickly access them later without repeating complex searches.",
+      "acceptanceCriteria": "Given an authenticated user, When they choose to save a search or favorite a document, Then the system securely stores and allows retrieval of these preferences.",
+      "reason": "literal brief requirement: 'возможность сохранения поисковых запросов и избранных материалов'"
+    },
+    {
+      "title": "Document Comments and Update Requests",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When viewing a document, I want to leave comments or send an update request, so that I can provide feedback on outdated or unclear information.",
+      "acceptanceCriteria": "Given a document view, When a user submits a comment or update request, Then the system records it and notifies the responsible content managers.",
+      "reason": "literal brief requirement: 'возможность комментирования и отправки запросов на актуализацию'"
+    },
+    {
+      "title": "Date and Education Level Search Filters",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When searching for documents, I want to filter by update date and education level, so that I can easily narrow down results to the most relevant materials.",
+      "acceptanceCriteria": "Given the search interface, When a user applies date or education level filters, Then the system returns only documents matching those specific criteria.",
+      "reason": "literal brief requirement: 'фильтры по типу документа, специальности, уровню образования, дате обновления'"
+    },
+    {
+      "title": "Authentication and Session Management",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When accessing the system, I want to authenticate using my corporate credentials or login/password, so that my identity is verified and my role permissions are enforced securely.",
+      "acceptanceCriteria": "Given an unauthenticated user, When they provide valid login credentials, Then the system issues a secure session token rather than trusting unverified HTTP headers.",
+      "reason": "literal brief requirement: 'авторизация через корпоративную учётную запись или по логину/паролю'"
+    },
+    {
+      "title": "Search Auto-Suggestions",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When typing a query in the search bar, I want to see real-time auto-suggestions, so that I can find materials faster and correct my input on the fly.",
+      "acceptanceCriteria": "Given a search input field, When a user starts typing, Then the system returns a list of suggested queries or matching document titles.",
+      "reason": "literal brief requirement: 'автоподсказки и исправление опечаток'"
+    },
+    {
+      "title": "Offline Material Creation and Sync",
+      "roleTag": "BARCAN-TAG-11",
+      "jtbd": "When I have no internet access, I want to be able to add materials offline, so that my work is saved locally and synchronized to the server when connection is restored.",
+      "acceptanceCriteria": "Given an offline state, When a user creates or modifies a document, Then it is stored locally and automatically pushed to the server upon reconnection.",
+      "reason": "literal brief requirement: 'Возможность добавления материалов в офлайн-режиме с последующей синхронизацией'"
+    },
+    {
+      "title": "Pagination for Document Lists and Search",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When retrieving a large set of documents or search results, I want the results to be paginated, so that the application loads quickly and does not fetch too much data at once.",
+      "acceptanceCriteria": "Given a search or list request, When there are more results than the page size, Then the API returns a paginated response indicating total count and current page data.",
+      "reason": "domain-standard expectation: Public list endpoints for a large knowledge base require pagination to prevent performance degradation."
+    }
+  ]
+}
