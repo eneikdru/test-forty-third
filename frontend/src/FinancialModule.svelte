@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import SettingsAndAnalytics from './components/SettingsAndAnalytics.svelte';
   import KnowledgeBase from './components/KnowledgeBase.svelte';
+  import OfflineMaterialSync from './components/OfflineMaterialSync.svelte';
 
   // Svelte 5 state runes
   let selectedRole = $state('Economist'); // 'Economist', 'Teacher', 'Postgraduate'
@@ -383,6 +384,7 @@
           <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
         </div>
       {:else if activeCategory === 'База знаний'}
+        <OfflineMaterialSync />
         <KnowledgeBase {selectedRole} />
       {:else if activeCategory === 'Интеграция' && selectedRole !== 'Postgraduate'}
         <SettingsAndAnalytics />
