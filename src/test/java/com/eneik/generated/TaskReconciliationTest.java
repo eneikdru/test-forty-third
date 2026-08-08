@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -345,6 +349,50 @@ public class TaskReconciliationTest {
             assertNull(t.getGithubPrNumber());
             assertNull(t.getGithubPrState());
             assertNull(t.getGithubPrMerged());
+        }
+    }
+
+    @Test
+    public void testReconciliationEmitsTelemetryWhenPrClosedAndNotMerged() throws Exception {
+        UUID taskId = UUID.fromString("11111111-2222-3333-4444-555555555555");
+        // Task starts at 'done' internally
+        Task task = new Task(taskId, "Done Task Closed Unmerged", "done", 110, "closed", false);
+        taskRepository.saveAndFlush(task);
+
+        // Register GitHub truth: closed and unmerged
+        gitHubService.registerPrStatus(110, "closed", false);
+
+        // Setup logback capture
+        Logger logger = (Logger) org.slf4j.LoggerFactory.getLogger(TaskService.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        try {
+            // Trigger reconciliation via endpoint
+            mockMvc.perform(post("/api/v1/tasks/reconcile"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status", is("success")))
+                    .andExpect(jsonPath("$.reconciledCount", is(1)));
+
+            // Verify status is corrected to 'failed'
+            Task reloaded = taskRepository.findById(taskId).orElseThrow();
+            assertEquals("failed", reloaded.getStatus());
+
+            // Check if telemetry log was captured
+            boolean foundTelemetry = false;
+            for (ILoggingEvent event : listAppender.list) {
+                String message = event.getFormattedMessage();
+                if (message.contains("[TELEMETRY][TASK_RECONCILIATION]") &&
+                    message.contains(taskId.toString()) &&
+                    message.contains("110")) {
+                    foundTelemetry = true;
+                    break;
+                }
+            }
+            assertTrue(foundTelemetry, "Telemetry log was not found or did not contain required task/PR info");
+        } finally {
+            logger.detachAppender(listAppender);
         }
     }
 }

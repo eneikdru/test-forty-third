@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,6 +75,8 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + id));
 
+        String oldStatus = task.getStatus();
+
         if ("done".equalsIgnoreCase(targetStatus) && task.getGithubPrNumber() != null) {
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
             if ("closed".equalsIgnoreCase(prStatus.getState()) && !prStatus.isMerged()) {
@@ -84,9 +87,14 @@ public class TaskService {
             }
         }
 
+        int updatedRows = taskRepository.updateStatusAtomically(id, targetStatus, oldStatus);
+        if (updatedRows == 0) {
+            throw new ConcurrentModificationException("Task status was updated by another process");
+        }
+
         task.setStatus(targetStatus);
         task.setUpdatedAt(LocalDateTime.now());
-        return taskRepository.save(task);
+        return task;
     }
 
     /**
@@ -122,8 +130,10 @@ public class TaskService {
                     log.warn("syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
                             task.getId(), task.getGithubPrNumber());
 
-                    int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", "done");
+                    int updatedRows = taskRepository.updateStatusAtomically(task.getId(), "failed", task.getStatus());
                     if (updatedRows > 0) {
+                        log.info("[TELEMETRY][TASK_RECONCILIATION] Task ID: {}, Title: '{}', GitHub PR #{}, status synchronized from 'done' to 'failed' because corresponding PR is closed and unmerged.",
+                                task.getId(), task.getTitle(), task.getGithubPrNumber());
                         reconciledCount++;
                     }
                 }
