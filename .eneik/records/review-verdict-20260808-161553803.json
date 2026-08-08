@@ -1,0 +1,30 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "block",
+      "criticalReason": "Real security vulnerability: FileDownloadController trusts arbitrary client-provided 'X-User-Role' headers and unvalidated 'Authorization' Bearer tokens for access, allowing trivial authentication/authorization bypass.",
+      "concerns": [
+        {
+          "text": "Modifies generated file com.eneik.generated.controller.DocumentController directly instead of using an append-only extension pattern.",
+          "severity": "high"
+        },
+        {
+          "text": "Tests use non-seedable UUID.randomUUID(), which violates the reproducibility boundary for tests.",
+          "severity": "low"
+        }
+      ]
+    },
+    {
+      "sourceIndex": 1,
+      "verdict": "block",
+      "criticalReason": "Direct contradiction of Acceptance Criteria: When a PR is closed but not merged, the code sets the task status to 'failed' (a terminal state) instead of reverting it to an appropriate active/blocked state as required by the AC.",
+      "concerns": [
+        {
+          "text": "Tests use non-seedable UUID.randomUUID(), which violates the reproducibility boundary for tests.",
+          "severity": "low"
+        }
+      ]
+    }
+  ]
+}
