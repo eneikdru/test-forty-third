@@ -1,0 +1,135 @@
+openapi: 3.0.3
+info:
+  title: Compliance Generator and Validation API
+  version: 1.0.0
+  description: |
+    API contract for the compliance record generator to enforce true checks,
+    prevent falsified success reports, and validate specifications and root-cause repairs.
+paths:
+  /api/v1/compliance/coverage-audit:
+    post:
+      summary: Compliance Coverage Audit
+      description: Validates that active requirements and specifications are covered by actual PRs/tasks.
+      operationId: auditCoverage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverageAuditRequest'
+      responses:
+        '200':
+          description: Coverage audit completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverageAuditResponse'
+        '400':
+          description: Invalid audit parameters
+  /api/v1/compliance/task-plan:
+    post:
+      summary: Task Plan Compliance Generator
+      description: Validates specifications and root-cause repairs for the task plan.
+      operationId: validateTaskPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskPlanRequest'
+      responses:
+        '200':
+          description: Task plan validated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskPlanResponse'
+        '400':
+          description: Validation failure or falsified request detected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskPlanResponse'
+components:
+  schemas:
+    CoverageAuditRequest:
+      type: object
+      required:
+        - specifications
+        - addressedRequirementIds
+      properties:
+        specifications:
+          type: array
+          description: Complete list of required specifications or requirement IDs.
+          items:
+            type: string
+          example: ['REQ-001', 'REQ-002', 'REQ-003']
+        addressedRequirementIds:
+          type: array
+          description: List of requirement IDs actually addressed by implemented tasks.
+          items:
+            type: string
+          example: ['REQ-001']
+    CoverageAuditResponse:
+      type: object
+      properties:
+        gaps:
+          type: array
+          description: Unmet specifications or gaps found during validation.
+          items:
+            type: string
+          example: ['REQ-002', 'REQ-003']
+        coveragePercentage:
+          type: number
+          description: Percentage of covered specifications.
+          example: 33.3
+        coverageComplete:
+          type: boolean
+          description: True if all required specifications are addressed without gaps.
+          example: false
+        valid:
+          type: boolean
+          description: General validity of the audit record.
+          example: true
+    TaskPlanRequest:
+      type: object
+      required:
+        - specifications
+        - rootCauseRepairs
+        - tasks
+      properties:
+        specifications:
+          type: array
+          description: Complete list of required specifications or requirement IDs.
+          items:
+            type: string
+          example: ['REQ-001', 'REQ-002', 'REQ-003']
+        rootCauseRepairs:
+          type: array
+          description: List of root-cause repairs identified and completed.
+          items:
+            type: string
+          example: ['RC-001']
+        tasks:
+          type: array
+          description: List of planned tasks.
+          items:
+            type: string
+          example: ['TSK-101']
+    TaskPlanResponse:
+      type: object
+      properties:
+        coverageComplete:
+          type: boolean
+          description: True only if all specifications are validated and actual root-cause repairs are completed.
+          example: false
+        validated:
+          type: boolean
+          description: True if the plan passed structural and code integrity validation.
+          example: false
+        failures:
+          type: array
+          description: Descriptions of validation/integrity failures.
+          items:
+            type: string
+          example: ['Falsified coverageComplete=true: client specifications are unmet', 'Missing valid root-cause repairs']
