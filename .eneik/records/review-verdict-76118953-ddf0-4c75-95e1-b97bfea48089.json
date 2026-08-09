@@ -1,0 +1,13 @@
+{"verdicts": [
+  {
+    "sourceIndex": 0,
+    "verdict": "approve",
+    "criticalReason": "",
+    "concerns": [
+      {
+        "text": "The changes in TaskServicePatch are correct and address the issue where unmerged closed PRs left internal tasks in a falsely 'done' status. Consider logging the original status more clearly when transitioning a task to 'failed'.",
+        "severity": "low"
+      }
+    ]
+  }
+]}
