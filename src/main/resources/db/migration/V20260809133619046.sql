@@ -1,0 +1,7 @@
+CREATE TABLE sync_tasks (
+    id UUID PRIMARY KEY,
+    github_pr_number VARCHAR(255),
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
