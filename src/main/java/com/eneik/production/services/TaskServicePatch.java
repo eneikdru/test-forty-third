@@ -111,14 +111,18 @@ public class TaskServicePatch extends TaskService {
                             reconciledCount++;
                         }
                     } else {
-                        log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, retaining status {}",
-                                task.getId(), task.getGithubPrNumber(), task.getStatus());
+                        if (!"closed".equalsIgnoreCase(task.getGithubPrState())
+                                || task.getGithubPrMerged() == null
+                                || task.getGithubPrMerged()) {
+                            log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, retaining status {}",
+                                    task.getId(), task.getGithubPrNumber(), task.getStatus());
 
-                        int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                                task.getId(), task.getStatus(), task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
-                        );
-                        if (updatedRows > 0) {
-                            reconciledCount++;
+                            int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                                    task.getId(), task.getStatus(), task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
+                            );
+                            if (updatedRows > 0) {
+                                reconciledCount++;
+                            }
                         }
                     }
                 }

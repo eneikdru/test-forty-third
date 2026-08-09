@@ -119,4 +119,28 @@ public class TaskServicePatchTest {
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
         assertEquals("failed", reloaded.getStatus(), "Task should be reverted to failed status since its open PR is unmerged");
     }
+
+    @Test
+    public void testSyncTaskStatusesDoesNotPerformRedundantUpdatesOnSubsequentRuns() {
+        UUID taskId = UUID.randomUUID();
+        // Given a task that is 'done' internally
+        Task task = new Task(taskId, "Test Redundant Update Task", "done", 1001, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // And the GitHub PR is closed and unmerged
+        gitHubService.registerPrStatus(1001, "closed", false);
+
+        // First synchronization: should revert task status to 'failed' and reconcile
+        int firstRunCount = taskService.syncTaskStatusesWithGitHub();
+        assertEquals(1, firstRunCount, "First synchronization run should reconcile the mismatched task");
+
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus(), "Task should be reverted to failed status");
+        assertEquals("closed", reloaded.getGithubPrState(), "PR state should be updated to closed");
+        assertEquals(false, reloaded.getGithubPrMerged(), "PR merged should be false");
+
+        // Second synchronization: should do nothing (reconciledCount = 0) since everything already matches
+        int secondRunCount = taskService.syncTaskStatusesWithGitHub();
+        assertEquals(0, secondRunCount, "Second synchronization run should skip already reconciled task");
+    }
 }
