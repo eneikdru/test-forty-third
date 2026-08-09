@@ -275,6 +275,114 @@
       "confidence": "high",
       "evidence": "src/main/java/com/eneik/generated/model/AnalyticsEvent.java - lacks strict self-locating contextual properties beyond basic user IDs.",
       "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Майкл Дамит",
+      "worldview": "Verificationist theory of meaning - meaning is strictly determined by its verification conditions.",
+      "critique": "The `FeatureEntity.java` relies on implicit structural validation for its `mustBeKano` and `performanceKano` string sets. There is no runtime verification ensuring these strings map back to active requirement records, meaning the values can exist independently of any verifiable truth.",
+      "proposal": "Apply strict verificationist constraints: link the `FeatureEntity` kano classifications to verifiable database foreign keys or explicit enumerations, rejecting the use of disconnected raw strings.",
+      "dislike": "Allowing semantic declarations to float free of verifiable, structured references.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/FeatureEntity.java - The collections for kano properties are untyped sets of strings.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Нельсон Гудман",
+      "worldview": "Worldmaking and projectibility - representations must be reliably projectible into the future.",
+      "critique": "In `JulesApiClient.java`, the default payload size limit is handled by silently truncating context without signaling the caller. This arbitrary truncation breaks the projectibility of the context; the caller cannot predict what world is actually being sent to the LLM.",
+      "proposal": "Introduce explicit, anchored boundaries: if truncation occurs, it must emit a deterministic `TRUNCATION_WARNING` object back to the caller, ensuring the caller is aware of the modified projectible world.",
+      "dislike": "Silent alterations to state or context that break the predictability and projectibility of an operation.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/JulesApiClient.java - Implicit handling of token/payload limits.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Людвиг Витгенштейн",
+      "worldview": "Language-games and meaning as use. Avoid internal 'private languages'.",
+      "critique": "The backend defines an internal error code structure (`ErrorCode: 1042`, etc.) in `TaskController` exceptions that is never mapped to the frontend's UI consumption language game. The frontend simply displays 'An error occurred', rendering the backend's private language game useless.",
+      "proposal": "Establish a shared language game: ensure all backend `ErrorCodes` have a corresponding localized, UI-consumable mapping in the frontend layer, rather than existing purely as private backend logs.",
+      "dislike": "The existence of 'private languages' (internal error codes) that do not participate in the broader, user-facing language game.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/controller/TaskController.java and frontend/src/FinancialModule.svelte - Lack of shared error code semantics.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Гилберт Райл",
+      "worldview": "Category mistakes and knowing-how vs. knowing-that.",
+      "critique": "The `TaskSyncScheduler` claims to manage 'sync state' but merely performs boolean toggles on `githubPrMerged`. It conflates 'knowing that' a PR is merged with 'knowing how' to fully reconcile the systemic effects of that merge (e.g., closing linked tickets, updating dependent features).",
+      "proposal": "Resolve the category mistake by upgrading the scheduler to trigger an orchestrated reconciliation workflow that handles the 'knowing how' (cascading updates), rather than just updating a declarative boolean.",
+      "dislike": "Equating a simple declarative boolean update with a complex operational reconciliation.",
+      "kanoClass": "Attractive",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/service/TaskSyncScheduler.java - Sync logic is limited to checking boolean flags.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Рут Баркан Маркус",
+      "worldview": "Quantified modal logic and actualism - asserting that only actual objects, not merely possible ones, should be reasoned over.",
+      "critique": "The `FinancialDocumentController` allows the creation of 'draft' financial states that are completely disconnected from the actual ledger until finalizing. These are merely 'possible' objects polluting the active domain schema, creating modal confusion.",
+      "proposal": "Isolate merely 'possible' objects. Implement a strict segregation where 'drafts' are handled in a separate, isolated schema or staging table, ensuring the primary ledger only ever contains actualized financial truths.",
+      "dislike": "Polluting the domain of actualized objects with merely 'possible' or draft objects.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/controller/FinancialDocumentController.java - Draft states exist alongside finalized ones in the primary ledger.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Ахилле Варци",
+      "worldview": "Formal ontology of boundaries and spatial parts.",
+      "critique": "The security layer in `UserRoleRepository` directly depends on `UserSession` data, crossing the boundary between persistent authorization policy (the repository) and ephemeral runtime state (the session). This topological entanglement risks cache poisoning and inconsistent authorization.",
+      "proposal": "Enforce a strict spatial boundary: the repository should only evaluate pure policy objects. A distinct `SessionEvaluationService` should exist outside the repository boundary to marry the policy with the ephemeral session state.",
+      "dislike": "Topological violations where ephemeral state logic is embedded inside persistent data layer boundaries.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/repository/UserRoleRepository.java - Overlap with runtime UserSession concepts.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Сол Крипке",
+      "worldview": "Rigid designation and necessary identity across possible worlds.",
+      "critique": "User authentication relies heavily on emails as identifiers. Since emails are mutable contingent properties in this domain, using them as primary identifiers across subsystem boundaries (e.g., to the HR module) breaks rigid designation and risks identity loss if an email changes.",
+      "proposal": "Ensure identity is rooted in a rigid designator (e.g., an immutable internal `SubjectPrincipalId`) across all subsystem boundaries, completely decoupling cross-domain identity from mutable properties like email.",
+      "dislike": "Treating mutable, contingent properties as rigid identifiers across systemic boundaries.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/auth/model/UserSession.java - Cross-system identity mapping relies on email.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Роберт Сталнакер",
+      "worldview": "Assertion and possible-world pragmatics - maintaining common ground.",
+      "critique": "The API's pagination mechanism in `DocumentSearchController` silently alters its return shape when zero results are found (returning a 404 instead of an empty paginated list). This destroys the 'common ground' of the API contract, forcing clients to handle structural shifts based on data state.",
+      "proposal": "Restore the common ground: ensure the endpoint always returns the identical structural abstraction (e.g., `200 OK` with an empty `items` array) regardless of the search yield.",
+      "dislike": "Violating the common ground of a contract by allowing data state to alter structural behavior.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/controller/DocumentSearchController.java - Inconsistent structural returns on empty searches.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Джон Перри",
+      "worldview": "Indexicals and self-locating content.",
+      "critique": "The `MaxNotificationRequest` structure relies on global counters without an indexical anchor (e.g., 'max per what context? user? tenant?'). This floating metric lacks the self-locating indexical necessary to enforce limits accurately in a multi-tenant environment.",
+      "proposal": "Anchor all limits with self-locating context. Require `MaxNotificationRequest` to explicitly declare its indexical anchor (e.g., `tenantId`, `userId`) to prevent cross-contamination of metric evaluations.",
+      "dislike": "Floating assertions or limits that fail to specify their essential indexical location.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/dto/MaxNotificationRequest.java - Limits are missing indexical scope anchors.",
+      "screenshotFile": ""
     }
   ]
 }
