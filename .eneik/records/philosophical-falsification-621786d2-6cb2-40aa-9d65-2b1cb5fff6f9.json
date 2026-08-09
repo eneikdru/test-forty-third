@@ -1,0 +1,76 @@
+{
+  "critiques": [
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "philosopher": "Уиллард Куайн",
+      "worldview": "Holism and indeterminacy - viewing systems as webs of belief where changes must be evaluated by their ripple effects across the entire architecture, rather than isolated patches.",
+      "critique": "The TechnicalLeadCompiler currently enforces local constraints (checking individual TaskPlans for specific text like 'Task status tracking accuracy') but lacks a systemic mechanism to track how these constraints interact with the overall architectural web. The logic in `validateTocConstraints` is overly syntactic, relying on hardcoded strings rather than a holistic dependency impact assessment, which violates the principle of Architectural Holism (D003 Contract drift).",
+      "proposal": "Implement an `UILLARD_KUAYN_01_HOLISM_IMPACT_MAP` approach: replace hardcoded string matching with a robust, systemic validation of constraint references against a living map of system bottlenecks. This ensures that every change is explicitly grounded in its true systemic impact, not just superficial pattern matching.",
+      "dislike": "The isolation of constraint validation to simple string matching, which ignores the broader consequences of a change and allows for semantic drift across the architecture.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/service/TechnicalLeadCompiler.java - validateTocConstraints method relies on hardcoded string checks.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "philosopher": "Ричард Рорти",
+      "worldview": "Anti-representationalism and pragmatism - rejecting absolute foundations in favor of practical utility and the relentless elimination of waste.",
+      "critique": "The current validation logic in `validateCoverageAudit` enforces rigid, representational matching of 'epidemiology' sections based on simplistic keywords. This adherence to a pre-defined semantic structure over pragmatic evaluation allows for superficial compliance (where adding a keyword satisfies the check without delivering real value), representing 'waste' in the context of Lean-logic (D012 Policy contradiction).",
+      "proposal": "Apply `RICHARD_RORTI_05_PRINCIPLED_INTEGRITY`: shift the validation focus from structural keyword matching to an evaluation of pragmatic utility. The system should require demonstrable evidence of capability improvement (a 'Capability Floor') rather than just checking off a list of predefined section names.",
+      "dislike": "The inflexible, keyword-driven check that conflates syntactic presence with pragmatic value, essentially treating the system's internal representation as reality.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/service/TechnicalLeadCompiler.java - validateCoverageAudit uses hardcoded keyword searches like 'epidemiology' and 'kb'.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "philosopher": "Уилфрид Селларс",
+      "worldview": "Critique of the Myth of the Given - insisting that knowledge and decisions must be explicitly situated within a 'Space of Reasons', supported by rational justification rather than unexamined assumptions.",
+      "critique": "The duplicate detection mechanism in `detectAndMergeDuplicatePlans` blindly merges plans based on a static 0.85 Jaccard similarity threshold and identical titles. This process occurs outside the 'Space of Reasons'; it assumes the equivalence of tasks without requiring an explicit, rational justification for the merge, potentially leading to the loss of nuanced intent and creating a 'Runtime drift' (D013).",
+      "proposal": "Introduce `UILFRID_SELLARS_03_INFERENTIAL_SCOREBOARD`: mandate that merged plans explicitly document the rationale for their consolidation. This scoreboard must track the commitments of the newly merged plan and the evidence supporting the decision that the original tasks were genuinely identical in purpose.",
+      "dislike": "The automated, silent merging of tasks based on a numerical threshold without requiring any inferential justification or traceability.",
+      "kanoClass": "Attractive",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/service/TechnicalLeadCompiler.java - detectAndMergeDuplicatePlans and evaluateEchoCoherence rely on an opaque 0.85 similarity threshold.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "philosopher": "Роберт Брэндом",
+      "worldview": "Normative Inferentialism - understanding meaning and value through the normative commitments and entitlements that follow from a decision or action.",
+      "critique": "The Definition of Done and Acceptance Criteria enforcement (which should be core to TAG-09) are missing explicit mechanisms in the `TaskPlan` object and validation logic. There is no structural representation of the normative consequences (Given/When/Then) of a task, making it impossible to evaluate if a task fulfills its commitments (D001 Semantic drift).",
+      "proposal": "Extend the `TaskPlan` model to explicitly include and validate `acceptanceCriteria` and `dod` fields. Enforce that every task explicitly articulates its inferential commitments (what it promises to change) and the entitlements (evidence required) for completion.",
+      "dislike": "The absence of structural enforcement for the normative rules (Given/When/Then, DoD) required by the Technical Lead charter, leaving these critical elements as unvalidated text.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/service/TechnicalLeadCompiler.java - TaskPlan class lacks explicit fields or validation for 'dod' and 'acceptance_criteria'.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "philosopher": "Хиллари Патнэм",
+      "worldview": "Pragmatic Realism - the insistence that success and reality must be measured objectively, rather than relying on subjective internal descriptions.",
+      "critique": "The task compilation process lacks any enforcement or validation of the `six_sigma_metric`. According to the TAG-09 charter, a statistical, measurable delta is required to distinguish real improvement from subjective fantasy. The current `TaskPlan` validation ignores this entirely, representing a critical failure to measure reality (D007 Evidence gap).",
+      "proposal": "Introduce `HILLARI_PATNEM_14_FALSIFICATION_HARNESS`: require and validate a `six_sigma_metric` field in `TaskPlan`. The system must verify that this metric represents a quantifiable delta, rejecting any task that relies on qualitative descriptions of improvement.",
+      "dislike": "The failure to demand objective, statistical measurement of proposed changes, allowing subjective 'improvements' to bypass the system's core defense mechanism.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/service/TechnicalLeadCompiler.java - TaskPlan class and validation methods completely omit any check for a six_sigma_metric.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "philosopher": "Пол Тагард",
+      "worldview": "Explanatory Coherence (ECHO) - evaluating decisions as nodes in a network of mutually supporting and contradictory evidence, where truth is determined by the coherence of the entire network.",
+      "critique": "While the system mentions 'ECHO Coherence Violation' in `evaluateEchoCoherence`, the implementation contradicts the theory. It rejects tasks purely on high pairwise similarity (Jaccard > 0.85) rather than evaluating their place in a coherent network of evidence. This is a false application of ECHO, ignoring the fundamental requirement of systemic integration and causing a 'Policy contradiction' (D012).",
+      "proposal": "Implement a true ECHO mechanism: evaluate new task plans not just by pairwise similarity, but by their positive and negative inferential connections to the existing network of accepted tasks. A task should be accepted or rejected based on the overall coherence score of the network post-inclusion.",
+      "dislike": "The superficial co-opting of the ECHO terminology for a simple similarity check, which misrepresents the principle of explanatory coherence.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/service/TechnicalLeadCompiler.java - evaluateEchoCoherence method implements ECHO as a simple Jaccard similarity threshold.",
+      "screenshotFile": ""
+    }
+  ]
+}
