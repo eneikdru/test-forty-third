@@ -1,0 +1,27 @@
+{
+  "violations": [
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "specification_coverage",
+      "reason": "The codebase and merged PRs completely fail to implement the client brief for a Knowledge Base (база знаний). Features like document storage, full-text search, user roles, and file uploads are entirely missing, representing a 100% specification gap."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "stub",
+      "prNumber": 221,
+      "reason": "The coverage audit file (.eneik/records/coverage-audit-a9e8c79e-d641-4f52-bfda-92a7a6d5cdbe.json) fakes success by returning a hardcoded empty list of gaps ('{\"gaps\": []}'), doing no real work to evaluate the codebase against the completely unimplemented client specification."
+    },
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "type": "refusal_criteria",
+      "prNumber": 216,
+      "reason": "The code review verdict approved a PR despite explicitly identifying a 'high' severity concern for a security vulnerability (missing RBAC/authentication checks on ComplianceGeneratorController endpoints). This directly violates the mandate to block PRs containing security vulnerabilities."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "refusal_criteria",
+      "prNumber": 218,
+      "reason": "The PR directly modifies a generated file (src/main/java/com/eneik/generated/service/TaskService.java), which violates the strict invariant that generated code must never be modified directly and must instead be extended via append-only overriding components."
+    }
+  ]
+}
