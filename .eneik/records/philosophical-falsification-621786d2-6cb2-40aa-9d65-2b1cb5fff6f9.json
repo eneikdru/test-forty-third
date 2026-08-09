@@ -383,6 +383,114 @@
       "confidence": "high",
       "evidence": "src/main/java/com/eneik/generated/dto/MaxNotificationRequest.java - Limits are missing indexical scope anchors.",
       "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Майкл Дамит",
+      "worldview": "Verificationist theory of meaning - rejecting local fixes that satisfy a rule text while violating the system's declared overarching principles. Meaning is tied to verification.",
+      "critique": "The frontend `app.css` defines global Tailwind styles without verifiable constraints against unintended cascade. A developer could add a class that satisfies local styling rules but silently breaks the verified visual integrity principle across the application.",
+      "proposal": "Apply `MAYKL_DAMIT_12_PRINCIPLED_INTEGRITY`: Introduce automated visual regression tests (like Playwright snapshot testing on key components) to enforce that localized style changes are strictly verified against the global design system's integrity.",
+      "dislike": "Permitting cascading style changes that are only locally satisfied without a systemic verification mechanism.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "frontend/src/app.css - Global styles exist without automated visual integrity verification.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Нельсон Гудман",
+      "worldview": "Worldmaking and projectibility - exported names and symbols are promises bound to source principles and must preserve their referents across caller contexts.",
+      "critique": "The `UserRoleRepository` exports generic methods like `findByRoleName`. The symbol 'RoleName' is a weak promise; it does not guarantee that the referent (the role) is projectible across different authentication contexts (e.g., LMS vs internal HR).",
+      "proposal": "Apply `NELSON_GUDMAN_11_ANCHOR_BOUND_NAME`: Bind exported symbols strictly. Rename to `findByLmsBoundRoleName` or similar, ensuring that callers rely on a strongly anchored semantic promise, rather than a generic string that loses meaning across contexts.",
+      "dislike": "Exporting generic names that break the promise of stable referents across different systemic worlds.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/repository/UserRoleRepository.java - Generic `findByRoleName` signature.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Людвиг Витгенштейн",
+      "worldview": "Language-games and meaning as use. Truth and facts are established through reliable, verifiable processes, not just by declaring them.",
+      "critique": "The test `CoverageAuditIntegrityTest.java` asserts that coverage metrics are valid based solely on internal test logic. This is an invalid language game; coverage truth must be established by the external operational compiler (e.g., Jacoco or Sonar), not self-declared in a unit test.",
+      "proposal": "Apply `LYUDVIG_VITGENSHTEYN_13_ANTI_MIRROR_TELEMETRY`: Remove the self-referential coverage tests and rely purely on the operational telemetry of the CI/CD pipeline's coverage reports to establish the truth of the metric.",
+      "dislike": "A test asserting its own structural validity rather than relying on an external, verifiable operational process.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/test/java/com/eneik/production/services/CoverageAuditIntegrityTest.java - Internal assertions mimicking coverage tools.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Гилберт Райл",
+      "worldview": "Knowing-how versus knowing-that, category mistakes - rejecting the conflation of declarative facts with operational capabilities.",
+      "critique": "The `pom.xml` declares dependencies like Flyway (`knowing-that`), but the application startup relies on Spring Boot's auto-configuration to execute them without explicit orchestration bounds (`knowing-how`). This conflates the presence of a library with the explicit knowledge of how state should migrate.",
+      "proposal": "Resolve the category mistake by introducing a strict, explicit migration orchestration bean that executes migrations as a discrete operational capability ('knowing how'), rather than letting auto-configuration implicitly assume control.",
+      "dislike": "The category mistake of assuming that declaring a dependency in configuration automatically equates to safe, explicit operational orchestration.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "pom.xml and application.properties - Flyway is included and auto-configured without explicit execution bounds.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Рут Баркан Маркус",
+      "worldview": "Quantified modal logic and actualism - representing true, false, and inconsistent states explicitly rather than leaving them ambiguous.",
+      "critique": "The `Category` entity lacks a clear state representing 'deprecated' or 'archived'. Instead, it relies on soft deletions or omitting categories from queries. This leaves the entity in an ambiguous state regarding its actual existence in the domain.",
+      "proposal": "Apply `RUT_BARKAN_MARKUS_19_TRUTH_STATUS_TABLE`: Add an explicit `CategoryStatus` enum (ACTIVE, ARCHIVED, DEPRECATED) to the `Category` entity to explicitly resolve its existence, quarantining logic that might accidentally map tasks to deprecated entities.",
+      "dislike": "Allowing entities to exist in a state of ambiguous 'soft' absence rather than explicit actualized status.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/Category.java - Lack of explicit lifecycle status field.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Ахилле Варци",
+      "worldview": "Formal ontology of boundaries and spatial parts - demanding precise topological and spatial boundaries to prevent semantic leaks and dependency cycles.",
+      "critique": "The `GitHubWebhookController` directly instantiates and uses internal domain entities like `Task` for reconciliation logic. This breaches the topological boundary, entangling external webhook DTO topology with the core domain's spatial structure.",
+      "proposal": "Apply `AHILLE_VARTSI_19_PROHIBITION_AS_CODE`: Enforce a spatial boundary by requiring the controller to use a strict application service facade that accepts only isolated command objects, forbidding the controller from touching actualized domain entities.",
+      "dislike": "Crossing topological boundaries by leaking external adapter representations directly into domain entity interaction.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/controller/GitHubWebhookController.java - Entanglement with core domain logic.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Сол Крипке",
+      "worldview": "Rigid designation and necessary identity - names must refer to the same object across all possible worlds (or contexts) without ambiguity.",
+      "critique": "Environment variables defined in `.env.example` (like database URLs) act as non-rigid designators. In testing contexts, they refer to an H2 database; in production, Postgres. This flexibility allows the identity of the data store to drift across possible deployment worlds, causing runtime unpredictability.",
+      "proposal": "Apply `SOL_KRIPKE_19_LAMBDA_CORE_REDUCTION`: Implement strict, rigidly designated configuration profiles (e.g., `application-prod.yml`) that explicitly declare the identity of dependencies, rather than relying on floating, non-rigid `.env` overrides.",
+      "dislike": "Using non-rigid designators for critical infrastructure configuration, breaking identity across possible deployment worlds.",
+      "kanoClass": "Attractive",
+      "confidence": "high",
+      "evidence": ".env.example and application.properties - Use of non-rigid environment overrides for core dependencies.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Роберт Сталнакер",
+      "worldview": "Assertion and possible-world pragmatics - requiring explicit handling of common ground and context change, ensuring abstraction levels are locked.",
+      "critique": "The `DocumentActualizationRequest` DTO forces the client to assert structural details about the document's internal metadata. This leaks the abstraction level of the backend's internal storage mechanism into the client's common ground.",
+      "proposal": "Apply `ROBERT_STALNAKER_15_LEVEL_OF_ABSTRACTION_LOCK`: Restructure the DTO to only accept intent-based assertions (e.g., 'approve draft') from the client, locking the abstraction level and keeping internal metadata manipulation strictly within the backend context.",
+      "dislike": "Forcing the client to share the same level of abstraction as the backend's internal metadata schema.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/DocumentActualizationRequest.java - Leaking metadata structures to the API contract.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Джон Перри",
+      "worldview": "Indexicals and self-locating content - preserving stable identity across time, migrations, and incident reconstructions.",
+      "critique": "The test `TaskServiceAppendOnlyVerificationTest` runs assertions without an indexical timestamp or execution anchor. If the test fails in a parallel CI environment, it lacks the self-locating context to determine *when* or in what *state* the failure occurred.",
+      "proposal": "Apply `DZHON_PERRI_09_RAG_GROUNDING_CAPSULE`: Anchor test executions with self-locating indexicals, such as logging the exact trace ID and execution environment context upon failure, preserving the incident's identity for reconstruction.",
+      "dislike": "Running verification logic without anchoring it to a specific indexical context in time and space.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/test/java/com/eneik/production/services/TaskServiceAppendOnlyVerificationTest.java - Lack of contextual anchoring in assertions.",
+      "screenshotFile": ""
     }
   ]
 }
