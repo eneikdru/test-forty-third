@@ -64,7 +64,7 @@ public class TaskServicePatch extends TaskService {
     /**
      * Reverts the task status to the appropriate unmerged PR state.
      * When a task is marked 'done' internally but its associated GitHub PR is closed and unmerged,
-     * its status is reverted to 'open' (instead of failed) to unblock the Flow Core generation loop.
+     * its status is reverted to 'failed' to accurately reflect GitHub state.
      */
     private boolean revertToUnmergedPrState(Task task, GitHubService.PrStatus prStatus) {
         if ("closed".equalsIgnoreCase(prStatus.getState())) {
@@ -75,9 +75,8 @@ public class TaskServicePatch extends TaskService {
                     task.getId(), task.getGithubPrNumber());
         }
 
-        // Clear PR state to fully dissociate task since PR was not merged
         int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                task.getId(), "open", task.getStatus(), null, null, timeProvider.now()
+                task.getId(), "failed", task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
         );
         return updatedRows > 0;
     }
