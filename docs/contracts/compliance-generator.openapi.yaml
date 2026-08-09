@@ -1,0 +1,134 @@
+openapi: 3.0.3
+info:
+  title: Eneik Compliance Generator API
+  version: 1.0.0
+  description: Internal service API for strictly enforcing and generating compliance records, preventing falsified coverage or task completion claims.
+
+paths:
+  /api/v1/compliance/coverage-audit:
+    post:
+      summary: Evaluate requirements coverage
+      description: Conducts an actual check of addressed requirements against specifications and returns a valid audit structure, actively rejecting empty gap falsifications.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverageAuditRequest'
+      responses:
+        '200':
+          description: Successful audit generation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverageAuditResponse'
+        '400':
+          description: Invalid request structure
+        '401':
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/compliance/task-plan:
+    post:
+      summary: Validate task planning integrity
+      description: Validates an internal task planning payload to ensure it genuinely connects root-cause repairs to identified integrity failures, rejecting falsified plans.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskPlanRequest'
+      responses:
+        '200':
+          description: Validated task plan metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskPlanResponse'
+        '400':
+          description: Validation failure containing list of refusal reasons
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskPlanResponse'
+        '401':
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CoverageAuditRequest:
+      type: object
+      required:
+        - specifications
+        - addressedRequirementIds
+      properties:
+        specifications:
+          type: array
+          items:
+            type: string
+        addressedRequirementIds:
+          type: array
+          items:
+            type: string
+
+    CoverageAuditResponse:
+      type: object
+      properties:
+        gaps:
+          type: array
+          items:
+            type: string
+        coveragePercentage:
+          type: number
+          format: float
+        coverageComplete:
+          type: boolean
+        valid:
+          type: boolean
+
+    TaskPlanRequest:
+      type: object
+      required:
+        - specifications
+        - rootCauseRepairs
+        - tasks
+      properties:
+        specifications:
+          type: array
+          items:
+            type: string
+        rootCauseRepairs:
+          type: array
+          items:
+            type: string
+        tasks:
+          type: array
+          items:
+            type: string
+
+    TaskPlanResponse:
+      type: object
+      properties:
+        coverageComplete:
+          type: boolean
+        validated:
+          type: boolean
+        failures:
+          type: array
+          items:
+            type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
