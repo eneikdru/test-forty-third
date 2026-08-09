@@ -2,11 +2,18 @@ package com.eneik.generated;
 
 import com.eneik.generated.service.JulesApiClient;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
- * Focused tests for JulesApiClient to verify correct handling of large payloads and custom limit configurations.
+ * Focused tests for JulesApiClient to verify correct handling of large payloads,
+ * custom limit configurations, and proper transmission to a downstream HTTP endpoint.
  */
 public class JulesApiClientTest {
 
@@ -108,6 +115,97 @@ public class JulesApiClientTest {
         assertThrows(IllegalArgumentException.class, () -> {
             client.processRequest((java.io.InputStream) null);
         });
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testPayloadTransmissionSuccess() throws Exception {
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        HttpResponse<Void> mockResponse = mock(HttpResponse.class);
+        when(mockResponse.statusCode()).thenReturn(200);
+        when(mockHttpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+            .thenReturn(mockResponse);
+
+        JulesApiClient client = new JulesApiClient(50 * 1024 * 1024L, mockHttpClient);
+        client.setEndpointUrl("http://localhost:8080/api/downstream-test");
+
+        byte[] payload = "Hello, downstream!".getBytes();
+        boolean result = client.processRequest(payload);
+
+        assertTrue(result);
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(mockHttpClient).send(requestCaptor.capture(), any(HttpResponse.BodyHandler.class));
+
+        HttpRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("POST", capturedRequest.method());
+        assertEquals("http://localhost:8080/api/downstream-test", capturedRequest.uri().toString());
+        assertEquals("application/octet-stream", capturedRequest.headers().firstValue("Content-Type").orElse(""));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testStreamingPayloadTransmissionSuccess() throws Exception {
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        HttpResponse<Void> mockResponse = mock(HttpResponse.class);
+        when(mockResponse.statusCode()).thenReturn(204);
+        when(mockHttpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+            .thenReturn(mockResponse);
+
+        JulesApiClient client = new JulesApiClient(50 * 1024 * 1024L, mockHttpClient);
+        client.setEndpointUrl("http://localhost:8080/api/downstream-stream-test");
+
+        byte[] data = "Streaming payload data".getBytes();
+        java.io.InputStream stream = new java.io.ByteArrayInputStream(data);
+
+        boolean result = client.processRequest(stream);
+
+        assertTrue(result);
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(mockHttpClient).send(requestCaptor.capture(), any(HttpResponse.BodyHandler.class));
+
+        HttpRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("POST", capturedRequest.method());
+        assertEquals("http://localhost:8080/api/downstream-stream-test", capturedRequest.uri().toString());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testPayloadTransmissionDownstreamFailure() throws Exception {
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        HttpResponse<Void> mockResponse = mock(HttpResponse.class);
+        when(mockResponse.statusCode()).thenReturn(500);
+        when(mockHttpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+            .thenReturn(mockResponse);
+
+        JulesApiClient client = new JulesApiClient(50 * 1024 * 1024L, mockHttpClient);
+        client.setEndpointUrl("http://localhost:8080/api/downstream-test");
+
+        byte[] payload = "Failed attempt".getBytes();
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+            client.processRequest(payload);
+        });
+
+        assertTrue(ex.getMessage().contains("Failed to transmit payload to downstream endpoint. HTTP Status: 500"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testPayloadTransmissionNetworkException() throws Exception {
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+            .thenThrow(new java.io.IOException("Connection refused"));
+
+        JulesApiClient client = new JulesApiClient(50 * 1024 * 1024L, mockHttpClient);
+        client.setEndpointUrl("http://localhost:8080/api/downstream-test");
+
+        byte[] payload = "Network down".getBytes();
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+            client.processRequest(payload);
+        });
+
+        assertTrue(ex.getMessage().contains("Network error transmitting payload to downstream endpoint"));
     }
 
     static class DummyInputStream extends java.io.InputStream {
