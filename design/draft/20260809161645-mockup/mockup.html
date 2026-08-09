@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Search Auto-Suggestion</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#4f5c6c",
+                      "background": "#faf9ff",
+                      "outline": "#737685",
+                      "tertiary-fixed-dim": "#bbc7db",
+                      "on-error-container": "#93000a",
+                      "surface-dim": "#ccdaff",
+                      "on-tertiary-fixed-variant": "#3b4858",
+                      "inverse-on-surface": "#edf0ff",
+                      "on-primary-fixed": "#001848",
+                      "surface-container-high": "#e1e8ff",
+                      "on-secondary-container": "#576377",
+                      "outline-variant": "#c3c6d6",
+                      "on-error": "#ffffff",
+                      "secondary-container": "#d4e0f8",
+                      "surface-container-low": "#f1f3ff",
+                      "error": "#ba1a1a",
+                      "inverse-surface": "#1d3054",
+                      "surface": "#faf9ff",
+                      "secondary-fixed": "#d7e3fb",
+                      "on-background": "#051a3e",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed": "#101c2b",
+                      "on-secondary": "#ffffff",
+                      "surface-bright": "#faf9ff",
+                      "surface-tint": "#0c56d0",
+                      "secondary": "#535f73",
+                      "primary-fixed-dim": "#b2c5ff",
+                      "surface-container": "#e9edff",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#b2c5ff",
+                      "secondary-fixed-dim": "#bbc7de",
+                      "on-primary-fixed-variant": "#0040a2",
+                      "surface-variant": "#d8e2ff",
+                      "on-primary-container": "#c4d2ff",
+                      "primary": "#003d9b",
+                      "on-surface-variant": "#434654",
+                      "primary-fixed": "#dae2ff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-container": "#c7d4e8",
+                      "tertiary-fixed": "#d6e3f7",
+                      "on-secondary-fixed-variant": "#3b475b",
+                      "surface-container-highest": "#d8e2ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface": "#051a3e",
+                      "tertiary": "#384454",
+                      "primary-container": "#0052cc",
+                      "on-secondary-fixed": "#101c2d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "sm": "8px",
+                      "input-padding": "12px 16px",
+                      "gutter": "16px",
+                      "margin-mobile": "16px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Manrope"
+                      ],
+                      "headline-md": [
+                              "Manrope"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "search-input": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "search-input": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              },
+              "boxShadow": {
+                      "level-1": "0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)",
+                      "level-2": "0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)",
+                      "level-3": "0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30)",
+                      "level-2-custom": "0px 4px 12px rgba(9, 30, 66, 0.08)",
+                      "level-3-custom": "0px 8px 24px rgba(9, 30, 66, 0.12)"
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #F4F5F7; /* Enforcing Level 0 Base */
+        }
+        .dim-overlay {
+            background-color: rgba(244, 245, 247, 0.85); /* Dimming background */
+            backdrop-filter: blur(2px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen font-body-md text-on-surface antialiased flex flex-col relative md:hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface shadow-sm transition-all duration-200">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]">search</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Search</span>
+</div>
+<div>
+<!-- Placeholder for trailing actions if needed -->
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow pt-[76px] pb-24 px-margin-mobile relative z-10 flex flex-col items-center w-full max-w-md mx-auto">
+<!-- Search Input (Active State) -->
+<div class="w-full relative z-40">
+<div class="w-full flex items-center bg-surface-container-lowest border-2 border-primary rounded-lg px-4 py-3 shadow-level-2-custom transition-all duration-200 focus-within:shadow-level-2-custom">
+<span class="material-symbols-outlined text-on-surface-variant mr-3">search</span>
+<input class="flex-grow bg-transparent border-none outline-none font-search-input text-search-input text-on-surface placeholder-on-surface-variant p-0 m-0 w-full focus:ring-0" placeholder="Search..." type="text" value="rec"/>
+<button class="ml-3 text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Auto-Suggestions Dropdown -->
+<div class="absolute w-full mt-2 bg-surface-container-lowest rounded-lg shadow-level-3-custom overflow-hidden z-50 border border-outline-variant">
+<ul class="flex flex-col py-2">
+<!-- Suggestion Item -->
+<li class="flex items-center px-4 py-3 hover:bg-tertiary hover:bg-opacity-5 cursor-pointer transition-colors active:bg-tertiary active:bg-opacity-10">
+<span class="material-symbols-outlined text-on-surface-variant mr-4">search</span>
+<span class="font-body-md text-body-md text-on-surface">
+<strong class="font-semibold text-primary">rec</strong>ent activities
+                        </span>
+</li>
+<li class="w-full h-px bg-outline-variant opacity-30"></li>
+<!-- Suggestion Item -->
+<li class="flex items-center px-4 py-3 hover:bg-tertiary hover:bg-opacity-5 cursor-pointer transition-colors active:bg-tertiary active:bg-opacity-10">
+<span class="material-symbols-outlined text-on-surface-variant mr-4">search</span>
+<span class="font-body-md text-body-md text-on-surface">
+<strong class="font-semibold text-primary">rec</strong>onnection settings
+                        </span>
+</li>
+<li class="w-full h-px bg-outline-variant opacity-30"></li>
+<!-- Suggestion Item -->
+<li class="flex items-center px-4 py-3 hover:bg-tertiary hover:bg-opacity-5 cursor-pointer transition-colors active:bg-tertiary active:bg-opacity-10">
+<span class="material-symbols-outlined text-on-surface-variant mr-4">search</span>
+<span class="font-body-md text-body-md text-on-surface">
+<strong class="font-semibold text-primary">rec</strong>ipe finder
+                        </span>
+</li>
+<li class="w-full h-px bg-outline-variant opacity-30"></li>
+<!-- Suggestion Item -->
+<li class="flex items-center px-4 py-3 hover:bg-tertiary hover:bg-opacity-5 cursor-pointer transition-colors active:bg-tertiary active:bg-opacity-10">
+<span class="material-symbols-outlined text-on-surface-variant mr-4">search</span>
+<span class="font-body-md text-body-md text-on-surface">
+<strong class="font-semibold text-primary">rec</strong>ordings
+                        </span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Dimmed Background Content (Recent History) -->
+<div class="absolute inset-0 dim-overlay z-30 pointer-events-none rounded-t-xl mt-[140px]"></div>
+<div class="w-full mt-8 opacity-40 z-20 transition-opacity">
+<h2 class="font-label-md text-label-md text-secondary uppercase mb-4 tracking-wider">Recent Searches</h2>
+<div class="flex flex-col gap-4">
+<!-- History Item -->
+<div class="flex items-center bg-surface-container-lowest p-4 rounded-lg border border-outline-variant shadow-level-1">
+<span class="material-symbols-outlined text-on-surface-variant mr-4">history</span>
+<span class="font-body-md text-body-md text-on-surface flex-grow">Project guidelines PDF</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">north_west</span>
+</div>
+<!-- History Item -->
+<div class="flex items-center bg-surface-container-lowest p-4 rounded-lg border border-outline-variant shadow-level-1">
+<span class="material-symbols-outlined text-on-surface-variant mr-4">history</span>
+<span class="font-body-md text-body-md text-on-surface flex-grow">Q3 Financial Report</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">north_west</span>
+</div>
+<!-- History Item -->
+<div class="flex items-center bg-surface-container-lowest p-4 rounded-lg border border-outline-variant shadow-level-1">
+<span class="material-symbols-outlined text-on-surface-variant mr-4">history</span>
+<span class="font-body-md text-body-md text-on-surface flex-grow">Client meeting notes</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">north_west</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-2 h-16 bg-surface border-t-0 shadow-[0_-1px_3px_rgba(0,0,0,0.05)] transition-transform duration-200">
+<!-- Active Tab: Search -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 transition-transform duration-200 active:scale-90 w-16 h-8" href="#">
+<span class="material-symbols-outlined text-[24px]">search</span>
+<span class="sr-only">Search</span>
+</a>
+<!-- Inactive Tab: Recent -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-low transition-transform duration-200 active:scale-90 rounded-full w-16 h-8" href="#">
+<span class="material-symbols-outlined text-[24px]">history</span>
+<span class="sr-only">Recent</span>
+</a>
+<!-- Inactive Tab: Saved -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-low transition-transform duration-200 active:scale-90 rounded-full w-16 h-8" href="#">
+<span class="material-symbols-outlined text-[24px]">bookmark</span>
+<span class="sr-only">Saved</span>
+</a>
+<!-- Inactive Tab: Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-low transition-transform duration-200 active:scale-90 rounded-full w-16 h-8" href="#">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+<span class="sr-only">Settings</span>
+</a>
+<div class="absolute bottom-1 w-full flex justify-around pointer-events-none px-2">
+<span class="font-label-md text-[10px] text-on-secondary-container font-semibold mt-8 opacity-100 transition-opacity">Search</span>
+<span class="font-label-md text-[10px] text-on-surface-variant font-semibold mt-8 opacity-100 transition-opacity">Recent</span>
+<span class="font-label-md text-[10px] text-on-surface-variant font-semibold mt-8 opacity-100 transition-opacity">Saved</span>
+<span class="font-label-md text-[10px] text-on-surface-variant font-semibold mt-8 opacity-100 transition-opacity">Settings</span>
+</div>
+</nav>
+</body></html>
