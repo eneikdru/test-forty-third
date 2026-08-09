@@ -162,12 +162,11 @@ public class ComplianceGeneratorControllerTest {
                         .header("X-User-Role", "Administrator")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                // Then the system blocks the faked stubs and only allows the truly tested one ("Document Comments and Update Requests")
-                // Therefore, the 3 unimplemented specifications are returned as gaps
+                // Then the system blocks the faked stubs and allows the truly tested ones ("Document Comments and Update Requests" and "Saved Searches and Favorites")
+                // Therefore, the 2 unimplemented specifications are returned as gaps
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.gaps", hasSize(3)))
+                .andExpect(jsonPath("$.gaps", hasSize(2)))
                 .andExpect(jsonPath("$.gaps", containsInAnyOrder(
-                        "Saved Searches and Favorites",
                         "Search Auto-Suggestions",
                         "Offline Material Creation and Sync"
                 )))
@@ -180,12 +179,14 @@ public class ComplianceGeneratorControllerTest {
         List<String> specifications = List.of(
                 "Document Comments and Update Requests",
                 "Authentication and Session Management",
-                "Date and Education Level Search Filters"
+                "Date and Education Level Search Filters",
+                "Saved Searches and Favorites"
         );
         List<String> addressed = List.of(
                 "Document Comments and Update Requests",
                 "Authentication and Session Management",
-                "Date and Education Level Search Filters"
+                "Date and Education Level Search Filters",
+                "Saved Searches and Favorites"
         );
 
         CoverageAuditRequest request = new CoverageAuditRequest(specifications, addressed);
