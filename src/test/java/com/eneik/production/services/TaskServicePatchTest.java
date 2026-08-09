@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +34,11 @@ public class TaskServicePatchTest {
 
     @BeforeEach
     public void setUp() {
+        List<Task> existing = taskRepository.findAll();
+        System.out.println("DIAGNOSTIC SETUP PATCH: Existing tasks count: " + existing.size());
+        for (Task t : existing) {
+            System.out.println("DIAGNOSTIC SETUP PATCH TASK: id=" + t.getId() + " title=" + t.getTitle() + " status=" + t.getStatus() + " pr=" + t.getGithubPrNumber() + " state=" + t.getGithubPrState() + " merged=" + t.getGithubPrMerged());
+        }
         taskRepository.deleteAll();
     }
 
