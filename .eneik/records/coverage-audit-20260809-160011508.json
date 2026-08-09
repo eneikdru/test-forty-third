@@ -1,0 +1,25 @@
+{
+  "gaps": [
+    {
+      "title": "Saved Searches and Favorites",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When using the system frequently, I want to save my search queries and favorite materials, so that I can quickly access them later without repeating complex searches.",
+      "acceptanceCriteria": "Given an authenticated user, When they choose to save a search or favorite a document, Then the system securely stores and allows retrieval of these preferences.",
+      "reason": "literal brief requirement: 'возможность сохранения поисковых запросов и избранных материалов'"
+    },
+    {
+      "title": "Search Auto-Suggestions",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When typing a query in the search bar, I want to see real-time auto-suggestions, so that I can find materials faster and correct my input on the fly.",
+      "acceptanceCriteria": "Given a search input field, When a user starts typing, Then the system returns a list of suggested queries or matching document titles.",
+      "reason": "literal brief requirement: 'автоподсказки и исправление опечаток'"
+    },
+    {
+      "title": "Offline Material Creation and Sync",
+      "roleTag": "BARCAN-TAG-11",
+      "jtbd": "When I have no internet access, I want to be able to add materials offline, so that my work is saved locally and synchronized to the server when connection is restored.",
+      "acceptanceCriteria": "Given an offline state, When a user creates or modifies a document, Then it is stored locally and automatically pushed to the server upon reconnection.",
+      "reason": "literal brief requirement: 'Возможность добавления материалов в офлайн-режиме с последующей синхронизацией'"
+    }
+  ]
+}
