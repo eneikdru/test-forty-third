@@ -1,0 +1,100 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "2693edbe-e3fc-4d72-b564-380683afeb3a",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Replace the hardcoded coverage audit stub with actual specification validation that identifies missing client requirements like the epidemiology knowledge base (Findings 1, 4, 9).",
+        "R2: Enforce the 'Lean Waste' refusal criteria to block overproduction of internal tooling over the primary specification (Finding 2)."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch Coverage Audit and Refusal Criteria Validation",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the audit fixes for this epic, I want to patch the coverage audit generator and refusal criteria logic directly, so that actual specification validation occurs and lean waste is blocked.",
+          "acceptanceCriteria": "Given a coverage audit is executed, When checking for gaps, Then it must identify missing epidemiology knowledge base requirements instead of returning a stub.\nGiven a PR introducing internal tooling over client specs, When refusal criteria are evaluated, Then it must be blocked as Lean Waste.\nGiven the clear cynefin domain, When the implementation is complete, Then tests must verify both the audit validation and refusal criteria logic.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Systemic verification integrity",
+          "sixSigmaMetric": "Reduce unmitigated audit findings to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "fe7cb71c-d8ff-4bfa-ab14-93906cb16ba7",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Wire check_commit_safety.py into git hooks to block unauthorized .eneik/ modifications and implement missing unit tests for the PR rejection logic (Findings 3, 5).",
+        "R2: Auto-detect and merge duplicate task plans to maintain a single source of truth for epic plans (Finding 8)."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Enforce Commit Safety and Merge Duplicate Plans",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the planning integrity fixes for this epic, I want to patch the commit hooks and plan management logic, so that unauthorized modifications are blocked and duplicate tasks are eliminated.",
+          "acceptanceCriteria": "Given a commit that modifies the .eneik directory, When the git hook runs, Then check_commit_safety.py must block unauthorized changes.\nGiven multiple task plans for the same epic, When the system evaluates plans, Then duplicate task plans must be auto-detected and merged.\nGiven the clear cynefin domain, When the code is finalized, Then unit tests must verify the PR rejection logic established in PR #232.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Planning coherence bottleneck",
+          "sixSigmaMetric": "Reduce duplicate task plans to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "99a858e4-e855-40be-8352-acaddbfeb144",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Mitigate the 10MB payload limit constraint in JulesApiClient to prevent activity scans from being skipped and stalling the pipeline (Finding 6).",
+        "R2: Implement telemetry-driven logic to detect stalled pipelines in IMPLEMENTING state and automatically revert PRs that do not resolve the logged symptom (Finding 7)."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Mitigate JulesApiClient Payload Limit and Enforce Telemetry Reverts",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the flow core unblocking fixes for this epic, I want to patch JulesApiClient and telemetry logic directly, so that large payloads don't stall the pipeline and ineffective PRs are reverted.",
+          "acceptanceCriteria": "Given a response payload exceeding 10MB in JulesApiClient, When it is processed, Then the client must handle it without skipping activity scans.\nGiven a pipeline stuck in the IMPLEMENTING state, When telemetry indicates the issue persists, Then PRs claiming to fix it without symptom resolution must be automatically reverted.\nGiven the clear cynefin domain, When the fixes are committed, Then integrated tests must verify the payload mitigation and telemetry-driven revert logic.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "JulesApiClient payload capacity",
+          "sixSigmaMetric": "Reduce pipeline stalls in IMPLEMENTING to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ]
+}
