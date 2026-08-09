@@ -8,6 +8,7 @@
   // Svelte 5 state runes
   let selectedDocument = $state(null);
   let searchQuery = $state('');
+  let debouncedSearchQuery = $state('');
 
   function selectDocument(doc) {
     selectedDocument = doc;
@@ -207,7 +208,7 @@
       return { icon: 'picture_as_pdf', color: 'text-[#E53E3E]', bg: 'bg-[#FFF5F5]', border: 'border-[#FED7D7]', label: 'ПДФ' };
     }
     if (fileType === 'Table' || lowerTitle.includes('таблиц') || lowerTitle.includes('протокол') || lowerTitle.includes('оплат') || lowerTitle.includes('бюджет')) {
-      return { icon: 'table_chart', color: 'text-[#38A169]', bg: 'bg-[#F0FFF4]', border: 'border-[#C6F6D5]', label: 'Таблица' };
+      return { icon: 'table_chart', color: 'text-[#38A169]', bg: 'bg-[#F0FFF4]', border: 'border-[#C6F6D5]', label: 'Table' };
     }
     return { icon: 'article', color: 'text-[#3182CE]', bg: 'bg-[#EBF8FF]', border: 'border-[#BEE3F8]', label: 'Документ' };
   }
@@ -345,7 +346,7 @@
         if (w2.length < 3) continue;
         const dist = getLevenshteinDistance(w1, w2);
         const maxLen = Math.max(w1.length, w2.length);
-        const sim = 1.0 - ((double) => dist / maxLen)();
+        const sim = 1.0 - dist / maxLen;
         if (sim > maxWordSim) {
           maxWordSim = sim;
         }
@@ -372,13 +373,13 @@
     return dp[s2.length];
   }
 
-  async function fetchBackendDocuments() {
+  async function fetchBackendDocuments(queryVal, roleVal) {
     loading = true;
     errorMessage = '';
     try {
-      const res = await fetch(`/api/documents/search?q=${encodeURIComponent(searchQuery)}`, {
+      const res = await fetch(`/api/documents/search?q=${encodeURIComponent(queryVal)}`, {
         headers: {
-          'X-User-Role': selectedRole
+          'X-User-Role': roleVal
         }
       });
       if (res.ok) {
@@ -453,33 +454,56 @@
 
   // Handle keys for suggestions
   function handleKeyDown(event) {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      activeSuggestionIndex = (activeSuggestionIndex + 1) % suggestionsList.length;
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      activeSuggestionIndex = (activeSuggestionIndex - 1 + suggestionsList.length) % suggestionsList.length;
-    } else if (event.key === 'Enter') {
-      if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestionsList.length) {
+    if (suggestionsList.length > 0) {
+      if (event.key === 'ArrowDown') {
         event.preventDefault();
-        searchQuery = suggestionsList[activeSuggestionIndex];
+        activeSuggestionIndex = (activeSuggestionIndex + 1) % suggestionsList.length;
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        activeSuggestionIndex = (activeSuggestionIndex - 1 + suggestionsList.length) % suggestionsList.length;
+      } else if (event.key === 'Enter') {
+        if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestionsList.length) {
+          event.preventDefault();
+          searchQuery = suggestionsList[activeSuggestionIndex];
+          showSuggestions = false;
+          activeSuggestionIndex = -1;
+        } else {
+          saveCurrentSearch();
+        }
+      } else if (event.key === 'Escape') {
         showSuggestions = false;
         activeSuggestionIndex = -1;
-      } else {
+      }
+    } else {
+      if (event.key === 'Enter') {
         saveCurrentSearch();
       }
-    } else if (event.key === 'Escape') {
-      showSuggestions = false;
-      activeSuggestionIndex = -1;
     }
   }
 
+  // Debouncing searchQuery to debouncedSearchQuery
+  let debounceTimer;
   $effect(() => {
-    fetchBackendDocuments();
+    // Depend on searchQuery
+    const currentQuery = searchQuery;
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      debouncedSearchQuery = currentQuery;
+    }, 300);
+
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  });
+
+  // Fetch backend documents when debouncedSearchQuery or selectedRole changes
+  $effect(() => {
+    const query = debouncedSearchQuery;
+    const role = selectedRole;
+    fetchBackendDocuments(query, role);
   });
 
   onMount(() => {
-    fetchBackendDocuments();
     try {
       const storedFavs = localStorage.getItem('kb_favorites_v1');
       if (storedFavs) {
