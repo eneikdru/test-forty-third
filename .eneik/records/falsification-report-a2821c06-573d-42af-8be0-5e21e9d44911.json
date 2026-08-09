@@ -1,0 +1,78 @@
+{
+  "violations": [
+    {
+      "roleTag": "BARCAN-TAG-07",
+      "type": "refusal_criteria",
+      "reason": "PR #271 and PR #267 do not contain any *Test.java files, violating BARCAN-TAG-07's Refusal Criteria п.1 which explicitly demands automated verification artifacts (Tests) to prove epistemic certainty of changes."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "specification_coverage",
+      "reason": "The client brief requests a comprehensive knowledge base (search, document management, role access) for ФБУН ЦНИИ Эпидемиологии. The current codebase and merged PRs implement zero of these features, yet PR #271 falsely claims 100% coverage with {\"gaps\": []}."
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "type": "stub",
+      "prNumber": 269,
+      "reason": "In JulesApiClient.java, processRequest(InputStream) reads the payload stream into a local buffer but simply discards it and returns true. It fakes successfully processing/transmitting the payload without doing any real work to send the data."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "stub",
+      "prNumber": 270,
+      "reason": "In ComplianceGeneratorService.java, auditCoverage fakes audit validation success by intentionally swallowing/ignoring gaps that match '^REQ-\\d+$'. The real work of genuinely failing the audit for these missing specifications is deliberately skipped."
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "type": "layer_violation",
+      "prNumber": 269,
+      "reason": "The data flow in JulesApiClient.processRequest is unwired. The input stream is read but never passed to a downstream HTTP client or persistence layer; the claimed integration silently drops the data."
+    },
+    {
+      "roleTag": "BARCAN-TAG-05",
+      "type": "causal_unjustified",
+      "prNumber": 269,
+      "reason": "PR #269 claims to resolve a 'payload transmission stall' for >10MB payloads. The diff simply reads the stream and discards it without transmitting. The stall symptom was eliminated by bypassing transmission entirely, meaning the root cause constraint of the actual transmission was never traced or addressed."
+    },
+    {
+      "roleTag": "BARCAN-TAG-06",
+      "type": "methodological",
+      "philosopher": "Карл Поппер",
+      "thesis": "The Logic of Scientific Discovery - falsifiability and critical testing",
+      "score": "14.000959",
+      "mustBe": "PR 270 creates untruthful quality gates by explicitly bypassing validation for specs matching '^REQ-\\d+$', making the audit unfalsifiable.",
+      "performance": "flaky or untruthful quality gates; personal failure mode: losing 'Принцип фальсифицируемости (критический рационализм)' while coding.",
+      "attractive": "Write the check that would refute the agent's claim before accepting the claim. Proof obligation: Show a failing counterexample or a targeted passing test that would fail under the defect."
+    },
+    {
+      "roleTag": "BARCAN-TAG-12",
+      "type": "methodological",
+      "philosopher": "Элизабет Энском",
+      "thesis": "Intention - intentional action under a description",
+      "score": "13.000259",
+      "mustBe": "PR 269 silently reinterprets the JulesApiClient contract from transmitting data to just reading and dropping it, breaking the joint commitment.",
+      "performance": "personal failure mode: losing 'Интенциональное действие «под описанием» (intention under a description)' while coding.",
+      "attractive": "Once agents share a contract, no agent may silently reinterpret its obligations. Proof obligation: Show the shared contract, claimant, touched paths and review evidence."
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "type": "methodological",
+      "philosopher": "Дэвид Чалмерс",
+      "thesis": "Two-Dimensional Semantics - primary and secondary intensions",
+      "score": "12.000141",
+      "mustBe": "In PR 269, the processRequest API method silently drops data instead of transmitting it, breaking the rigid behavior contract.",
+      "performance": "breaking API and naming drift; personal failure mode: losing 'Принцип двумерной семантики' while coding.",
+      "attractive": "Keep public identifiers tied to the same behavior across versions unless a formal migration says otherwise."
+    },
+    {
+      "roleTag": "BARCAN-TAG-10",
+      "type": "methodological",
+      "philosopher": "Рональд Дворкин",
+      "thesis": "Taking Rights Seriously / Law's Empire - principles and integrity",
+      "score": "0.000869",
+      "mustBe": "PR 270 creates a policy bypass by selectively ignoring coverage gaps for mock specifications ('^REQ-\\d+$'), violating the integrity of the audit.",
+      "performance": "policy bypass and ambiguous prohibition; personal failure mode: losing 'Принцип права как целостности (law as integrity)' while coding.",
+      "attractive": "Write the check that would refute the agent's claim before accepting the claim."
+    }
+  ]
+}
