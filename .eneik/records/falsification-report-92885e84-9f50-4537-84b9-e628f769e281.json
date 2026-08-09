@@ -1,0 +1,71 @@
+{
+  "violations": [
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "specification_gap",
+      "reason": "The client specification explicitly requests a knowledge base for an epidemiology center (with roles, educational content, search functionality, and FOS/GIAs). However, the merged PRs (#230-234) exclusively patch internal GitHub webhook synchronization and task orchestration telemetry, showing zero implementation coverage of the requested client product."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "refusal_criteria",
+      "reason": "The sequence of PRs (#230-234) violates the 'Lean Waste' refusal criteria. Ignoring the primary client specification to instead patch internal GitHub webhook sync constitutes Overproduction (Muda) of internal tooling, failing to deliver the requested business value."
+    },
+    {
+      "roleTag": "BARCAN-TAG-07",
+      "type": "refusal_criteria",
+      "prNumber": 234,
+      "reason": "PR #234 directly violates the mandatory automated verification requirement outlined in BARCAN-TAG-07's 'Honest Rejection' criteria. It contains no test files (*Test.java), ignoring the explicit 'unit tests must verify this rejection logic' acceptance criterion established in PR #232."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "stub",
+      "prNumber": 233,
+      "reason": "The coverage audit report (.eneik/records/coverage-audit-bd7f1d00-f290-440c-b190-b65a28245260.json) is a hardcoded stub containing '{\"gaps\": []}'. It fakes a successful audit without performing any real comparison to identify the massive missing requirements from the epidemiology knowledge base brief."
+    },
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "type": "layer_violation",
+      "prNumber": 231,
+      "reason": "PR #231 adds check_commit_safety.py to ostensibly enforce commit rules (e.g., blocking .eneik/ modifications), but leaves the script completely unwired. Without integration into git hooks or CI pipelines, it is a disconnected layer that fakes commit safety, permitting PRs #232 and #233 to write to .eneik/ unchallenged."
+    },
+    {
+      "roleTag": "BARCAN-TAG-05",
+      "type": "causal_unjustified",
+      "prNumber": 234,
+      "reason": "PR #234 and PR #231 claim to fix the PR status mismatch by explicitly transitioning task statuses upon GitHub close events. However, operational logs clearly show the root cause of stuck tasks is the JulesApiClient skipping activity scans due to a 10MB payload limit on session 7800182329015729496, stalling the pipeline in IMPLEMENTING. The PRs address a symptom (PR closed state correlation) without tracing or mitigating the underlying memory limit constraint."
+    },
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "type": "methodological",
+      "prNumber": 234,
+      "philosopher": "Гилберт Райл",
+      "thesis": "Knowing How Versus Knowing - Anti Mirror Telemetry",
+      "score": "3.000370",
+      "mustBe": "The agent must rely on operational telemetry indicating the pipeline remains stuck in IMPLEMENTING due to 10MB payload limits, rather than believing its internal narrative that PR #234 successfully patched the task state.",
+      "performance": "Logs confirm continuous denial of RECOVER_FAILED_FRONTIER and DISPATCH_QUEUED_TASKS.",
+      "attractive": "Telemetry drives automatic reverts of PRs that do not resolve the logged symptom."
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "type": "methodological",
+      "prNumber": 232,
+      "philosopher": "Дэвид Чалмерс",
+      "thesis": "Primary And Secondary Intensions - Planning Consistency",
+      "score": "0.000959",
+      "mustBe": "Ensure task plans and PRs form one consistent plan state. PR #232 introduces a duplicate task plan for the exact same epic and issue already planned in PR #230.",
+      "performance": "Maintain a single source of truth for epic plans.",
+      "attractive": "Auto-detect and merge duplicate task plans."
+    },
+    {
+      "roleTag": "BARCAN-TAG-11",
+      "type": "methodological",
+      "prNumber": 233,
+      "philosopher": "Рут Милликен",
+      "thesis": "Teleosemantics - Conversation Maxim Check",
+      "score": "5.000337",
+      "mustBe": "Make agent output sufficiently informative and true for the next worker. The coverage audit JSON incorrectly outputs '{\"gaps\": []}', generating a false signal.",
+      "performance": "Accurately list the missing requirements from the client specification.",
+      "attractive": "Automate verification of the audit content against the specification."
+    }
+  ]
+}
