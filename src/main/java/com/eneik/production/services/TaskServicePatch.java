@@ -63,16 +63,16 @@ public class TaskServicePatch extends TaskService {
 
     /**
      * Reverts the task status to the appropriate unmerged PR state.
-     * When a task is marked 'done' internally but its associated GitHub PR is closed and unmerged,
+     * When a task is marked 'done' or active internally but its associated GitHub PR is closed and unmerged,
      * its status is reverted to 'failed' to reflect the unmerged PR state and halt/reset the Flow Core.
      */
     private boolean revertToUnmergedPrState(Task task, GitHubService.PrStatus prStatus) {
         if ("closed".equalsIgnoreCase(prStatus.getState())) {
-            log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is marked done but PR#{} closed without merge",
-                    task.getId(), task.getGithubPrNumber());
+            log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is currently '{}' but PR#{} closed without merge",
+                    task.getId(), task.getStatus(), task.getGithubPrNumber());
         } else {
-            log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is marked done but PR#{} is not merged",
-                    task.getId(), task.getGithubPrNumber());
+            log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} is currently '{}' but PR#{} is not merged",
+                    task.getId(), task.getStatus(), task.getGithubPrNumber());
         }
 
         // Set status to failed and store the actual GitHub PR state and merged status to avoid redundant DB updates
@@ -129,20 +129,21 @@ public class TaskServicePatch extends TaskService {
                     || task.getGithubPrMerged() != isMerged) {
 
                 if ("failed".equalsIgnoreCase(targetStatus) && !targetStatus.equalsIgnoreCase(task.getStatus())) {
-                    log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} transitioning from {} to failed due to unmerged PR#{}",
-                            task.getId(), task.getStatus(), task.getGithubPrNumber());
+                    // Call modular revert helper to encapsulate the state transition and telemetry logging cleanly
+                    if (revertToUnmergedPrState(task, prStatus)) {
+                        reconciledCount++;
+                    }
                 } else {
                     log.info("syncTaskStatusesWithGitHub (patched): task {} (current status: {}) transitioning to target status: {}, PR state: {}, merged: {}",
                             task.getId(), task.getStatus(), targetStatus, prState, isMerged);
-                }
 
-                // Explicitly transition task status to targetStatus (never retaining the incorrect 'done' status)
-                String nextStatus = targetStatus;
-                int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                        task.getId(), nextStatus, task.getStatus(), prState, isMerged, timeProvider.now()
-                );
-                if (updatedRows > 0) {
-                    reconciledCount++;
+                    // Explicitly transition task status to targetStatus (never retaining the incorrect 'done' status)
+                    int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                            task.getId(), targetStatus, task.getStatus(), prState, isMerged, timeProvider.now()
+                    );
+                    if (updatedRows > 0) {
+                        reconciledCount++;
+                    }
                 }
             }
         }
