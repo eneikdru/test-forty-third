@@ -1,0 +1,36 @@
+{
+  "epics": [
+    {
+      "existingEpicId": null,
+      "title": "Local Docker Compose Deployment",
+      "jtbd": "When a system operator wants to verify the application, I want to launch the full stack via a docker-compose file that exposes a health-check endpoint, so that I can observe the real running product instead of relying solely on passing builds.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Reduce manual environment setup and verification time from >15 minutes to <2 minutes",
+      "tocConstraintRef": "Environment provisioning and runtime verification bottleneck",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Add a docker-compose.yml at the repository root that starts the full stack.",
+        "R2: Expose a health-check endpoint to verify the running stack."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Add root docker-compose.yml and health check",
+          "roleTag": "BARCAN-TAG-05",
+          "jtbd": "When implementing the docker orchestration for this epic, I want to create a docker-compose.yml that wires all necessary services together, so that the entire stack starts deterministically and its health can be verified.",
+          "acceptanceCriteria": "Given a local checkout of the repository\nWhen I run docker-compose up at the root\nThen all required backend, frontend, and database services start successfully\nGiven the services are running\nWhen I make an HTTP request to the health-check endpoint\nThen it returns a 200 OK status to confirm the stack is operational",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Local stack startup and validation cycle",
+          "sixSigmaMetric": "Reduce container start failure rate to 0% and time-to-health-check to <60 seconds",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ]
+}
