@@ -491,6 +491,114 @@
       "confidence": "high",
       "evidence": "src/test/java/com/eneik/production/services/TaskServiceAppendOnlyVerificationTest.java - Lack of contextual anchoring in assertions.",
       "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Майкл Дамит",
+      "worldview": "Verificationist theory of meaning - rejecting local fixes that satisfy a rule text while violating the system's declared overarching principles. Meaning is tied to verification.",
+      "critique": "The frontend components rely on inline Tailwind utility classes for interactive states (e.g., hover, focus) without a verifiable, central design token registry. This violates the principle of verifiable meaning: a color change is just a string, not a verified assertion of the design system's intent.",
+      "proposal": "Apply `MAYKL_DAMIT_12_PRINCIPLED_INTEGRITY`: Extract semantic design tokens (e.g., `theme-primary-hover`) into a verified configuration file, and reject PRs that use raw utility classes (`bg-blue-600`) that bypass this verifiable central meaning.",
+      "dislike": "Allowing visual meaning to be dictated by disconnected, unverifiable local string literals rather than a systemic, verifiable registry.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte - Widespread use of hardcoded Tailwind utility classes for stateful styling.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Нельсон Гудман",
+      "worldview": "Worldmaking and projectibility - exported names and symbols are promises bound to source principles and must preserve their referents across caller contexts.",
+      "critique": "The term 'Document' is used loosely across both the Financial module and the Core LMS schema, but refers to fundamentally different structural worlds (an invoice vs. a curriculum syllabus). This breaks the projectibility of the term 'Document' across the system.",
+      "proposal": "Apply `NELSON_GUDMAN_11_ANCHOR_BOUND_NAME`: Strictly partition the nomenclature. Rename internal representations to strictly bound terms like `FinancialLedgerDocument` and `LmsCurriculumDocument` to guarantee projectible referents across contexts.",
+      "dislike": "The overloaded use of a generic noun ('Document') that fails to project a stable meaning across different bounded contexts.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/DocumentVersion.java and src/main/java/com/eneik/generated/controller/FinancialDocumentController.java - Overloaded use of 'Document'.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Людвиг Витгенштейн",
+      "worldview": "Language-games and meaning as use. Truth and facts are established through reliable, verifiable processes, not just by declaring them.",
+      "critique": "The system logs errors using generic `log.error(\"Failed to process\")` statements without attaching the causal trace context. These logs participate in a broken language game: they declare a failure but fail to provide the reliable, verifiable process history required for debugging.",
+      "proposal": "Apply `LYUDVIG_VITGENSHTEYN_19_CAUSAL_PROCESS_TRACE`: Mandate that all error logs must include a structured causal payload (e.g., `MDC` trace IDs, input parameters, and state at the time of failure) to establish a verifiable process history.",
+      "dislike": "Emitting declarative error strings that lack the causal and contextual history necessary to establish the operational truth.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/TaskServicePatch.java - Uses simple string logging without structured causal context.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Гилберт Райл",
+      "worldview": "Knowing-how versus knowing-that, category mistakes - rejecting the conflation of declarative facts with operational capabilities.",
+      "critique": "The frontend defines Svelte `$derived` state to compute 'is loading' flags (`knowing-that`), but the actual disabling of UI buttons (`knowing-how`) is inconsistently applied across the DOM, allowing users to submit forms while the derived state knows a request is pending.",
+      "proposal": "Resolve the category mistake: tightly bind the declarative 'knowing-that' (the derived loading state) to the operational 'knowing-how' (the HTML `disabled` attribute) via a unified action or wrapper component, ensuring they cannot drift.",
+      "dislike": "The category mistake of computing a state but failing to enforce the corresponding operational constraints on the user interface.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte - Disconnect between loading state variables and interactive DOM element constraints.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Рут Баркан Маркус",
+      "worldview": "Quantified modal logic and actualism - representing true, false, and inconsistent states explicitly rather than leaving them ambiguous.",
+      "critique": "The `FeatureEntity` relies on a null check to determine if a feature is a root epic or a child task (e.g., `if (parentEpicId == null)`). This implies state through absence rather than representing the structural truth explicitly.",
+      "proposal": "Apply `RUT_BARKAN_MARKUS_19_TRUTH_STATUS_TABLE`: Introduce an explicit `FeatureTopologyLevel` enum (e.g., `EPIC`, `TASK`, `SUBTASK`) to the entity. Stop relying on the ambiguous absence of a parent ID to infer the actualized structural state of the object.",
+      "dislike": "Inferring complex structural state through the ambiguous absence of data (null checks) rather than an explicit declaration.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/FeatureEntity.java - Implicit structural hierarchy based on nullable parent identifiers.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Ахилле Варци",
+      "worldview": "Formal ontology of boundaries and spatial parts - demanding precise topological and spatial boundaries to prevent semantic leaks and dependency cycles.",
+      "critique": "The `CodeReviewSimulator` injects `GitCommandService` to read branch state. This violates topological boundaries by deeply coupling a business-logic simulator with low-level, machine-specific shell execution infrastructure.",
+      "proposal": "Apply `AHILLE_VARTSI_19_PROHIBITION_AS_CODE`: Enforce a strict spatial boundary. The simulator must rely on an abstract `VCSStateProvider` interface, completely severing its direct topological dependency on raw Git shell commands.",
+      "dislike": "Topological violations where high-level business simulation logic is entangled with low-level infrastructural shell operations.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/CodeReviewSimulator.java - Direct injection and usage of infrastructural git command services.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Сол Крипке",
+      "worldview": "Rigid designation and necessary identity - names must refer to the same object across all possible worlds (or contexts) without ambiguity.",
+      "critique": "The JWT token generation relies on signing claims that include mutable user attributes like `firstName`. This means the identity token's cryptographic signature changes if a contingent property changes, breaking the rigid designation of the token.",
+      "proposal": "Apply `SOL_KRIPKE_19_LAMBDA_CORE_REDUCTION`: Strip all mutable, contingent properties from the JWT payload. The token must only sign the rigidly designated identity key (`UserUUID`), ensuring the token's identity remains necessary across all contexts.",
+      "dislike": "Embedding mutable, contingent properties into an artifact that is supposed to serve as a rigid, immutable identity designator.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/auth/model/UserSession.java - Inclusion of mutable claims in session structures.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Роберт Сталнакер",
+      "worldview": "Assertion and possible-world pragmatics - requiring explicit handling of common ground and context change, ensuring abstraction levels are locked.",
+      "critique": "The backend endpoints return standard HTTP 500 status codes for domain-specific business logic violations (e.g., 'Task cannot transition to DONE'). This breaks the common ground by conflating an infrastructural failure (server crash) with a semantic domain assertion.",
+      "proposal": "Apply `ROBERT_STALNAKER_15_LEVEL_OF_ABSTRACTION_LOCK`: Implement specific `@ControllerAdvice` mappings to translate domain violations into semantically appropriate 4xx codes (e.g., 409 Conflict or 422 Unprocessable Entity), locking the abstraction level of the error.",
+      "dislike": "Conflating infrastructural failures with semantic domain errors, destroying the common ground of HTTP status code pragmatics.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/controller/TaskController.java - Emitting HTTP 500s for invalid domain state transitions.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Джон Перри",
+      "worldview": "Indexicals and self-locating content - preserving stable identity across time, migrations, and incident reconstructions.",
+      "critique": "The database migration files (e.g., `V2026...__seed_data.sql`) use arbitrary, hardcoded UUIDs for seeded data. These UUIDs lack any self-locating mathematical pattern, making it impossible to indexically distinguish seeded test data from organic production data during incident review.",
+      "proposal": "Apply `DZHON_PERRI_10_ACTUAL_OBJECT_REGISTER`: Force all seeded data UUIDs to follow a deterministic, self-locating indexical pattern (e.g., ending in `-0000-000000000000`), ensuring they can be instantly identified and isolated during incident reconstruction.",
+      "dislike": "Generating arbitrary identifiers for test data that lack the indexical markers necessary to distinguish them from actual production data.",
+      "kanoClass": "Attractive",
+      "confidence": "high",
+      "evidence": "src/main/resources/db/migration/V20260807032730168__seed_financial_and_hr_data.sql - Hardcoded, arbitrary UUIDs for seeded entities.",
+      "screenshotFile": ""
     }
   ]
 }
