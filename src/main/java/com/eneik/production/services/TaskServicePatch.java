@@ -85,14 +85,23 @@ public class TaskServicePatch extends TaskService {
     /**
      * Helper to deterministically calculate the correct target state of a task
      * based on its current status and its corresponding GitHub PR state.
+     * Under the semantic contextualism framework of BARCAN-TAG-02, names of statuses
+     * such as 'done' and 'failed' act as rigid designators with stable meanings.
      * Core Fix for Findings 6 & 7: Any task with a closed and unmerged PR
      * must transition to 'failed' status to halt/reset the Flow Core.
      */
     private String determineTargetStatus(String currentStatus, String prState, boolean isMerged) {
+        if (prState == null) {
+            return currentStatus;
+        }
         if ("closed".equalsIgnoreCase(prState)) {
             return isMerged ? "done" : "failed";
         }
-        return "done".equalsIgnoreCase(currentStatus) ? "failed" : currentStatus;
+        // If PR is open but task is internally 'done', revert to failed.
+        if ("done".equalsIgnoreCase(currentStatus)) {
+            return "failed";
+        }
+        return currentStatus;
     }
 
     @Override
