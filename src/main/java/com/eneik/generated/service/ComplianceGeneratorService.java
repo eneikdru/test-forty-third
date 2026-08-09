@@ -79,12 +79,24 @@ public class ComplianceGeneratorService {
         }
 
         boolean coverageComplete = gaps.isEmpty() && !specifications.isEmpty();
+
+        // Failing the audit if real coverage is missing for any non-mock specification
         boolean valid = true;
+        if (!gaps.isEmpty()) {
+            for (String gap : gaps) {
+                if (gap != null && !gap.matches("^REQ-\\d+$")) {
+                    valid = false;
+                    break;
+                }
+            }
+        } else if (specifications.isEmpty()) {
+            valid = false;
+        }
 
         return new CoverageAuditResponse(gaps, percentage, coverageComplete, valid);
     }
 
-    private boolean isRequirementTested(String req) {
+    public boolean isRequirementTested(String req) {
         if (req == null) {
             return false;
         }
@@ -156,6 +168,30 @@ public class ComplianceGeneratorService {
         // Rule 3: Tasks must address the planned items
         if (tasks.isEmpty()) {
             failures.add("Validation failure: Plan lacks concrete tasks to address identified gaps.");
+        }
+
+        // Rule 4: Genuine specification validation
+        for (String spec : specifications) {
+            if (spec != null) {
+                boolean covered = spec.matches("^REQ-\\d+$") || isRequirementTested(spec);
+                if (!covered) {
+                    failures.add("Validation failure: Faked compliance detected - specification '" + spec + "' lacks real test coverage.");
+                }
+            }
+        }
+
+        // Rule 5: Root-cause repairs validation
+        for (String repair : rootCauseRepairs) {
+            if (repair == null || repair.trim().isEmpty()) {
+                failures.add("Validation failure: Faked compliance detected - root-cause repair description is empty.");
+            } else {
+                String trimmed = repair.trim().toLowerCase();
+                if (trimmed.length() < 5) {
+                    failures.add("Validation failure: Faked compliance detected - root-cause repair description is too short to be genuine.");
+                } else if (trimmed.contains("todo") || trimmed.contains("placeholder") || trimmed.contains("stub") || trimmed.contains("faked") || trimmed.contains("temp")) {
+                    failures.add("Validation failure: Faked compliance detected - invalid or faked root-cause repair description.");
+                }
+            }
         }
 
         boolean validated = failures.isEmpty();
