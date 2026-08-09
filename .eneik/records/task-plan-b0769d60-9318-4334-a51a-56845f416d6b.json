@@ -1,0 +1,66 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "2693edbe-e3fc-4d72-b564-380683afeb3a",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Enforce presence of automated verification test artifacts (e.g., *Test.java) for code changes to prove epistemic certainty.",
+        "R2: Remove intentional bypass for mock specifications ('^REQ-\\d+$') in ComplianceGeneratorService to prevent falsified audit success and false coverage claims."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Enforce test artifacts and remove audit bypasses in ComplianceGeneratorService",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When repairing the audit gates for this epic, I want to remove specification bypasses and enforce test artifact presence, so that falsified success reports are blocked.",
+          "acceptanceCriteria": "Given a PR submission without *Test.java files, When the audit validates the changes, Then it must fail the validation enforcing epistemic certainty.\nGiven ComplianceGeneratorService audits a PR, When missing specifications match '^REQ-\\d+$', Then they must be reported as gaps and the audit must fail.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Audit Validation Integrity",
+          "sixSigmaMetric": "Reduce falsified audit success rate from >0% to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "b7349659-531c-4d64-af8c-672cd2222dab",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Implement actual data transmission to the downstream HTTP client in JulesApiClient.processRequest instead of silently discarding the payload stream into a local buffer."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Implement payload transmission in JulesApiClient",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When repairing the API client for this epic, I want to route the input stream to the downstream endpoint, so that the client correctly transmits data instead of dropping it.",
+          "acceptanceCriteria": "Given JulesApiClient.processRequest receives a payload stream, When processing the data, Then the stream must be fully transmitted to the downstream HTTP endpoint.\nGiven the transmission contract is evaluated, When data is processed, Then it must not be silently dropped into a local buffer without transmission.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "API Transmission Reliability",
+          "sixSigmaMetric": "Increase payload transmission success rate from 0% to 100%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
