@@ -33,13 +33,13 @@ public class TaskStatusSyncServiceTest {
     }
 
     @Test
-    public void testSyncTaskStatus_ClosedAndUnmerged_RevertsToIncomplete() {
+    public void testSyncTaskStatus_ClosedAndUnmerged_TransitionsToFailed() {
         boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(taskId, true, false);
 
         assertTrue(updated, "The task status should have been updated.");
 
         String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, taskId);
-        assertEquals("incomplete", status, "The status should be reverted to incomplete.");
+        assertEquals("failed", status, "The status should be transitioned to failed.");
     }
 
     @Test
