@@ -1,0 +1,56 @@
+{
+  "violations": [
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "specification_coverage_gap",
+      "reason": "The entire 9-section client specification for an educational knowledge base is completely unaddressed by any merged PR or actual code. The codebase lacks any implementation of knowledge base document storage, search, RBAC, or regulatory document features."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "stub",
+      "prNumber": 198,
+      "reason": "The coverage audit file .eneik/records/coverage-audit-4dcd302c-8f35-44d9-b7ff-0a6670d37c40.json fakes success by returning an empty 'gaps' array, falsely claiming full specification coverage while the entire 9-section client specification for an educational knowledge base is completely unaddressed."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "stub",
+      "prNumber": 197,
+      "reason": "The task plan file .eneik/records/task-plan-28754dd6-7759-4519-a910-e3a8b53d19ad.json fakes success by explicitly declaring '\"coverageComplete\": true', despite the plan only containing an internal PR sync bug fix and completely ignoring the original client specification."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "refusal_criteria",
+      "prNumber": 197,
+      "reason": "The task plan in PR 197 violates the TOC-целостности refusal criteria by using a qualitative descriptive phrase ('task-status-sync-reliability') as the tocConstraintRef instead of explicitly citing a true system bottleneck, thereby attempting local optimization outside an actual constraint."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "refusal_criteria",
+      "prNumber": 196,
+      "reason": "The task plan in PR 196 violates the TOC-целостности refusal criteria by using a qualitative descriptive phrase ('Task status tracking accuracy') as the tocConstraintRef instead of explicitly citing a true system bottleneck, thereby attempting local optimization outside an actual constraint."
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "type": "causal_unjustified",
+      "prNumber": 199,
+      "reason": "PR 199 claims to patch PR closed status sync logic to avoid redundant updates, but the diff only adds a condition to stop repeatedly updating the database with the same old status ('retaining status'). It does not fix the root cause that an unmerged closed PR leaves the internal task in a falsely 'done' status, it only hides the symptom of redundant log spam."
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "type": "stub",
+      "prNumber": 199,
+      "reason": "The test testSyncTaskStatusesDoesNotPerformRedundantUpdatesOnSubsequentRuns fakes success by asserting the task status is reverted to 'failed' (assertEquals('failed', reloaded.getStatus())), while the actual patched code in TaskServicePatch.java explicitly logs 'retaining status {}' and passes task.getStatus() as the new status, meaning it never actually reverts a 'done' task to 'failed'."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "methodological",
+      "prNumber": 197,
+      "philosopher": "Пол Тагард",
+      "thesis": "Принцип объяснительной когерентности (ECHO) - решение определяется связностью всей сети",
+      "score": "3",
+      "mustBe": "The system must evaluate task plans in the context of the entire network of existing evidence and PRs, rather than in isolation.",
+      "performance": "The system should detect identical duplicate task planning cycles (as seen in PRs 196 and 197) and halt them before isolated generation occurs.",
+      "attractive": "The system could actively reconcile existing duplicate PRs using Explanatory Coherence to form a single optimal plan."
+    }
+  ]
+}
