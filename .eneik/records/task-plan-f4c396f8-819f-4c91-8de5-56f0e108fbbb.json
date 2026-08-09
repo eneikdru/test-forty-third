@@ -1,0 +1,100 @@
+{
+  "epics": [
+    {
+      "existingEpicId": null,
+      "title": "Saved Searches and Favorites",
+      "jtbd": "When using the system frequently, I want to save my search queries and favorite materials, so that I can quickly access them later without repeating complex searches.",
+      "kanoClass": "Performance",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Reduce average time to retrieve frequently used materials from >30s to <5s",
+      "tocConstraintRef": "User search repetition overhead",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Enable authenticated users to save search queries and favorite materials",
+        "R2: Securely store and allow retrieval of these preferences"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch existing user profile to persist saved searches and favorites",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing saved searches for this epic, I want to patch the existing user profile logic, so that search preferences are stored without introducing new data models.",
+          "acceptanceCriteria": "Given an authenticated user, When they save a search query or favorite a document, Then the system updates their profile's preferences field.\nGiven an authenticated user, When they fetch their preferences, Then the saved searches and favorites are returned correctly.",
+          "leanValue": "valuable",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Database query volume for repeated searches",
+          "sixSigmaMetric": "Reduce redundant complex search queries by 15%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Search Auto-Suggestions",
+      "jtbd": "When typing a query in the search bar, I want to see real-time auto-suggestions, so that I can find materials faster and correct my input on the fly.",
+      "kanoClass": "Attractive",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Reduce search query abandonment rate by 20%",
+      "tocConstraintRef": "Search query formulation barrier",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Return real-time auto-suggestions when typing in the search bar",
+        "R2: Include typo correction in the returned suggestions"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch existing search UI to display auto-suggestions and typo corrections",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing auto-suggestions for this epic, I want to patch the existing search input component, so that users receive real-time feedback without needing a new UI slice.",
+          "acceptanceCriteria": "Given a search input field, When a user starts typing, Then the UI debounces the input and fetches suggestions from the existing search endpoint.\nGiven a returned list of suggestions or typo corrections, When received, Then the UI displays them immediately for user selection.",
+          "leanValue": "valuable",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Query formulation barrier",
+          "sixSigmaMetric": "Increase click-through rate on search suggestions by 25%",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "a136bf09-0f75-413f-a079-312a84fc0ee5",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: Support offline addition of materials",
+        "R2: Automatically push locally saved materials to the server upon reconnection"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch existing service worker to queue offline material creation",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing offline material sync for this epic, I want to patch the existing service worker logic, so that offline creations are queued and synced without building a new API contract.",
+          "acceptanceCriteria": "Given an offline state, When a user creates or modifies a document, Then the application stores the action locally in IndexedDB.\nGiven a restored network connection, When the application detects it, Then the queued local changes are automatically pushed to the server.",
+          "leanValue": "valuable",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Network dependency for material creation",
+          "sixSigmaMetric": "Reduce lost work due to network drops to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ]
+}
