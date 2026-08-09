@@ -1,0 +1,19 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "block",
+      "criticalReason": "The PR commits PNG files (desktop-1440.png, mobile-375.png) under '.eneik/records/', which directly violates the PR's boundaries (no commits under '.eneik/') and constitutes a blockable committed generated/build artifact.",
+      "concerns": [
+        {
+          "text": "The commit includes compiled frontend assets under 'src/main/resources/static/assets/', which might be better kept as gitignored build artifacts depending on CI/CD setup.",
+          "severity": "low"
+        },
+        {
+          "text": "The effect triggering fetchBackendDocuments uses debouncedQuery, but doesn't handle potential race conditions if multiple fetch requests are inflight, though debouncing at 300ms mitigates this.",
+          "severity": "low"
+        }
+      ]
+    }
+  ]
+}
