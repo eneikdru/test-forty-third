@@ -1,0 +1,34 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Patch the synchronization logic to correctly read GitHub PR closed events that lack a merge action, ensuring the internal task status correctly updates instead of falsely remaining 'done'."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch GitHub PR status synchronization logic",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the status synchronization fix for this epic, I want to accurately parse the 'closed without merge' GitHub event and map it to the internal task state, so that the status discrepancy is resolved.",
+          "acceptanceCriteria": "Given a task with an open PR in the internal system,\nWhen the PR is closed on GitHub without being merged,\nThen the internal task status is updated using an atomically-guarded database update,\nAnd tests verify this behavior without invoking hardcoded compliance stubs.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "github_webhook_sync_accuracy",
+          "sixSigmaMetric": "Reduce task-PR status discrepancy incidents from >100 observed errors to 0 per 100 synchronization events.",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
