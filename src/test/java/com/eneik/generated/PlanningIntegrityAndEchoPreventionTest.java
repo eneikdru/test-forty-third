@@ -40,7 +40,7 @@ public class PlanningIntegrityAndEchoPreventionTest {
     }
 
     @Test
-    public void testCoverageAuditSucceedsWhenOnlyMockSpecificationsHaveGaps() {
+    public void testCoverageAuditFailsWhenMockSpecificationsHaveGaps() {
         // Given
         List<String> specifications = List.of("REQ-001", "REQ-002");
         List<String> addressed = List.of("REQ-001");
@@ -51,7 +51,7 @@ public class PlanningIntegrityAndEchoPreventionTest {
         CoverageAuditResponse response = complianceGeneratorService.auditCoverage(request);
 
         // Then
-        assertTrue(response.isValid(), "Audit with only mock spec gaps is valid to preserve internal test greenness");
+        assertFalse(response.isValid(), "Audit with only mock spec gaps must fail to block falsified success reports");
         assertFalse(response.isCoverageComplete());
         assertEquals(1, response.getGaps().size());
         assertTrue(response.getGaps().contains("REQ-002"));
@@ -128,5 +128,40 @@ public class PlanningIntegrityAndEchoPreventionTest {
         assertTrue(response.isValidated());
         assertTrue(response.isCoverageComplete());
         assertEquals(0, response.getFailures().size());
+    }
+
+    @Test
+    public void testCoverageAuditFailsOnPRSubmissionWithoutTestFiles() {
+        // Given a PR submission where there is no Test.java file in changedFiles
+        List<String> specifications = List.of("Document Comments and Update Requests");
+        List<String> addressed = List.of("Document Comments and Update Requests");
+        List<String> changedFiles = List.of("src/main/java/com/eneik/generated/service/ComplianceGeneratorService.java");
+
+        CoverageAuditRequest request = new CoverageAuditRequest(specifications, addressed, changedFiles);
+
+        // When
+        CoverageAuditResponse response = complianceGeneratorService.auditCoverage(request);
+
+        // Then it must fail validation due to missing automated verification artifacts (Test.java) to prove epistemic certainty
+        assertFalse(response.isValid(), "Audit must fail if there is a PR submission with no *Test.java files");
+    }
+
+    @Test
+    public void testCoverageAuditSucceedsOnPRSubmissionWithTestFiles() {
+        // Given a PR submission with a Test.java file in changedFiles and no gaps
+        List<String> specifications = List.of("Document Comments and Update Requests");
+        List<String> addressed = List.of("Document Comments and Update Requests");
+        List<String> changedFiles = List.of(
+                "src/main/java/com/eneik/generated/service/ComplianceGeneratorService.java",
+                "src/test/java/com/eneik/generated/ComplianceGeneratorServiceTest.java"
+        );
+
+        CoverageAuditRequest request = new CoverageAuditRequest(specifications, addressed, changedFiles);
+
+        // When
+        CoverageAuditResponse response = complianceGeneratorService.auditCoverage(request);
+
+        // Then the audit must succeed because both the requirement is tested/addressed and test files exist
+        assertTrue(response.isValid(), "Audit must pass if requirement is addressed and a *Test.java file is provided");
     }
 }
