@@ -72,26 +72,43 @@ public class GitHubWebhookController {
             if ("closed".equalsIgnoreCase(action) || "closed".equalsIgnoreCase(prState)) {
                 boolean isMerged = (merged != null && merged);
                 if (!isMerged) {
-                    // PR is closed without merge: corresponding task status is updated to failed/unmerged using an atomic update.
-                    // Given an existing task status that is already set to done, transition it to failed.
-                    // To prevent redundant database updates, only execute update if there is a mismatch between database recorded state and polled reality.
-                    if (!"failed".equalsIgnoreCase(currentStatus)
-                            || !"closed".equalsIgnoreCase(task.getGithubPrState())
-                            || task.getGithubPrMerged() == null
-                            || task.getGithubPrMerged()) {
+                    // PR is closed without merge: corresponding task status is updated to failed/unmerged using an atomic update only if 'done'.
+                    // Active statuses remain unchanged.
+                    if ("done".equalsIgnoreCase(currentStatus)) {
+                        if (!"failed".equalsIgnoreCase(currentStatus)
+                                || !"closed".equalsIgnoreCase(task.getGithubPrState())
+                                || task.getGithubPrMerged() == null
+                                || task.getGithubPrMerged()) {
 
-                        log.warn("[TELEMETRY][TASK_RECONCILIATION] GitHub PR#{} closed without merge. Transitioning task {} from {} to failed",
-                                prNumber, task.getId(), currentStatus);
+                            log.warn("[TELEMETRY][TASK_RECONCILIATION] GitHub PR#{} closed without merge. Transitioning task {} from {} to failed",
+                                    prNumber, task.getId(), currentStatus);
 
-                        int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                                task.getId(), "failed", currentStatus, "closed", false, timeProvider.now()
-                        );
-                        if (updatedRows > 0) {
-                            updatedCount++;
+                            int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                                    task.getId(), "failed", currentStatus, "closed", false, timeProvider.now()
+                            );
+                            if (updatedRows > 0) {
+                                updatedCount++;
+                            }
+                        } else {
+                            log.info("GitHub PR#{} closed without merge. Task {} is already in expected failed/unmerged state. Ignoring.",
+                                    prNumber, task.getId());
                         }
                     } else {
-                        log.info("GitHub PR#{} closed without merge. Task {} is already in expected failed/unmerged state. Ignoring.",
-                                prNumber, task.getId());
+                        // For active/other tasks, internal status must remain unchanged during synchronization, but we synchronize metadata
+                        if (!"closed".equalsIgnoreCase(task.getGithubPrState())
+                                || task.getGithubPrMerged() == null
+                                || task.getGithubPrMerged()) {
+
+                            log.info("GitHub PR#{} closed without merge. Keeping task {} status unchanged as '{}' while updating metadata.",
+                                    prNumber, task.getId(), currentStatus);
+
+                            int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                                    task.getId(), currentStatus, currentStatus, "closed", false, timeProvider.now()
+                            );
+                            if (updatedRows > 0) {
+                                updatedCount++;
+                            }
+                        }
                     }
                 } else {
                     // PR is closed and merged: transition to done if not done already
