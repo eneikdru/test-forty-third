@@ -12,9 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.core.read.ListAppender;
+
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Application.class, properties = {"spring.main.allow-bean-definition-overriding=true"})
@@ -190,5 +195,59 @@ public class TaskServicePatchTest {
         // Second synchronization: should do nothing (reconciledCount = 0) since everything already matches
         int secondRunCount = taskService.syncTaskStatusesWithGitHub();
         assertEquals(0, secondRunCount, "Second synchronization run should skip already reconciled task");
+    }
+
+    @Test
+    public void testClosedUnmergedPrSetsStatusToFailed() {
+        UUID taskId = UUID.randomUUID();
+        // Given a task that is 'done' internally
+        Task task = new Task(taskId, "Task closed without merge", "done", 601, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // When its associated PR is closed without merge
+        gitHubService.registerPrStatus(601, "closed", false);
+        taskService.syncTaskStatusesWithGitHub();
+
+        // Then the internal status correctly reflects the closed/failed state
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus());
+    }
+
+    @Test
+    public void testSubsequentSyncRunsDoNotEmitWarnLogsForTask0bcb9d29() {
+        UUID taskId = UUID.fromString("0bcb9d29-ad04-4c30-8448-e3cbacf70c4f");
+        // Given task 0bcb9d29 is 'done' internally with a closed unmerged PR
+        Task task = new Task(taskId, "Task 0bcb9d29 Status Test", "done", 53, "open", false);
+        taskRepository.saveAndFlush(task);
+        gitHubService.registerPrStatus(53, "closed", false);
+
+        // Setup Logback ListAppender to intercept logs
+        Logger logger = (Logger) org.slf4j.LoggerFactory.getLogger(TaskService.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        try {
+            // First synchronization run: corrects the mismatch from 'done' to 'failed' and may log a warn
+            taskService.syncTaskStatusesWithGitHub();
+
+            Task reloaded = taskRepository.findById(taskId).orElseThrow();
+            assertEquals("failed", reloaded.getStatus());
+
+            // Clear intercepted logs from the first run
+            listAppender.list.clear();
+
+            // When the synchronization test checks/runs again
+            taskService.syncTaskStatusesWithGitHub();
+
+            // Then no WARN logs for task 0bcb9d29 are emitted on the second run (confirmed eliminated)
+            boolean warnLoggedOnSubsequent = listAppender.list.stream()
+                    .filter(event -> event.getLevel().equals(ch.qos.logback.classic.Level.WARN))
+                    .anyMatch(event -> event.getFormattedMessage().contains("0bcb9d29"));
+
+            assertFalse(warnLoggedOnSubsequent, "No WARN logs should be emitted for task 0bcb9d29 on subsequent synchronization runs");
+        } finally {
+            logger.detachAppender(listAppender);
+        }
     }
 }
