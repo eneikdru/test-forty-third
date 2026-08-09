@@ -1,0 +1,34 @@
+{
+  "epics": [
+    {
+      "existingEpicId": null,
+      "title": "Full Stack Docker Compose Setup",
+      "jtbd": "When a system operator wants to observe the running product, I want to launch the full stack via docker-compose with a health-check endpoint, so that the system can be verified in a real environment rather than just assuming builds pass.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Increase the percentage of successful local full-stack deployments from 0% to 100%.",
+      "tocConstraintRef": "Local environment deployment bottleneck",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Create a docker-compose.yml file at the repository root that starts the full stack and exposes a health-check endpoint."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Add docker-compose.yml with health-check",
+          "roleTag": "BARCAN-TAG-05",
+          "jtbd": "When implementing the docker-compose setup for this epic, I want to define the services and health-check endpoints in a single file, so that the full stack can be launched reliably.",
+          "acceptanceCriteria": "Given a fresh clone of the repository, When the command docker-compose up is executed, Then all backend, frontend, and database containers should start successfully without errors.\nGiven the stack is running, When a GET request is made to the exposed health-check endpoint, Then the system returns an HTTP 200 OK status.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Environment provisioning constraint",
+          "sixSigmaMetric": "Reduce container startup failure rate from 100% to 0%.",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
