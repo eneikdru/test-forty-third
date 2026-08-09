@@ -1,0 +1,12 @@
+{
+  "testsRun": 2,
+  "testsPassed": 2,
+  "testsFailed": 0,
+  "acceptanceCriteriaVerified": [
+    "Given the test environment, when a simulated PR closed event (without merge) is received, then the corresponding task status in the database is verified to not be 'done'.",
+    "Given the E2E test setup, when a task is processed and its PR is rejected, then the integration confirms the task flow halts or resets correctly."
+  ],
+  "coverageDeltaPercent": null,
+  "verdict": "pass",
+  "notes": "Verified simulated closed unmerged webhook events as well as task flow reset (from done to failed) and task flow halt (retaining active status) using custom integration tests."
+}
