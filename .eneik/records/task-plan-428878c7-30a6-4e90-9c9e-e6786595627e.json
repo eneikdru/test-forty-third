@@ -1,0 +1,94 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Patch task status synchronization logic to verify actual GitHub PR merge states and correct internal statuses."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch GitHub task status synchronization",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the status synchronization patch for this epic, I want to verify the true GitHub PR state, so that tasks are not falsely marked as done when their changes were never merged.",
+          "acceptanceCriteria": "Given an internal task marked as done with a closed PR without merge,\nWhen the status synchronization runs,\nThen the internal task status is reverted to incomplete.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Task status data integrity",
+          "sixSigmaMetric": "Reduce internal task status mismatches to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "2693edbe-e3fc-4d72-b564-380683afeb3a",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Remove hardcoded coverage stubs in audits to ensure actual test metrics are evaluated."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch audit logic to remove coverage stubs",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the audit patch for this epic, I want to remove hardcoded coverage stubs, so that falsified success reports are blocked.",
+          "acceptanceCriteria": "Given an automated audit execution,\nWhen coverage metrics are retrieved,\nThen actual test coverage data is used instead of hardcoded stubs.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Audit reporting accuracy",
+          "sixSigmaMetric": "Reduce fraudulent audit success reports to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Resolve Jules API Client Payload Limits",
+      "jtbd": "When a system operator runs the pipeline, I want the API client to support payloads larger than 10MB, so that the pipeline does not stall during transmission.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Reduce pipeline stalls caused by API payload limits to 0",
+      "tocConstraintRef": "Pipeline data transfer capacity",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Update JulesApiClient configuration to support payloads larger than 10MB without stalling."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch JulesApiClient payload configuration",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the payload limit fix for this epic, I want to increase the API client payload limit, so that the pipeline does not stall during transmission.",
+          "acceptanceCriteria": "Given a JulesApiClient instance processing a request,\nWhen a payload exceeding 10MB is submitted,\nThen the request completes successfully without stalling the pipeline.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "API client data transfer limits",
+          "sixSigmaMetric": "Reduce payload-related pipeline failures to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
