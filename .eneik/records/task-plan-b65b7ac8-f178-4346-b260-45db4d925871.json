@@ -1,0 +1,94 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Patch task synchronization to accurately reflect GitHub 'closed without merge' reality instead of falsifying internal 'done' statuses"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch task state synchronization for unmerged closures",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the sync fix for this epic, I want to accurately propagate closed-without-merge states to the internal system, so that false-positive 'done' statuses are eliminated",
+          "acceptanceCriteria": "Given a GitHub pull request is closed without being merged\nWhen the system processes the state synchronization\nThen the internal task status must be accurately updated to reflect the failed closure without marking it as done",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "task-sync-accuracy",
+          "sixSigmaMetric": "reduce falsified done statuses from unmerged PRs to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "2693edbe-e3fc-4d72-b564-380683afeb3a",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Fix code integrity audit logic to perform actual specification validation instead of faking coverage and plans"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch audit validation to stop faked coverage reports",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the audit fix for this epic, I want to enforce genuine specification validation during BARCAN-TAG-09 audits, so that faked success reports are blocked",
+          "acceptanceCriteria": "Given a code integrity audit is triggered\nWhen the system verifies the coverage and plans\nThen it must execute actual specification and root-cause validation, failing the audit if real coverage is missing",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "audit-validation-integrity",
+          "sixSigmaMetric": "reduce faked audit success reports to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "b7349659-531c-4d64-af8c-672cd2222dab",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Patch JulesApiClient to correctly process payloads larger than 10MB without stalling"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch Jules API Client memory limits",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the payload fix for this epic, I want to increase or stream the memory limit in the API client, so that payloads over 10MB process without stalling",
+          "acceptanceCriteria": "Given an API payload larger than 10MB\nWhen JulesApiClient processes the transmission\nThen it must successfully transmit the entire payload without stalling or memory limit errors",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "jules-api-payload-limit",
+          "sixSigmaMetric": "reduce payload transmission stalls to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
