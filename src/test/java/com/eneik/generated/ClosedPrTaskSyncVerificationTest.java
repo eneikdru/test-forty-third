@@ -131,10 +131,10 @@ public class ClosedPrTaskSyncVerificationTest {
         int updatedActiveCount = taskService.syncTaskStatusesWithGitHub();
         assertEquals(1, updatedActiveCount, "Task's database state should be updated to match GitHub truth");
 
-        // Then the task flow halts correctly (the task remains in its active status, NOT transitioning to 'done')
+        // Then the task flow halts correctly (the task status is reverted to failed)
         Task reloadedActiveTask = taskRepository.findById(activeTaskId).orElseThrow();
         assertNotEquals("done", reloadedActiveTask.getStatus(), "Active task flow should halt (must not be 'done')");
-        assertEquals("in_progress", reloadedActiveTask.getStatus(), "Active task should retain its active status");
+        assertEquals("failed", reloadedActiveTask.getStatus(), "Active task with closed unmerged PR must be reverted to 'failed'");
         assertEquals("closed", reloadedActiveTask.getGithubPrState());
         assertFalse(reloadedActiveTask.getGithubPrMerged());
     }
