@@ -77,7 +77,7 @@ public class TaskServicePatch extends TaskService {
 
         // Clear PR state to fully dissociate task since PR was not merged
         int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                task.getId(), "open", task.getStatus(), null, null, timeProvider.now()
+                task.getId(), "failed", task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
         );
         return updatedRows > 0;
     }

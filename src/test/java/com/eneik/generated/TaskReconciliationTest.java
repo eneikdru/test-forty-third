@@ -147,7 +147,7 @@ public class TaskReconciliationTest {
 
         // Verify that the task status has been corrected to 'open'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("open", reloaded.getStatus());
+        assertEquals("failed", reloaded.getStatus());
     }
 
     @Test
@@ -178,13 +178,13 @@ public class TaskReconciliationTest {
 
             // Verify that the task status has been corrected to 'open' and metadata is updated
             Task reloaded = taskRepository.findById(taskId).orElseThrow();
-            assertEquals("open", reloaded.getStatus());
-            assertNull(reloaded.getGithubPrState());
-            assertNull(reloaded.getGithubPrMerged());
+            assertEquals("failed", reloaded.getStatus());
+            assertEquals("closed", reloaded.getGithubPrState());
+            assertEquals(false, reloaded.getGithubPrMerged());
 
             // Verify atomically-guarded database update occurred
             verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(
-                    eq(taskId), eq("open"), eq("done"), isNull(), isNull(), any()
+                    eq(taskId), eq("failed"), eq("done"), eq("closed"), eq(false), any()
             );
 
             // Assert that the [TELEMETRY][TASK_RECONCILIATION] log was emitted

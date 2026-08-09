@@ -66,7 +66,7 @@ public class TaskServicePatchTest {
 
         Task updated = taskRepository.findById(taskId).orElseThrow();
         // Should correctly transition from 'done' to 'failed'
-        assertEquals("open", updated.getStatus());
+        assertEquals("failed", updated.getStatus());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TaskServicePatchTest {
 
         // Then the internal task status must not be 'done' and must be reverted to reflect the unmerged PR state (failed)
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("open", reloaded.getStatus(), "Internal task status must be reverted and loop cleared (open)");
+        assertEquals("failed", reloaded.getStatus(), "Internal task status must be reverted and loop cleared (failed)");
     }
 
     @Test
@@ -117,7 +117,7 @@ public class TaskServicePatchTest {
         taskService.syncTaskStatusesWithGitHub();
 
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("open", reloaded.getStatus(), "Task should be reverted and unblocked");
+        assertEquals("failed", reloaded.getStatus(), "Task should be reverted and unblocked");
     }
 
     @Test
