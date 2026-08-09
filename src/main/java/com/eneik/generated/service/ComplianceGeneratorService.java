@@ -80,17 +80,26 @@ public class ComplianceGeneratorService {
 
         boolean coverageComplete = gaps.isEmpty() && !specifications.isEmpty();
 
-        // Failing the audit if real coverage is missing for any non-mock specification
+        // Failing the audit if real coverage is missing for any specification
         boolean valid = true;
         if (!gaps.isEmpty()) {
-            for (String gap : gaps) {
-                if (gap != null && !gap.matches("^REQ-\\d+$")) {
-                    valid = false;
+            valid = false;
+        } else if (specifications.isEmpty()) {
+            valid = false;
+        }
+
+        // Given a PR submission, fail validation if there are no *Test.java files (enforcing epistemic certainty)
+        if (request.getChangedFiles() != null) {
+            boolean hasTestFile = false;
+            for (String file : request.getChangedFiles()) {
+                if (file != null && file.endsWith("Test.java")) {
+                    hasTestFile = true;
                     break;
                 }
             }
-        } else if (specifications.isEmpty()) {
-            valid = false;
+            if (!hasTestFile) {
+                valid = false;
+            }
         }
 
         return new CoverageAuditResponse(gaps, percentage, coverageComplete, valid);

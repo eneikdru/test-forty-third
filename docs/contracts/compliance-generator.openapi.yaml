@@ -73,6 +73,10 @@ components:
           type: array
           items:
             type: string
+        changedFiles:
+          type: array
+          items:
+            type: string
         addressedRequirementIds:
           type: array
           items:

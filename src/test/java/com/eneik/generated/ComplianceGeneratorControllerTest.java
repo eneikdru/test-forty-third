@@ -49,7 +49,7 @@ public class ComplianceGeneratorControllerTest {
                 .andExpect(jsonPath("$.gaps", containsInAnyOrder("REQ-002", "REQ-004")))
                 .andExpect(jsonPath("$.coveragePercentage", closeTo(50.0, 0.01)))
                 .andExpect(jsonPath("$.coverageComplete", is(false)))
-                .andExpect(jsonPath("$.valid", is(true)));
+                .andExpect(jsonPath("$.valid", is(false)));
     }
 
     @Test
