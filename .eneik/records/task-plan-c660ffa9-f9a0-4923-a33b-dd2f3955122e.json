@@ -1,0 +1,149 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Address the specification coverage gap for the educational knowledge base by integrating existing document storage, search, RBAC, and regulatory features"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch existing knowledge base features",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the knowledge base patch for this epic, I want to wire the existing storage, search, and RBAC components, so that the 9-section client specification is correctly fulfilled.",
+          "acceptanceCriteria": "Given the existing knowledge base components,\nWhen a user accesses document storage and search,\nThen the RBAC and regulatory features are enforced and tested appropriately.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "document-retrieval-throughput",
+          "sixSigmaMetric": "Achieve 100% test coverage for RBAC document retrieval paths",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Systemic Planning Integrity and ECHO Coherence",
+      "jtbd": "When the system evaluates and generates task plans, I want it to strictly enforce TOC bottlenecks, accurately report coverage, and use Explanatory Coherence (ECHO), so that falsified success reports and duplicate tasks are eliminated.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "complicated",
+      "sixSigmaMetric": "Reduce system-wide falsified audit generation to 0 incidents",
+      "tocConstraintRef": "automated-planning-throughput",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Prevent coverage-audit.json from returning empty gaps when specifications are unmet",
+        "R2: Prevent task-plan.json from faking coverageComplete=true without actual validation",
+        "R3: Enforce strict TOC constraints in task plans and reject qualitative descriptive phrases",
+        "R4: Integrate Explanatory Coherence (ECHO) evaluation to halt duplicate isolated PR generation"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch planning validation and ECHO integration",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the planning patch for this epic, I want to enforce strict coverage and TOC validation and integrate ECHO, so that falsified plan generation is blocked.",
+          "acceptanceCriteria": "Given the technical lead compiler,\nWhen a task plan is generated,\nThen coverage and TOC constraints are strictly validated and ECHO evaluation halts duplicate plans.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "compiler-validation-loop",
+          "sixSigmaMetric": "Reduce invalid TechnicalLeadCompiler constraint passes to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3",
+            "R4"
+          ]
+        },
+        {
+          "title": "Verify planning integrity and ECHO prevention",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When testing the planning patch for this epic, I want to execute unit and integration tests against the compiler, so that falsification prevention and ECHO duplicate halting are verified.",
+          "acceptanceCriteria": "Given the patched technical lead compiler,\nWhen automated tests trigger coverage audits and duplicate plan scenarios,\nThen the tests assert that falsified reports are blocked and duplicate plans are halted.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "ci-test-execution-time",
+          "sixSigmaMetric": "Achieve 100% test pass rate for planning validation rules",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3",
+            "R4"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Revert unmerged closed PR internal tasks to failed status instead of retaining the old status",
+        "R2: Correct the testSyncTaskStatusesDoesNotPerformRedundantUpdatesOnSubsequentRuns test to assert the actual status reversion"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch PR closed sync logic and tests",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the PR sync patch for this epic, I want to update the logic to revert unmerged closed PR tasks to failed and fix the corresponding tests, so that the task status accurately reflects GitHub state.",
+          "acceptanceCriteria": "Given a task linked to an unmerged closed PR,\nWhen the sync process runs,\nThen the internal task status is reverted to failed and verified by automated tests.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "sync-queue-processing",
+          "sixSigmaMetric": "Reduce false positive done statuses in PR sync to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Prevent Falsified Success Reports in Audits and Plans",
+      "jtbd": "When the system creates compliance records, I want it to perform actual specification validation and root-cause verification, so that falsified success reports are blocked.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Reduce falsified code integrity audit records to 0 incidents",
+      "tocConstraintRef": "audit-processing-throughput",
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: Stop generation of falsified coverage-audit.json and task-plan.json by enforcing specification validation and root-cause repair checks"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch compliance generator to enforce validations",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the compliance patch for this epic, I want to block falsified record generation by enforcing true checks, so that integrity failures are resolved.",
+          "acceptanceCriteria": "Given the compliance record generator,\nWhen it attempts to output coverage or task plans,\nThen it validates specifications and root-cause repairs, tested via automated checks.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "compliance-generation-io",
+          "sixSigmaMetric": "Increase root-cause repair validation coverage to 100%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
