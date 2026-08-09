@@ -23,6 +23,9 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "preferences")
+    private String preferences;
+
     public User() {}
 
     public User(UUID id, String username, String passwordHash, LocalDateTime createdAt) {
@@ -43,4 +46,7 @@ public class User {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getPreferences() { return preferences; }
+    public void setPreferences(String preferences) { this.preferences = preferences; }
 }

@@ -99,9 +99,6 @@ public class ComplianceGeneratorService {
 
         // 2. Explicitly block known unimplemented/untested requirements
         String lowerReq = req.toLowerCase();
-        if (lowerReq.contains("favorite") || lowerReq.contains("saved search")) {
-            return false;
-        }
         if (lowerReq.contains("autosuggest") || lowerReq.contains("suggestion")) {
             return false;
         }

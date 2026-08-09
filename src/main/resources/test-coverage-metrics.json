@@ -16,8 +16,8 @@
     "testSuite": "com.eneik.generated.DocumentControllerTest"
   },
   "Saved Searches and Favorites": {
-    "covered": false,
-    "reason": "Feature is not implemented in the codebase and has no test coverage"
+    "covered": true,
+    "testSuite": "com.eneik.production.auth.UserProfilePreferencesTest"
   },
   "Search Auto-Suggestions": {
     "covered": false,
