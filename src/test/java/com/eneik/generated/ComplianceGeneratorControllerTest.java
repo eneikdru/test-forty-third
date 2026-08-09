@@ -136,4 +136,69 @@ public class ComplianceGeneratorControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    public void testCoverageAuditBlocksUnimplementedFeatures() throws Exception {
+        // Given a coverage audit request where some specifications are completely unimplemented/faked stubs
+        List<String> specifications = List.of(
+                "Document Comments and Update Requests",
+                "Saved Searches and Favorites",
+                "Search Auto-Suggestions",
+                "Offline Material Creation and Sync"
+        );
+        // Under a falsified success report, the client claims all of these are addressed/covered
+        List<String> addressed = List.of(
+                "Document Comments and Update Requests",
+                "Saved Searches and Favorites",
+                "Search Auto-Suggestions",
+                "Offline Material Creation and Sync"
+        );
+
+        CoverageAuditRequest request = new CoverageAuditRequest(specifications, addressed);
+
+        // When requesting the coverage audit
+        mockMvc.perform(post("/api/v1/compliance/coverage-audit")
+                        .requestAttr("X-Allow-Fallback", true)
+                        .header("X-User-Role", "Administrator")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // Then the system blocks the faked stubs and only allows the truly tested one ("Document Comments and Update Requests")
+                // Therefore, the 3 unimplemented specifications are returned as gaps
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.gaps", hasSize(3)))
+                .andExpect(jsonPath("$.gaps", containsInAnyOrder(
+                        "Saved Searches and Favorites",
+                        "Search Auto-Suggestions",
+                        "Offline Material Creation and Sync"
+                )))
+                .andExpect(jsonPath("$.coverageComplete", is(false)));
+    }
+
+    @Test
+    public void testCoverageAuditVerifiesImplementedFeatures() throws Exception {
+        // Given only implemented and tested features
+        List<String> specifications = List.of(
+                "Document Comments and Update Requests",
+                "Authentication and Session Management",
+                "Date and Education Level Search Filters"
+        );
+        List<String> addressed = List.of(
+                "Document Comments and Update Requests",
+                "Authentication and Session Management",
+                "Date and Education Level Search Filters"
+        );
+
+        CoverageAuditRequest request = new CoverageAuditRequest(specifications, addressed);
+
+        mockMvc.perform(post("/api/v1/compliance/coverage-audit")
+                        .requestAttr("X-Allow-Fallback", true)
+                        .header("X-User-Role", "Administrator")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // Then actual test coverage data validates these successfully, resulting in zero gaps
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.gaps", hasSize(0)))
+                .andExpect(jsonPath("$.coverageComplete", is(true)))
+                .andExpect(jsonPath("$.coveragePercentage", closeTo(100.0, 0.01)));
+    }
 }
