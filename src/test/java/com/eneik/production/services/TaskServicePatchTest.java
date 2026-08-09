@@ -159,12 +159,12 @@ public class TaskServicePatchTest {
         // And the GitHub PR is closed and unmerged
         gitHubService.registerPrStatus(1002, "closed", false);
 
-        // First synchronization: should revert task status to 'failed' and reconcile
+        // First synchronization: should keep status unchanged ('in_progress') and reconcile metadata
         int firstRunCount = taskService.syncTaskStatusesWithGitHub();
         assertEquals(1, firstRunCount, "First synchronization run should reconcile the active task");
 
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("failed", reloaded.getStatus(), "Active task with closed unmerged PR should be reverted to failed status");
+        assertEquals("in_progress", reloaded.getStatus(), "Active task with closed unmerged PR should remain unchanged");
         assertEquals("closed", reloaded.getGithubPrState(), "PR state should be updated to closed");
         assertEquals(false, reloaded.getGithubPrMerged(), "PR merged should be false");
 
@@ -249,5 +249,23 @@ public class TaskServicePatchTest {
         } finally {
             logger.detachAppender(listAppender);
         }
+    }
+
+    @Test
+    public void testActiveTaskClosedUnmergedPrRemainsUnchanged() {
+        UUID taskId = UUID.randomUUID();
+        // Given an active task with 'in_progress' status
+        Task task = new Task(taskId, "Active In-Progress Task", "in_progress", 9999, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // When the associated GitHub PR is closed and unmerged (false)
+        gitHubService.registerPrStatus(9999, "closed", false);
+        taskService.syncTaskStatusesWithGitHub();
+
+        // Then the internal status of the active task must remain unchanged ('in_progress')
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("in_progress", reloaded.getStatus(), "Internal task status must remain unchanged");
+        assertEquals("closed", reloaded.getGithubPrState());
+        assertFalse(reloaded.getGithubPrMerged());
     }
 }

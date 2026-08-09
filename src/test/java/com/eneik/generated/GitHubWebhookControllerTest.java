@@ -44,7 +44,7 @@ public class GitHubWebhookControllerTest {
     }
 
     @Test
-    public void testClosedUnmergedPrTransitionsTaskToFailed() throws Exception {
+    public void testClosedUnmergedPrKeepsTaskStatusUnchanged() throws Exception {
         // Given a task associated with GitHub PR 4001, currently in "in_progress" status
         UUID taskId = UUID.randomUUID();
         Task task = new Task(taskId, "Task 4001", "in_progress", 4001, "open", false);
@@ -68,9 +68,9 @@ public class GitHubWebhookControllerTest {
                 .andExpect(jsonPath("$.status", is("success")))
                 .andExpect(jsonPath("$.updatedTasksCount", is(1)));
 
-        // Then the corresponding task status is updated to "failed"
+        // Then the corresponding task status remains unchanged ("in_progress")
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("failed", reloaded.getStatus());
+        assertEquals("in_progress", reloaded.getStatus());
         assertEquals("closed", reloaded.getGithubPrState());
         assertEquals(false, reloaded.getGithubPrMerged());
     }

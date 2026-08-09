@@ -132,7 +132,11 @@ public class TaskService {
                 if (isMerged) {
                     targetStatus = "done";
                 } else {
-                    targetStatus = "failed";
+                    if ("done".equalsIgnoreCase(task.getStatus())) {
+                        targetStatus = "failed";
+                    } else {
+                        targetStatus = task.getStatus();
+                    }
                 }
             } else {
                 if ("done".equalsIgnoreCase(task.getStatus())) {
