@@ -94,15 +94,13 @@ public class TaskServicePatch extends TaskService {
 
             GitHubService.PrStatus prStatus = gitHubService.getPrStatus(task.getGithubPrNumber());
 
-            if ("done".equalsIgnoreCase(task.getStatus())) {
-                if (!prStatus.isMerged()) {
-                    if (revertToUnmergedPrState(task, prStatus)) {
-                        reconciledCount++;
-                    }
-                }
-            } else {
-                if ("closed".equalsIgnoreCase(prStatus.getState())) {
-                    if (prStatus.isMerged()) {
+            if ("closed".equalsIgnoreCase(prStatus.getState())) {
+                if (prStatus.isMerged()) {
+                    // PR is closed and merged -> transition task status to done if not already done
+                    if (!"done".equalsIgnoreCase(task.getStatus())
+                            || !"closed".equalsIgnoreCase(task.getGithubPrState())
+                            || task.getGithubPrMerged() == null
+                            || !task.getGithubPrMerged()) {
                         log.info("syncTaskStatusesWithGitHub: task {} has merged PR#{}, transitioning status to done",
                                 task.getId(), task.getGithubPrNumber());
 
@@ -112,19 +110,31 @@ public class TaskServicePatch extends TaskService {
                         if (updatedRows > 0) {
                             reconciledCount++;
                         }
-                    } else {
-                        if (!"closed".equalsIgnoreCase(task.getGithubPrState())
-                                || task.getGithubPrMerged() == null
-                                || task.getGithubPrMerged()) {
-                            log.info("syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{}, retaining status {}",
-                                    task.getId(), task.getGithubPrNumber(), task.getStatus());
+                    }
+                } else {
+                    // PR is closed and unmerged -> transition task status to failed (reconciling mismatch)
+                    if (!"failed".equalsIgnoreCase(task.getStatus())
+                            || !"closed".equalsIgnoreCase(task.getGithubPrState())
+                            || task.getGithubPrMerged() == null
+                            || task.getGithubPrMerged()) {
+                        log.warn("[TELEMETRY][TASK_RECONCILIATION] syncTaskStatusesWithGitHub: task {} has unmerged closed PR#{} - transitioning status from {} to failed",
+                                task.getId(), task.getGithubPrNumber(), task.getStatus());
 
-                            int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                                    task.getId(), task.getStatus(), task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
-                            );
-                            if (updatedRows > 0) {
-                                reconciledCount++;
-                            }
+                        int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
+                                task.getId(), "failed", task.getStatus(), prStatus.getState(), prStatus.isMerged(), timeProvider.now()
+                        );
+                        if (updatedRows > 0) {
+                            reconciledCount++;
+                        }
+                    }
+                }
+            } else {
+                // PR is open (not closed)
+                if (!prStatus.isMerged()) {
+                    // PR is open and unmerged -> if task status is done, it is falsely done, so revert to failed
+                    if ("done".equalsIgnoreCase(task.getStatus())) {
+                        if (revertToUnmergedPrState(task, prStatus)) {
+                            reconciledCount++;
                         }
                     }
                 }

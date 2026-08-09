@@ -254,12 +254,12 @@ public class TaskReconciliationTest {
         // Trigger synchronization via scheduler
         taskSyncScheduler.runSyncJob();
 
-        // Verify that the task status remains 'in_progress' rather than transitioning to 'failed' or 'done'
+        // Verify that the task status transitions to 'failed' rather than remaining 'in_progress'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("in_progress", reloaded.getStatus());
+        assertEquals("failed", reloaded.getStatus());
 
-        // Verify that updateStatusAndPrStateAtomically was indeed called with "in_progress" status for this task
-        verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(eq(taskId), eq("in_progress"), eq("in_progress"), eq("closed"), eq(false), any());
+        // Verify that updateStatusAndPrStateAtomically was indeed called with "failed" status for this task
+        verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(eq(taskId), eq("failed"), eq("in_progress"), eq("closed"), eq(false), any());
     }
 
     @Test
@@ -301,10 +301,9 @@ public class TaskReconciliationTest {
         // Reload the task
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
 
-        // Internal status is in_progress, NOT done, NOT failed
+        // Internal status transitions to failed, NOT done
         assertNotEquals("done", reloaded.getStatus());
-        assertNotEquals("failed", reloaded.getStatus());
-        assertEquals("in_progress", reloaded.getStatus());
+        assertEquals("failed", reloaded.getStatus());
 
         // Internal PR fields are updated correctly
         assertEquals("closed", reloaded.getGithubPrState());
@@ -322,9 +321,9 @@ public class TaskReconciliationTest {
         gitHubService.registerPrStatus(123, "closed", false);
         taskService.syncTaskStatusesWithGitHub();
 
-        // Then the internal task retains a non-done/active status
+        // Then the internal task transitions to failed status
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("open", reloaded.getStatus());
+        assertEquals("failed", reloaded.getStatus());
         assertEquals("closed", reloaded.getGithubPrState());
         assertFalse(reloaded.getGithubPrMerged());
     }
