@@ -54,7 +54,7 @@ public class JulesApiClientTest {
     public void testNullPayloadThrowsException() {
         JulesApiClient client = new JulesApiClient();
         assertThrows(IllegalArgumentException.class, () -> {
-            client.processRequest(null);
+            client.processRequest((byte[]) null);
         });
     }
 
@@ -76,5 +76,66 @@ public class JulesApiClientTest {
         assertThrows(IllegalStateException.class, () -> {
             client.processRequest(payload16MB);
         });
+    }
+
+    @Test
+    public void testStreamingPayloadExceedingTenMegabytesSucceeds() {
+        JulesApiClient client = new JulesApiClient();
+
+        // Simulate 12MB of streaming payload using a DummyInputStream to prevent test OOM
+        java.io.InputStream stream12MB = new DummyInputStream(12 * 1024 * 1024L);
+        boolean result = client.processRequest(stream12MB);
+        assertTrue(result, "Streaming payload of size exceeding 10MB (12MB) should be processed successfully without stalling");
+    }
+
+    @Test
+    public void testStreamingPayloadExceedingConfiguredLimitFails() {
+        // Set limit of 5MB
+        long customLimit = 5 * 1024 * 1024L;
+        JulesApiClient client = new JulesApiClient(customLimit);
+
+        // Stream exactly 5MB + 1 byte
+        java.io.InputStream streamExceeded = new DummyInputStream(customLimit + 1);
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
+            client.processRequest(streamExceeded);
+        });
+        assertTrue(ex.getMessage().contains("exceeds the maximum configured limit"));
+    }
+
+    @Test
+    public void testNullStreamingPayloadThrowsException() {
+        JulesApiClient client = new JulesApiClient();
+        assertThrows(IllegalArgumentException.class, () -> {
+            client.processRequest((java.io.InputStream) null);
+        });
+    }
+
+    static class DummyInputStream extends java.io.InputStream {
+        private final long limit;
+        private long bytesRead = 0;
+
+        public DummyInputStream(long limit) {
+            this.limit = limit;
+        }
+
+        @Override
+        public int read() {
+            if (bytesRead >= limit) {
+                return -1;
+            }
+            bytesRead++;
+            return 0;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) {
+            if (bytesRead >= limit) {
+                return -1;
+            }
+            long remaining = limit - bytesRead;
+            int toRead = (int) Math.min(len, remaining);
+            bytesRead += toRead;
+            return toRead;
+        }
     }
 }

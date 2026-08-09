@@ -52,4 +52,35 @@ public class JulesApiClient {
         // Successfully processed payload without stalling
         return true;
     }
+
+    /**
+     * Processes a streaming payload.
+     *
+     * @param payloadStream the input stream of data to process
+     * @return true if successfully processed
+     * @throws IllegalArgumentException if payloadStream is null
+     * @throws IllegalStateException if the payload exceeds the configured maximum limit
+     */
+    public boolean processRequest(java.io.InputStream payloadStream) {
+        if (payloadStream == null) {
+            throw new IllegalArgumentException("Payload stream cannot be null");
+        }
+
+        byte[] buffer = new byte[8192];
+        long totalBytesRead = 0;
+        try {
+            int bytesRead;
+            while ((bytesRead = payloadStream.read(buffer)) != -1) {
+                totalBytesRead += bytesRead;
+                if (totalBytesRead > maxPayloadLimit) {
+                    throw new IllegalStateException("Payload size exceeds the maximum configured limit of "
+                        + maxPayloadLimit + " bytes.");
+                }
+            }
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Error reading payload stream", e);
+        }
+
+        return true;
+    }
 }
