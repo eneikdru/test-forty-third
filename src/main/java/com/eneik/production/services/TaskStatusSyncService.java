@@ -17,6 +17,9 @@ public class TaskStatusSyncService {
 
     @Transactional
     public boolean syncTaskStatusWithGitHub(UUID taskId, boolean isPrClosed, boolean isPrMerged) {
+        if (taskId == null) {
+            return false;
+        }
         if (isPrClosed && !isPrMerged) {
             String sql = "UPDATE sync_tasks SET status = 'failed' WHERE id = ? AND status = 'done'";
             int updatedRows = jdbcTemplate.update(sql, taskId);
