@@ -107,6 +107,66 @@
       "confidence": "high",
       "evidence": "src/main/java/com/eneik/generated/model/Task.java - The entity only defines a UUID `id` without a stable business reference.",
       "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Майкл Дамит",
+      "worldview": "Verificationist theory of meaning - rejecting local fixes that satisfy a rule text while violating the system's declared overarching principles. Meaning is tied to verification.",
+      "critique": "The `TaskServicePatch.java` implements a `determineTargetStatus` method to 'fix' synchronization issues, but it handles contradictory states (like an open PR with a 'done' task) by silently forcing the task status to 'failed'. While this satisfies a local test case, it violates the system's declared principle of truth verification by destroying the evidence of the illegal state transition rather than raising an explicit, verifiable error (D012 Policy contradiction).",
+      "proposal": "Apply `MAYKL_DAMIT_12_PRINCIPLED_INTEGRITY`: Instead of silently reverting contradictory states to 'failed', the system must explicitly reject the invalid state transition and log a verification failure, preserving the principle that meaning (the task's true state) must be explicitly verifiable, not silently patched.",
+      "dislike": "The silent mutation of contradictory states in `determineTargetStatus`, which masks underlying logic errors and destroys the verifiable truth of the system's state.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/TaskServicePatch.java - The `determineTargetStatus` method silently reverts 'done' tasks to 'failed' if the PR is open.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Нельсон Гудман",
+      "worldview": "Worldmaking and projectibility - exported names and symbols are promises bound to source principles and must preserve their referents across caller contexts.",
+      "critique": "The `TaskServicePatch` class overrides `TaskService` but re-declares its own `log` variable instead of using a unified, properly grounded referent for telemetry. Furthermore, it refers to 'semantic contextualism' in comments, attempting to redefine 'done' and 'failed' locally rather than anchoring them to a global, projectable domain definition (D001 Semantic drift).",
+      "proposal": "Apply `NELSON_GUDMAN_11_ANCHOR_BOUND_NAME`: Ensure that fundamental terms like 'done', 'failed', and telemetry loggers are firmly anchored to a single source of truth (e.g., an explicit state machine or global constant registry) rather than being subjectively reinterpreted within a patch class.",
+      "dislike": "The local re-definition and handling of core terminology and logging contexts, which breaks the projectibility of the system's vocabulary across different components.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/TaskServicePatch.java - The local redeclaration of `log` and the subjective redefinition of state transitions in comments.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Ахилле Варци",
+      "worldview": "Formal ontology of boundaries and spatial parts - demanding precise topological and spatial boundaries to prevent semantic leaks and dependency cycles.",
+      "critique": "The `TaskServicePatch` class, located in `com.eneik.production.services`, directly depends on and modifies the behavior of the `Task` entity from the `com.eneik.generated.model` package. However, it injects `PipelineTelemetryService`, leaking production-specific telemetry concerns back into the core domain's orchestration logic. This violates the topological boundary defined in ADR-002, mixing telemetry infrastructure with core business entity lifecycle management (D013).",
+      "proposal": "Apply `AHILLE_VARTSI_19_PROHIBITION_AS_CODE`: Enforce a strict spatial boundary. The telemetry service should act as an observer (via events or AOP) rather than being directly injected into and governing the core transactional logic of the `TaskServicePatch`.",
+      "dislike": "The entanglement of infrastructure-level telemetry with core domain logic, violating the spatial separation of concerns and creating topological dependencies.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/TaskServicePatch.java - Direct injection and invocation of `PipelineTelemetryService.checkAndRevertStuckPipelines()` within the domain service.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Сол Крипке",
+      "worldview": "Rigid designation and necessary identity - names must refer to the same object across all possible worlds (or contexts) without ambiguity.",
+      "critique": "The API controller `TaskController.java` accepts a generic `Map<String, String>` for updating task status instead of a strongly-typed, rigid designator (like a specific DTO or Enum). This allows arbitrary string values to be passed as 'status', completely bypassing type safety and breaking the rigid designation of allowable states at the system's boundary (D006 Authorization ambiguity).",
+      "proposal": "Apply `SOL_KRIPKE_19_LAMBDA_CORE_REDUCTION`: Replace the weakly-typed `Map<String, String>` with a strict, rigidly designated DTO (e.g., `TaskStatusUpdateRequest`) that enforces valid enum transitions before the request even reaches the service layer.",
+      "dislike": "The use of weakly-typed, stringly-based maps for critical state transitions at the API boundary, which undermines the rigid identity and predictability of domain states.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/controller/TaskController.java - `updateTaskStatus` uses `@RequestBody Map<String, String> body` instead of a typed object.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Роберт Сталнакер",
+      "worldview": "Assertion and possible-world pragmatics - requiring explicit handling of common ground and context change, ensuring abstraction levels are locked.",
+      "critique": "The `TaskController.java` returns raw `Task` entities directly in its responses (e.g., in `getAllTasks`). This fails to maintain a 'Level Of Abstraction Lock', leaking database-level concerns (like the surrogate UUID and raw timestamp formats) directly into the API contract. The common ground between the client and the server is corrupted by internal database representations (D010 Data lineage loss).",
+      "proposal": "Apply `ROBERT_STALNAKER_15_LEVEL_OF_ABSTRACTION_LOCK`: Implement dedicated API response DTOs (e.g., `TaskResponse`) that translate the internal database entity into a stable, abstract representation appropriate for the client context, shielding the API from internal schema changes.",
+      "dislike": "Leaking internal database entities directly to the API boundary, confusing the context of persistence with the context of client consumption.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/controller/TaskController.java - `getAllTasks` returns `ResponseEntity<List<Task>>`, directly exposing the database entity.",
+      "screenshotFile": ""
     }
   ]
 }
