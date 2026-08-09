@@ -1,0 +1,180 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Create an explicit mapping layer between internal task statuses and GitHub states",
+        "R2: Enforce that an internal state of 'done' is only valid if verified by external GitHub reality (PR merged)",
+        "R3: Implement an event-driven mechanism where task state changes publish a 'TaskCompletedEvent'",
+        "R4: Add validation to gracefully handle 404s/missing PRs when syncing task statuses with GitHub",
+        "R5: Separate the essential core Task definition from its contingent GitHub PR status by using a separate context object or status tracker",
+        "R6: Introduce explicit truth status tables or intermediate states (e.g., 'conflict_detected') for contradictions"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Separate Task core definition from contingent GitHub status tracker in database schema",
+          "roleTag": "BARCAN-TAG-08",
+          "jtbd": "When implementing the core Task schema for this epic, I want to extract contingent GitHub PR state and contradiction states into a separate tracker table, so that the core internal Task essence is not dependent on external service availability",
+          "acceptanceCriteria": "Given a core Task entity\nWhen its GitHub PR status is synced\nThen the contingent data is saved in a separate tracker table\nAnd intermediate contradiction states (e.g., 'conflict_detected') can be accurately persisted",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Task synchronization data bottleneck",
+          "sixSigmaMetric": "Reduce false positive 'done' state occurrences from baseline to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R5",
+            "R6"
+          ]
+        },
+        {
+          "title": "Implement explicit mapping layer and PR merge validation for Task states",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing status synchronization for this epic, I want to explicitly map internal states to GitHub realities and handle 404s, so that tasks are only marked 'done' when the PR is merged",
+          "acceptanceCriteria": "Given a task with an unmerged or missing PR\nWhen the sync process runs\nThen the task is not marked as done and 404s are gracefully handled\nAnd contradictions explicitly result in 'conflict_detected' state",
+          "leanValue": "essential",
+          "cynefinDomain": "complex",
+          "tocConstraintRef": "Task synchronization logic bottleneck",
+          "sixSigmaMetric": "Increase sync success rate without silent failures to 99.9%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R4"
+          ]
+        },
+        {
+          "title": "Implement event-driven TaskCompletedEvent publishing",
+          "roleTag": "BARCAN-TAG-01",
+          "jtbd": "When implementing state changes for this epic, I want to publish a 'TaskCompletedEvent' as a speech act, so that intentionality is communicated to the rest of the system",
+          "acceptanceCriteria": "Given a task whose status transitions to verified 'done'\nWhen the state is persisted\nThen an explicit 'TaskCompletedEvent' is published to the event bus\nAnd downstream consumers are notified",
+          "leanValue": "valuable",
+          "cynefinDomain": "complex",
+          "tocConstraintRef": "System event communication bottleneck",
+          "sixSigmaMetric": "Reduce missing state-change notifications from baseline to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R3"
+          ]
+        },
+        {
+          "title": "Verify GitHub status reconciliation and event publishing flows",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When implementing QA for this epic, I want to test the full mapping, PR validation, and event publishing, so that no false success reports occur",
+          "acceptanceCriteria": "Given a mocked GitHub API returning 404 or unmerged PRs\nWhen the sync process is triggered\nThen the system records contradiction states and does not mark tasks as done\nAnd unit, integration, and E2E tests confirm correct event publishing",
+          "leanValue": "essential",
+          "cynefinDomain": "complex",
+          "tocConstraintRef": "Task reconciliation validation bottleneck",
+          "sixSigmaMetric": "Increase test coverage for PR sync edge cases to 100%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2",
+            "R3",
+            "R4",
+            "R5",
+            "R6"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "20fa2966-d0b5-4844-b123-3697043f2770",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Ensure clear traceability from UI components to their corresponding backend models and API endpoints in the UI",
+        "R2: Allow users to define or project their own custom views and categories for documents, replacing rigid hardcoded categories"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Design schema for user-defined document categories and views",
+          "roleTag": "BARCAN-TAG-08",
+          "jtbd": "When implementing data storage for this epic, I want to create tables for user-defined document categories and views, so that rigid hardcoded ontologies are removed",
+          "acceptanceCriteria": "Given a user configuring their workspace\nWhen they create a custom document category\nThen the schema correctly persists their projection and associates it with the document set\nAnd enforces uniqueness per user context",
+          "leanValue": "valuable",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Financial module UX bottleneck",
+          "sixSigmaMetric": "Reduce hardcoded category update requests by 100%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R2"
+          ]
+        },
+        {
+          "title": "Define shared API contract for custom categories and UI traceability",
+          "roleTag": "BARCAN-TAG-12",
+          "jtbd": "When implementing the API contract for this epic, I want to define the endpoints for fetching and managing custom categories and their underlying reference mappings, so that frontend and backend can build in parallel",
+          "acceptanceCriteria": "Given the need for dynamic categories\nWhen the contract is defined\nThen it includes endpoints for CRUD operations on user categories\nAnd it includes explicit trace metadata for mapping UI components to backend endpoints",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Financial module integration bottleneck",
+          "sixSigmaMetric": "Achieve 0 integration errors between parallel frontend and backend builds",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        },
+        {
+          "title": "Implement API endpoints for dynamic user-defined categories",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the backend for this epic, I want to build the API for custom document views and traceability references, so that the frontend can fetch personalized categorizations",
+          "acceptanceCriteria": "Given a valid user request for custom categories\nWhen the API is called\nThen it returns the dynamically configured views\nAnd includes explicit traceability reference IDs mapped to the UI components",
+          "leanValue": "valuable",
+          "cynefinDomain": "complex",
+          "tocConstraintRef": "Financial module API performance bottleneck",
+          "sixSigmaMetric": "Achieve category API response times under 150ms at P95",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        },
+        {
+          "title": "Implement dynamic user-defined views and explicit component traceability in FinancialModule",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing the UI for this epic, I want to render user-defined document categories and map them explicitly to backend references, so that users can control their own worldmaking ontology",
+          "acceptanceCriteria": "Given the FinancialModule UI\nWhen a user interacts with the document list\nThen the UI presents their custom-defined categories instead of hardcoded ones\nAnd each UI component maintains explicit traceability to its backend data reference",
+          "leanValue": "valuable",
+          "cynefinDomain": "complex",
+          "tocConstraintRef": "Financial module user adoption bottleneck",
+          "sixSigmaMetric": "Increase user custom view adoption rate to > 60%",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        },
+        {
+          "title": "Verify dynamic categories and traceability flow end-to-end",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When implementing QA for this epic, I want to test the full flow of creating custom categories and verifying their UI traceability, so that the dynamic ontology works correctly across all layers",
+          "acceptanceCriteria": "Given a custom document category created via API\nWhen the user navigates the FinancialModule UI\nThen the dynamic category is correctly rendered and traceable back to the backend model\nAnd E2E/integration tests confirm the explicit mapping",
+          "leanValue": "essential",
+          "cynefinDomain": "complex",
+          "tocConstraintRef": "Financial module QA verification bottleneck",
+          "sixSigmaMetric": "Achieve 100% test coverage for the dynamic category creation journey",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ]
+}
