@@ -17,6 +17,7 @@ public class CodeReviewSimulator {
         // If explicitly flagged with security vulnerability
         if (pr.isContainsSecurityVulnerability()) {
             pr.setVerdict("BLOCKED");
+            pr.setRejectionReason("Explicitly contains security vulnerability");
             return pr;
         }
 
@@ -30,8 +31,71 @@ public class CodeReviewSimulator {
 
             if (hasSensitiveController && hasHighSeverityVulnerability) {
                 pr.setVerdict("BLOCKED");
+                pr.setRejectionReason("Security scan detected missing RBAC or high severity vulnerability on ComplianceGeneratorController");
                 return pr;
             }
+        }
+
+        // Evaluate Lean Waste Refusal Criteria
+        boolean isInternalToolingPR = false;
+        boolean providesClientProductValue = false;
+
+        // Check changed files
+        if (pr.getChangedFiles() != null && !pr.getChangedFiles().isEmpty()) {
+            for (String file : pr.getChangedFiles()) {
+                String lowerFile = file.toLowerCase();
+
+                if (lowerFile.contains("github") ||
+                    lowerFile.contains("webhook") ||
+                    lowerFile.contains("telemetry") ||
+                    lowerFile.contains("reconciliation") ||
+                    lowerFile.contains("compiler") ||
+                    lowerFile.contains("compliance") ||
+                    lowerFile.contains("tooling") ||
+                    lowerFile.contains("taskservice")) {
+                    isInternalToolingPR = true;
+                }
+
+                if (lowerFile.contains("epidemiology") ||
+                    lowerFile.contains("knowledgebase") ||
+                    lowerFile.contains("document") ||
+                    lowerFile.contains("search") ||
+                    lowerFile.contains("category") ||
+                    lowerFile.contains("comment") ||
+                    lowerFile.contains("role") ||
+                    lowerFile.contains("userrole") ||
+                    lowerFile.contains("preference") ||
+                    lowerFile.contains("feedback") ||
+                    lowerFile.contains("financial") ||
+                    lowerFile.contains("stipend") ||
+                    lowerFile.contains("budget") ||
+                    lowerFile.contains("academic")) {
+                    providesClientProductValue = true;
+                }
+            }
+        }
+
+        // Check PR title and description
+        String title = pr.getTitle() != null ? pr.getTitle().toLowerCase() : "";
+        String desc = pr.getDescription() != null ? pr.getDescription().toLowerCase() : "";
+        if (title.contains("webhook") || title.contains("telemetry") || title.contains("sync") || title.contains("compliance") || title.contains("internal tooling")) {
+            isInternalToolingPR = true;
+        }
+        if (title.contains("epidemiology") || title.contains("knowledge") || title.contains("search") || title.contains("document") || title.contains("client spec")) {
+            providesClientProductValue = true;
+        }
+        if (desc.contains("webhook") || desc.contains("telemetry") || desc.contains("sync") || desc.contains("compliance") || desc.contains("internal tooling")) {
+            isInternalToolingPR = true;
+        }
+        if (desc.contains("epidemiology") || desc.contains("knowledge") || desc.contains("search") || desc.contains("document") || desc.contains("client spec")) {
+            providesClientProductValue = true;
+        }
+
+        // If the PR focuses exclusively on internal tooling and fails to deliver the client product, block as Lean Waste (Muda)
+        if (isInternalToolingPR && !providesClientProductValue) {
+            pr.setVerdict("BLOCKED");
+            pr.setRejectionReason("Lean Waste Refusal: PR exclusively patches internal tooling (webhook, sync, or telemetry) while ignoring the primary client specification for the epidemiology knowledge base. This constitutes Overproduction (Muda) and is blocked.");
+            return pr;
         }
 
         // Otherwise approve if not already rejected

@@ -8,6 +8,9 @@ public class PrMetadata {
     private boolean containsSecurityVulnerability;
     private String securityScanResults;
     private String verdict; // e.g., "APPROVED", "BLOCKED", "REJECTED"
+    private String title;
+    private String description;
+    private String rejectionReason;
 
     public PrMetadata() {}
 
@@ -17,6 +20,30 @@ public class PrMetadata {
         this.containsSecurityVulnerability = containsSecurityVulnerability;
         this.securityScanResults = securityScanResults;
         this.verdict = verdict;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     public int getPrNumber() {

@@ -80,19 +80,51 @@ public class TechnicalLeadCompiler {
      * Prevents falsified coverage reports (where gaps is empty but specifications are actually unaddressed).
      */
     public void validateCoverageAudit(CoverageAudit audit, Specification specification) {
-        // Finding 2: If the entire specification is unaddressed but the audit claims there are 0 gaps, block it!
         Set<String> addressed = new HashSet<>(audit.getAddressedSections());
         List<String> actualGaps = new ArrayList<>();
+
+        // Epidemiology Knowledge Base requirements list
+        List<String> requiredEpidemiologySections = Arrays.asList(
+            "roles_epidemiology_center",
+            "educational_content_epidemiology",
+            "search_functionality_epidemiology",
+            "fos_gias_epidemiology"
+        );
+
+        // Check if the specification contains any epidemiology or knowledge base keywords
+        boolean requiresEpidemiology = false;
         for (String section : specification.getSections()) {
-            if (!addressed.contains(section)) {
+            String lowerSection = section.toLowerCase();
+            if (lowerSection.contains("epidemiology") || lowerSection.contains("kb") || lowerSection.contains("knowledge") || lowerSection.contains("gaps")) {
+                requiresEpidemiology = true;
+                break;
+            }
+        }
+
+        // If the specification requires epidemiology KB compliance, identify any missing epidemiology sections
+        if (requiresEpidemiology) {
+            for (String req : requiredEpidemiologySections) {
+                if (!addressed.contains(req)) {
+                    actualGaps.add(req);
+                }
+            }
+        }
+
+        // Also evaluate any other sections defined in the specification
+        for (String section : specification.getSections()) {
+            if (!addressed.contains(section) && !actualGaps.contains(section)) {
                 actualGaps.add(section);
             }
         }
 
-        if (!actualGaps.isEmpty() && audit.getGaps().isEmpty()) {
-            throw new IllegalArgumentException(
-                "Falsified Coverage Audit Blocked: Empty 'gaps' array reported while the following specification sections are completely unaddressed: " + actualGaps
-            );
+        // If gaps are found, check if reported gaps list is empty or incomplete (falsified stub)
+        if (!actualGaps.isEmpty()) {
+            boolean isIncomplete = audit.getGaps().isEmpty() || !new HashSet<>(audit.getGaps()).containsAll(actualGaps);
+            if (isIncomplete) {
+                throw new IllegalArgumentException(
+                    "Falsified Coverage Audit Blocked: Empty or incomplete 'gaps' array reported while the following specification sections are completely unaddressed: " + actualGaps
+                );
+            }
         }
     }
 
