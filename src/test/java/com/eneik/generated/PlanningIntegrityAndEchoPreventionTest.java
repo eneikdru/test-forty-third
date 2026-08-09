@@ -216,4 +216,58 @@ public class PlanningIntegrityAndEchoPreventionTest {
 
         assertDoesNotThrow(() -> compiler.evaluateEchoCoherence(existingNetwork, plan2));
     }
+
+    @Test
+    public void testDetectAndMergeDuplicatePlansCombinedRequirementsAndCoverage() {
+        // Given duplicate plans (by same title and highly similar JTBD)
+        TaskPlan plan1 = new TaskPlan(
+            "PR Sync Fix Plan",
+            "When patching the PR sync, I want to make sure the status transitions to failed.",
+            false, // not complete
+            "sync-queue-processing",
+            Arrays.asList("R1", "R2")
+        );
+
+        TaskPlan plan2 = new TaskPlan(
+            "PR Sync Fix Plan",
+            "When patching the PR sync, I want to make sure the status transitions to failed.",
+            true, // coverage complete
+            "sync-queue-processing",
+            Arrays.asList("R2", "R3")
+        );
+
+        TaskPlan uniquePlan = new TaskPlan(
+            "Completely Unique Plan",
+            "This is a totally different task plan for some other epic issue.",
+            false,
+            "compiler-validation-loop",
+            Collections.singletonList("R4")
+        );
+
+        List<TaskPlan> plans = Arrays.asList(plan1, plan2, uniquePlan);
+
+        // When duplicate plan detection and merging is evaluated
+        List<TaskPlan> mergedPlans = compiler.detectAndMergeDuplicatePlans(plans);
+
+        // Then duplicates must be auto-detected and merged
+        assertEquals(2, mergedPlans.size(), "Duplicate plans should be merged into one, plus the unique plan");
+
+        // Verify merged duplicate plan properties
+        TaskPlan mergedPrSyncPlan = mergedPlans.stream()
+            .filter(p -> p.getTitle().equalsIgnoreCase("PR Sync Fix Plan"))
+            .findFirst()
+            .orElseThrow();
+
+        assertTrue(mergedPrSyncPlan.isCoverageComplete(), "Merged plan coverageComplete must be true (combined with OR)");
+        assertEquals(3, mergedPrSyncPlan.getRequirementRefs().size(), "Requirements must be merged uniquely");
+        assertTrue(mergedPrSyncPlan.getRequirementRefs().containsAll(Arrays.asList("R1", "R2", "R3")));
+
+        // Verify unique plan remains unaffected
+        TaskPlan uniqueMerged = mergedPlans.stream()
+            .filter(p -> p.getTitle().equalsIgnoreCase("Completely Unique Plan"))
+            .findFirst()
+            .orElseThrow();
+        assertEquals(1, uniqueMerged.getRequirementRefs().size());
+        assertEquals("R4", uniqueMerged.getRequirementRefs().get(0));
+    }
 }

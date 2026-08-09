@@ -40,4 +40,12 @@ public class ComplianceGeneratorService {
             technicalLeadCompiler.evaluateEchoCoherence(existingNetwork, plan);
         }
     }
+
+    public List<TaskPlan> detectAndMergeDuplicatePlans(List<TaskPlan> plans) {
+        return technicalLeadCompiler.detectAndMergeDuplicatePlans(plans);
+    }
+
+    public double calculateJaccardSimilarity(String s1, String s2) {
+        return technicalLeadCompiler.calculateJaccardSimilarity(s1, s2);
+    }
 }
