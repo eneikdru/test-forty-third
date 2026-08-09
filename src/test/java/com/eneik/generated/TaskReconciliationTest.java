@@ -145,9 +145,9 @@ public class TaskReconciliationTest {
                 .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("success")))
                 .andExpect(jsonPath("$.reconciledCount", org.hamcrest.Matchers.is(1)));
 
-        // Verify that the task status has been corrected to 'open'
+        // Verify that the task status has been corrected to 'failed'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("open", reloaded.getStatus());
+        assertEquals("failed", reloaded.getStatus());
     }
 
     @Test
@@ -176,15 +176,15 @@ public class TaskReconciliationTest {
                     .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("success")))
                     .andExpect(jsonPath("$.reconciledCount", org.hamcrest.Matchers.is(1)));
 
-            // Verify that the task status has been corrected to 'open' and metadata is updated
+            // Verify that the task status has been corrected to 'failed' and metadata is updated
             Task reloaded = taskRepository.findById(taskId).orElseThrow();
-            assertEquals("open", reloaded.getStatus());
-            assertNull(reloaded.getGithubPrState());
-            assertNull(reloaded.getGithubPrMerged());
+            assertEquals("failed", reloaded.getStatus());
+            assertEquals("closed", reloaded.getGithubPrState());
+            assertFalse(reloaded.getGithubPrMerged());
 
             // Verify atomically-guarded database update occurred
             verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(
-                    eq(taskId), eq("open"), eq("done"), isNull(), isNull(), any()
+                    eq(taskId), eq("failed"), eq("done"), eq("closed"), eq(false), any()
             );
 
             // Assert that the [TELEMETRY][TASK_RECONCILIATION] log was emitted
