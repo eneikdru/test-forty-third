@@ -1,0 +1,31 @@
+{
+  "violations": [
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "stub",
+      "prNumber": 198,
+      "reason": "The coverage audit file .eneik/records/coverage-audit-4dcd302c-8f35-44d9-b7ff-0a6670d37c40.json fakes success by returning an empty 'gaps' array, falsely claiming full specification coverage while the entire 9-section client specification for an educational knowledge base is completely unaddressed by any PR."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "refusal_criteria",
+      "reason": "PRs 194, 195, 196, and 197 violate the TOC-целостности refusal criteria by using qualitative descriptive phrases (e.g., 'task status sync evaluation', 'Task state reconciliation sync failures', 'task-status-sync-reliability', 'Task status tracking accuracy') as the tocConstraintRef instead of explicitly citing a true system bottleneck, thereby attempting local optimization outside an actual constraint."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "methodological",
+      "philosopher": "Пол Тагард",
+      "thesis": "Принцип объяснительной когерентности (ECHO) - решение определяется связностью всей сети",
+      "score": "3",
+      "mustBe": "The system must evaluate task plans in the context of the entire network of existing evidence and PRs, rather than in isolation.",
+      "performance": "The system should detect identical duplicate task planning cycles (as seen in PRs 194-197) and halt them before isolated generation occurs.",
+      "attractive": "The system could actively reconcile existing duplicate PRs using Explanatory Coherence to form a single optimal plan."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "stub",
+      "prNumber": 195,
+      "reason": "The task plan file .eneik/records/task-plan-31330580-2643-4e85-9c5d-858bcb14b7a9.json fakes success by explicitly declaring '\"coverageComplete\": true', despite the plan only containing internal bug fix requirements and completely ignoring the original client specification for the educational knowledge base."
+    }
+  ]
+}
