@@ -1,32 +1,28 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { addMaterialToDB, getAllMaterialsFromDB, deleteMaterialFromDB } from '../utils/db.js';
 
   let title = $state('');
   let description = $state('');
   let isOnline = $state(true);
+  let simulatedOffline = $state(false);
   let syncQueue = $state([]);
   let isSyncing = $state(false);
   let statusMessage = $state('');
 
-  const QUEUE_KEY = 'offline_materials_queue';
+  // Svelte 5 derived state
+  let effectiveOnline = $derived(isOnline && !simulatedOffline);
 
-  function loadQueue() {
+  async function loadQueue() {
     try {
-      const stored = localStorage.getItem(QUEUE_KEY);
-      if (stored) {
-        syncQueue = JSON.parse(stored);
-      }
+      syncQueue = await getAllMaterialsFromDB();
     } catch (e) {
-      console.error('Ошибка чтения очереди', e);
+      console.error('Ошибка чтения очереди из IndexedDB', e);
     }
   }
 
-  function saveQueue() {
-    localStorage.setItem(QUEUE_KEY, JSON.stringify(syncQueue));
-  }
-
   async function syncMaterials() {
-    if (syncQueue.length === 0 || isSyncing || !isOnline) return;
+    if (syncQueue.length === 0 || isSyncing || !effectiveOnline) return;
 
     isSyncing = true;
     statusMessage = 'Синхронизация...';
@@ -35,9 +31,12 @@
     let syncedCount = 0;
 
     for (const item of syncQueue) {
+      // Double check simulated and real network state inside the loop
+      if (!navigator.onLine || simulatedOffline) break;
+
       try {
         const formData = new FormData();
-        const dummyFile = new Blob(['dummy content'], { type: 'text/plain' });
+        const dummyFile = new Blob(['содержимое'], { type: 'text/plain' });
         formData.append('file', dummyFile, 'offline-material.txt');
         formData.append('title', item.title);
         formData.append('description', item.description || '');
@@ -52,6 +51,7 @@
 
         if (response.ok) {
           syncedCount++;
+          await deleteMaterialFromDB(item.id);
           remainingQueue.shift(); // Remove the synced item
         } else {
           break; // Stop on first error to retry later
@@ -63,7 +63,6 @@
     }
 
     syncQueue = remainingQueue;
-    saveQueue();
     isSyncing = false;
 
     if (syncedCount > 0) {
@@ -79,7 +78,7 @@
     }
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (!title.trim()) {
@@ -87,10 +86,10 @@
       return;
     }
 
-    if (isOnline) {
+    if (effectiveOnline) {
       // Direct submission
       const formData = new FormData();
-      const dummyFile = new Blob(['dummy content'], { type: 'text/plain' });
+      const dummyFile = new Blob(['содержимое'], { type: 'text/plain' });
       formData.append('file', dummyFile, 'material.txt');
       formData.append('title', title);
       formData.append('description', description);
@@ -98,11 +97,11 @@
       formData.append('program', 'all');
       formData.append('process', 'other');
 
-      fetch('/api/documents', {
-        method: 'POST',
-        body: formData
-      })
-      .then(res => {
+      try {
+        const res = await fetch('/api/documents', {
+          method: 'POST',
+          body: formData
+        });
         if (res.ok) {
           statusMessage = 'Материал успешно добавлен.';
           title = '';
@@ -111,33 +110,40 @@
         } else {
           statusMessage = 'Ошибка при добавлении материала.';
         }
-      })
-      .catch(() => {
+      } catch (err) {
         // Fallback to queue if failed due to network
-        addToQueue();
-      });
+        await addToQueue();
+      }
     } else {
-      addToQueue();
+      await addToQueue();
     }
   }
 
-  function addToQueue() {
-    syncQueue = [...syncQueue, {
+  async function addToQueue() {
+    const newItem = {
       id: Date.now().toString(),
       title,
       description,
       timestamp: new Date().toISOString()
-    }];
-    saveQueue();
+    };
 
-    statusMessage = 'Сохранено локально. Будет синхронизировано при подключении.';
-    title = '';
-    description = '';
+    try {
+      await addMaterialToDB(newItem);
+      syncQueue = [...syncQueue, newItem];
+      statusMessage = 'Сохранено локально в IndexedDB. Будет синхронизировано при подключении.';
+      title = '';
+      description = '';
+    } catch (e) {
+      console.error('Ошибка сохранения в IndexedDB', e);
+      statusMessage = 'Ошибка локального сохранения.';
+    }
   }
 
   function handleOnline() {
     isOnline = true;
-    syncMaterials();
+    if (!simulatedOffline) {
+      syncMaterials();
+    }
   }
 
   function handleOffline() {
@@ -151,7 +157,7 @@
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    if (isOnline) {
+    if (effectiveOnline) {
       syncMaterials();
     }
   });
@@ -165,13 +171,30 @@
 </script>
 
 <div class="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[0.25rem] p-[1.5rem] shadow-sm font-sans mb-[1.5rem] w-full max-w-[1200px] mx-auto px-5 md:px-5">
-  <h3 class="text-[1.25rem] font-bold text-[#1A365D] mb-[1rem]">Добавить материал</h3>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[1rem] mb-[1.5rem] border-b border-[#E2E8F0] pb-[1rem]">
+    <h3 class="text-[1.25rem] font-bold text-[#1A365D]">Добавить материал</h3>
 
-  <div class="flex items-center gap-[0.5rem] mb-[1rem]" aria-live="polite">
-    <span class="inline-block w-[0.75rem] h-[0.75rem] rounded-[50%] {isOnline ? 'bg-[#3182CE]' : 'bg-[#E2E8F0] border border-[#1A365D]'}" aria-hidden="true"></span>
-    <span class="text-[0.875rem] font-medium {isOnline ? 'text-[#3182CE]' : 'text-[#515f74]'}">
-      {isOnline ? 'В сети' : 'Автономный режим (Офлайн)'}
-    </span>
+    <div class="flex flex-wrap items-center gap-[1rem]">
+      <div class="flex items-center gap-[0.5rem]" aria-live="polite">
+        <span class="inline-block w-[0.75rem] h-[0.75rem] rounded-[50%] {effectiveOnline ? 'bg-[#3182CE]' : 'bg-[#E2E8F0] border border-[#1A365D]'}" aria-hidden="true"></span>
+        <span class="text-[0.875rem] font-medium {effectiveOnline ? 'text-[#3182CE]' : 'text-[#515f74]'}">
+          {effectiveOnline ? 'В сети' : 'Автономный режим (Офлайн)'}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onclick={() => {
+          simulatedOffline = !simulatedOffline;
+          if (!simulatedOffline && isOnline) {
+            syncMaterials();
+          }
+        }}
+        class="text-[0.875rem] font-bold px-[0.75rem] py-[0.375rem] rounded-[0.25rem] border transition-colors {simulatedOffline ? 'bg-[#3182CE] border-[#3182CE] text-[#FFFFFF]' : 'bg-[#FFFFFF] border-[#E2E8F0] text-[#1A365D] hover:bg-[#F9F9FF]'}"
+      >
+        {simulatedOffline ? 'Подключить сеть' : 'Имитировать автономный режим'}
+      </button>
+    </div>
   </div>
 
   <form onsubmit={handleSubmit} class="flex flex-col gap-[1rem]">
@@ -221,7 +244,7 @@
           </li>
         {/each}
       </ul>
-      {#if isOnline && !isSyncing}
+      {#if effectiveOnline && !isSyncing}
         <button
           type="button"
           onclick={syncMaterials}
