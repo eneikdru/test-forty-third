@@ -1,0 +1,21 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "approve",
+      "criticalReason": "",
+      "concerns": []
+    },
+    {
+      "sourceIndex": 1,
+      "verdict": "approve",
+      "criticalReason": "",
+      "concerns": [
+        {
+          "text": "The newly added compliance generator endpoints in ComplianceGeneratorController (/api/v1/compliance/*) do not extract user roles or perform RBAC/authentication checks. Any user can access these endpoints without authorization validation, unlike other controllers such as DocumentController.",
+          "severity": "high"
+        }
+      ]
+    }
+  ]
+}
