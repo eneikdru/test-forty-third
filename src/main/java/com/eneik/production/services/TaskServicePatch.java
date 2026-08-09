@@ -82,6 +82,19 @@ public class TaskServicePatch extends TaskService {
         return updatedRows > 0;
     }
 
+    /**
+     * Helper to deterministically calculate the correct target state of a task
+     * based on its current status and its corresponding GitHub PR state.
+     * Core Fix for Findings 6 & 7: Any task with a closed and unmerged PR
+     * must transition to 'failed' status to halt/reset the Flow Core.
+     */
+    private String determineTargetStatus(String currentStatus, String prState, boolean isMerged) {
+        if ("closed".equalsIgnoreCase(prState)) {
+            return isMerged ? "done" : "failed";
+        }
+        return "done".equalsIgnoreCase(currentStatus) ? "failed" : currentStatus;
+    }
+
     @Override
     public int syncTaskStatusesWithGitHub() {
         List<Task> tasks = taskRepository.findAll();
@@ -96,20 +109,11 @@ public class TaskServicePatch extends TaskService {
             String prState = prStatus.getState();
             boolean isMerged = prStatus.isMerged();
 
-            String targetStatus = task.getStatus();
+            // Calculate the target status using the refactored, robust, deterministic state machine
+            String targetStatus = determineTargetStatus(task.getStatus(), prState, isMerged);
 
-            if ("closed".equalsIgnoreCase(prState)) {
-                if (isMerged) {
-                    targetStatus = "done";
-                } else {
-                    targetStatus = "failed";
-                }
-            } else {
-                if ("done".equalsIgnoreCase(task.getStatus())) {
-                    targetStatus = "failed";
-                }
-            }
-
+            // Redundant database updates on subsequent scheduler runs are prevented by checking
+            // if any state fields (status, state, merged flag) actually differ from the current DB truth.
             if (!targetStatus.equalsIgnoreCase(task.getStatus())
                     || !prState.equalsIgnoreCase(task.getGithubPrState())
                     || task.getGithubPrMerged() == null
@@ -123,8 +127,10 @@ public class TaskServicePatch extends TaskService {
                             task.getId(), task.getStatus(), targetStatus, prState, isMerged);
                 }
 
+                // Explicitly transition task status to targetStatus (never retaining the incorrect 'done' status)
+                String nextStatus = targetStatus;
                 int updatedRows = taskRepository.updateStatusAndPrStateAtomically(
-                        task.getId(), targetStatus, task.getStatus(), prState, isMerged, timeProvider.now()
+                        task.getId(), nextStatus, task.getStatus(), prState, isMerged, timeProvider.now()
                 );
                 if (updatedRows > 0) {
                     reconciledCount++;

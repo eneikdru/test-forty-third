@@ -143,4 +143,52 @@ public class TaskServicePatchTest {
         int secondRunCount = taskService.syncTaskStatusesWithGitHub();
         assertEquals(0, secondRunCount, "Second synchronization run should skip already reconciled task");
     }
+
+    @Test
+    public void testSyncTaskStatusesFromInProgressDoesNotPerformRedundantUpdates() {
+        UUID taskId = UUID.fromString("11111111-2222-3333-4444-555555555555");
+        // Given an in_progress task internally
+        Task task = new Task(taskId, "Test Redundant Active Task", "in_progress", 1002, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // And the GitHub PR is closed and unmerged
+        gitHubService.registerPrStatus(1002, "closed", false);
+
+        // First synchronization: should revert task status to 'failed' and reconcile
+        int firstRunCount = taskService.syncTaskStatusesWithGitHub();
+        assertEquals(1, firstRunCount, "First synchronization run should reconcile the active task");
+
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus(), "Active task with closed unmerged PR should be reverted to failed status");
+        assertEquals("closed", reloaded.getGithubPrState(), "PR state should be updated to closed");
+        assertEquals(false, reloaded.getGithubPrMerged(), "PR merged should be false");
+
+        // Second synchronization: should do nothing (reconciledCount = 0) since everything already matches
+        int secondRunCount = taskService.syncTaskStatusesWithGitHub();
+        assertEquals(0, secondRunCount, "Second synchronization run should skip already reconciled active task");
+    }
+
+    @Test
+    public void testSyncTaskStatusesFromDoneToFailedOnUnmergedClosedPrWithNoRedundantUpdates() {
+        UUID taskId = UUID.fromString("99999999-8888-7777-6666-555555555555");
+        // Given a task that is 'done' internally
+        Task task = new Task(taskId, "Test Redundant Done Task", "done", 1003, "open", false);
+        taskRepository.saveAndFlush(task);
+
+        // And the GitHub PR is closed and unmerged
+        gitHubService.registerPrStatus(1003, "closed", false);
+
+        // First synchronization: should revert task status to 'failed' and reconcile
+        int firstRunCount = taskService.syncTaskStatusesWithGitHub();
+        assertEquals(1, firstRunCount, "First synchronization run should reconcile the mismatched task");
+
+        Task reloaded = taskRepository.findById(taskId).orElseThrow();
+        assertEquals("failed", reloaded.getStatus(), "Done task should be reverted to failed status");
+        assertEquals("closed", reloaded.getGithubPrState(), "PR state should be updated to closed");
+        assertEquals(false, reloaded.getGithubPrMerged(), "PR merged should be false");
+
+        // Second synchronization: should do nothing (reconciledCount = 0) since everything already matches
+        int secondRunCount = taskService.syncTaskStatusesWithGitHub();
+        assertEquals(0, secondRunCount, "Second synchronization run should skip already reconciled task");
+    }
 }
