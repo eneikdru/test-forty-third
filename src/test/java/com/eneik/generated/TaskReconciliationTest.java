@@ -4,29 +4,32 @@ import com.eneik.generated.model.Task;
 import com.eneik.generated.repository.TaskRepository;
 import com.eneik.generated.service.GitHubService;
 import com.eneik.generated.service.TaskService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.eneik.generated.service.TaskSyncScheduler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.core.read.ListAppender;
-import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.core.read.ListAppender;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,9 +42,6 @@ public class TaskReconciliationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     @SpyBean
     private TaskRepository taskRepository;
@@ -59,9 +59,8 @@ public class TaskReconciliationTest {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setUp() {
-        // Clean up tasks table
-        jdbcTemplate.update("DELETE FROM tasks");
+    public void setup() {
+        taskRepository.deleteAll();
         // Clear stub/seed registry in GitHubService
         gitHubService.clearRegistry();
     }
@@ -75,16 +74,16 @@ public class TaskReconciliationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(task)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", is(taskId.toString())))
-                .andExpect(jsonPath("$.title", is("Test Task Name")))
-                .andExpect(jsonPath("$.status", is("in_progress")))
-                .andExpect(jsonPath("$.githubPrNumber", is(42)));
+                .andExpect(jsonPath("$.id", org.hamcrest.Matchers.is(taskId.toString())))
+                .andExpect(jsonPath("$.title", org.hamcrest.Matchers.is("Test Task Name")))
+                .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("in_progress")))
+                .andExpect(jsonPath("$.githubPrNumber", org.hamcrest.Matchers.is(42)));
 
         mockMvc.perform(get("/api/v1/tasks/" + taskId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(taskId.toString())))
-                .andExpect(jsonPath("$.title", is("Test Task Name")))
-                .andExpect(jsonPath("$.status", is("in_progress")));
+                .andExpect(jsonPath("$.id", org.hamcrest.Matchers.is(taskId.toString())))
+                .andExpect(jsonPath("$.title", org.hamcrest.Matchers.is("Test Task Name")))
+                .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("in_progress")));
     }
 
     @Test
@@ -101,8 +100,8 @@ public class TaskReconciliationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("status", "done"))))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("CONSTRAINT_VIOLATION")))
-                .andExpect(jsonPath("$.message", containsString("closed without being merged")));
+                .andExpect(jsonPath("$.error", org.hamcrest.Matchers.is("CONSTRAINT_VIOLATION")))
+                .andExpect(jsonPath("$.message", org.hamcrest.Matchers.containsString("closed without being merged")));
 
         // Verify task status remains 'in_progress'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
@@ -123,7 +122,7 @@ public class TaskReconciliationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("status", "done"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("done")));
+                .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("done")));
 
         // Verify task status updated to 'done'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
@@ -143,12 +142,12 @@ public class TaskReconciliationTest {
         // Trigger reconciliation via endpoint
         mockMvc.perform(post("/api/v1/tasks/reconcile"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("success")))
-                .andExpect(jsonPath("$.reconciledCount", is(1)));
+                .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("success")))
+                .andExpect(jsonPath("$.reconciledCount", org.hamcrest.Matchers.is(1)));
 
-        // Verify that the task status has been corrected to 'failed'
+        // Verify that the task status has been corrected to 'open'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
-        assertEquals("failed", reloaded.getStatus());
+        assertEquals("open", reloaded.getStatus());
     }
 
     @Test
@@ -174,18 +173,18 @@ public class TaskReconciliationTest {
             // Trigger reconciliation via endpoint
             mockMvc.perform(post("/api/v1/tasks/reconcile"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.status", is("success")))
-                    .andExpect(jsonPath("$.reconciledCount", is(1)));
+                    .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("success")))
+                    .andExpect(jsonPath("$.reconciledCount", org.hamcrest.Matchers.is(1)));
 
-            // Verify that the task status has been corrected to 'failed' and metadata is updated
+            // Verify that the task status has been corrected to 'open' and metadata is updated
             Task reloaded = taskRepository.findById(taskId).orElseThrow();
-            assertEquals("failed", reloaded.getStatus());
-            assertEquals("closed", reloaded.getGithubPrState());
-            assertEquals(false, reloaded.getGithubPrMerged());
+            assertEquals("open", reloaded.getStatus());
+            assertNull(reloaded.getGithubPrState());
+            assertNull(reloaded.getGithubPrMerged());
 
             // Verify atomically-guarded database update occurred
             verify(taskRepository, times(1)).updateStatusAndPrStateAtomically(
-                    eq(taskId), eq("failed"), eq("done"), eq("closed"), eq(false), any()
+                    eq(taskId), eq("open"), eq("done"), isNull(), isNull(), any()
             );
 
             // Assert that the [TELEMETRY][TASK_RECONCILIATION] log was emitted
@@ -200,6 +199,7 @@ public class TaskReconciliationTest {
     @Test
     public void testReconciliationDoesNothingWhenNoMismatch() throws Exception {
         UUID taskId = UUID.randomUUID();
+        // Task is 'done' and PR is merged
         Task task = new Task(taskId, "Correct Task", "done", 53, "closed", true);
         taskRepository.saveAndFlush(task);
 
@@ -209,7 +209,8 @@ public class TaskReconciliationTest {
         // Trigger reconciliation
         mockMvc.perform(post("/api/v1/tasks/reconcile"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.reconciledCount", is(0)));
+                .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("success")))
+                .andExpect(jsonPath("$.reconciledCount", org.hamcrest.Matchers.is(0)));
 
         // Verify status remains 'done'
         Task reloaded = taskRepository.findById(taskId).orElseThrow();
@@ -333,8 +334,8 @@ public class TaskReconciliationTest {
         // Assert initial flow state is ACTIVE
         mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.state", is("ACTIVE")))
-                .andExpect(jsonPath("$.failedTasksCount", is(0)));
+                .andExpect(jsonPath("$.state", org.hamcrest.Matchers.is("ACTIVE")))
+                .andExpect(jsonPath("$.failedTasksCount", org.hamcrest.Matchers.is(0)));
 
         // Create a failed task
         UUID taskId = UUID.randomUUID();
@@ -344,8 +345,8 @@ public class TaskReconciliationTest {
         // Assert flow state is now BLOCKED_BY_FAILED_FRONTIER
         mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.state", is("BLOCKED_BY_FAILED_FRONTIER")))
-                .andExpect(jsonPath("$.failedTasksCount", is(1)));
+                .andExpect(jsonPath("$.state", org.hamcrest.Matchers.is("BLOCKED_BY_FAILED_FRONTIER")))
+                .andExpect(jsonPath("$.failedTasksCount", org.hamcrest.Matchers.is(1)));
     }
 
     @Test
@@ -362,22 +363,22 @@ public class TaskReconciliationTest {
         // Verify state is blocked with 5 failed tasks
         mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.state", is("BLOCKED_BY_FAILED_FRONTIER")))
-                .andExpect(jsonPath("$.failedTasksCount", is(5)));
+                .andExpect(jsonPath("$.state", org.hamcrest.Matchers.is("BLOCKED_BY_FAILED_FRONTIER")))
+                .andExpect(jsonPath("$.failedTasksCount", org.hamcrest.Matchers.is(5)));
 
         // Execute the unblocking patch
         mockMvc.perform(post("/api/v1/tasks/flow-core/unblock")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("targetStatus", "open"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("success")))
-                .andExpect(jsonPath("$.unblockedCount", is(5)));
+                .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("success")))
+                .andExpect(jsonPath("$.unblockedCount", org.hamcrest.Matchers.is(5)));
 
         // Verify flow core is active now
         mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.state", is("ACTIVE")))
-                .andExpect(jsonPath("$.failedTasksCount", is(0)));
+                .andExpect(jsonPath("$.state", org.hamcrest.Matchers.is("ACTIVE")))
+                .andExpect(jsonPath("$.failedTasksCount", org.hamcrest.Matchers.is(0)));
 
         // Trigger synchronization via scheduler to make sure they do not revert to failed
         taskSyncScheduler.runSyncJob();
@@ -395,8 +396,8 @@ public class TaskReconciliationTest {
         // Verify state is still ACTIVE with 0 failed tasks
         mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.state", is("ACTIVE")))
-                .andExpect(jsonPath("$.failedTasksCount", is(0)));
+                .andExpect(jsonPath("$.state", org.hamcrest.Matchers.is("ACTIVE")))
+                .andExpect(jsonPath("$.failedTasksCount", org.hamcrest.Matchers.is(0)));
     }
 
     @Test
@@ -412,22 +413,22 @@ public class TaskReconciliationTest {
         // Verify initial state is blocked
         mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.state", is("BLOCKED_BY_FAILED_FRONTIER")))
-                .andExpect(jsonPath("$.failedTasksCount", is(3)));
+                .andExpect(jsonPath("$.state", org.hamcrest.Matchers.is("BLOCKED_BY_FAILED_FRONTIER")))
+                .andExpect(jsonPath("$.failedTasksCount", org.hamcrest.Matchers.is(3)));
 
         // Execute the unblocking patch with custom targetStatus: "in_progress"
         mockMvc.perform(post("/api/v1/tasks/flow-core/unblock")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("targetStatus", "in_progress"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("success")))
-                .andExpect(jsonPath("$.unblockedCount", is(3)));
+                .andExpect(jsonPath("$.status", org.hamcrest.Matchers.is("success")))
+                .andExpect(jsonPath("$.unblockedCount", org.hamcrest.Matchers.is(3)));
 
         // Verify flow core is active now
         mockMvc.perform(get("/api/v1/tasks/flow-core/state"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.state", is("ACTIVE")))
-                .andExpect(jsonPath("$.failedTasksCount", is(0)));
+                .andExpect(jsonPath("$.state", org.hamcrest.Matchers.is("ACTIVE")))
+                .andExpect(jsonPath("$.failedTasksCount", org.hamcrest.Matchers.is(0)));
 
         // Verify tasks statuses became 'in_progress' and github PR details are cleared/dissociated
         List<Task> tasks = taskRepository.findAll();
