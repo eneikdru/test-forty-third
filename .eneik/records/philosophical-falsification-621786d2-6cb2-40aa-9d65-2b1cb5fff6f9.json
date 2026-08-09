@@ -167,6 +167,114 @@
       "confidence": "high",
       "evidence": "src/main/java/com/eneik/generated/controller/TaskController.java - `getAllTasks` returns `ResponseEntity<List<Task>>`, directly exposing the database entity.",
       "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Майкл Дамит",
+      "worldview": "Verificationist theory of meaning - rejecting local fixes that satisfy a rule text while violating the system's declared overarching principles. Meaning is tied to verification.",
+      "critique": "The `CodeReviewSimulator.java` verifies only the presence of terms like 'SOLID' or 'Kano' without demanding proof of how the principle is maintained in the codebase. This violates the verificationist principle that meaning requires constructive verification of behavior, allowing 'false green' passes for superficial terminology (D008).",
+      "proposal": "Apply `MAYKL_DAMIT_12_PRINCIPLED_INTEGRITY`: Instead of matching syntactic tokens like 'Must-Be' in PR descriptions, the simulator must require verifiable, concrete behavior assertions linked to those terms. Reject reviews that assert a principle without attaching the specific constructive test or logic that proves its preservation.",
+      "dislike": "Accepting code solely because it uses the correct terminology, without verifying the underlying systemic meaning or principle it claims to represent.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/CodeReviewSimulator.java - `simulateReview` checks for presence of 'Must-Be' and 'SOLID' but not verifiable proof.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Нельсон Гудман",
+      "worldview": "Worldmaking and projectibility - exported names and symbols are promises bound to source principles and must preserve their referents across caller contexts.",
+      "critique": "In `JulesApiClient.java`, the method `generateResponse` arbitrarily classifies responses based on the presence of the word 'philosophical'. This ties behavior to an unanchored token rather than a projectible, stable semantic reference, making the integration unpredictable if the terminology shifts (D001 Semantic drift).",
+      "proposal": "Apply `NELSON_GUDMAN_11_ANCHOR_BOUND_NAME`: Refactor the prompt classification by binding the intent to a formal constant (e.g., `AUDIT_INTENT_TYPE`) or dedicated flag from the orchestrator. This binds the behavior to a specific, testable definition rather than fragile word-matching.",
+      "dislike": "Relying on fragile, unbound strings to dictate application behavior across system boundaries, risking semantic drift.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/JulesApiClient.java - `generateResponse` checks `prompt.contains(\"philosophical\")`.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Людвиг Витгенштейн",
+      "worldview": "Language-games and meaning as use. Truth and facts are established through reliable, verifiable processes, not just by declaring them.",
+      "critique": "The UI displays task statuses using raw string values returned from the API (e.g., 'IN_PROGRESS' or 'COMPLETED') without establishing a reliable mechanism to ensure the UI's interpretation matches the backend's intent. This risks a gap where the user's understanding of the state diverges from the system's actual reality, breaking the reliability chain (D013 Runtime drift).",
+      "proposal": "Apply `LYUDVIG_VITGENSHTEYN_18_RELIABILITY_CHAIN`: Introduce a reliable, typed translation mechanism in the frontend (e.g., mapped status objects) that validates the raw API strings against known valid states, rather than naively rendering whatever string the API provides.",
+      "dislike": "Naive trust in API payload strings for UI rendering without a verifiable process to confirm their meaning in the context of the user interface.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte - Raw status strings from API are directly interpolated into the UI without mapping.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Гилберт Райл",
+      "worldview": "Knowing-how versus knowing-that, category mistakes - rejecting the conflation of declarative facts with operational capabilities.",
+      "critique": "The system lacks a distinction between checking that a task is conceptually 'done' (knowing-that, e.g., the status field) and verifying that its execution paths actually run correctly (knowing-how). The `TaskController` accepts a 'done' status update without any operational check that the associated behavior (e.g., webhook processing) succeeded, constituting a category mistake by equating a declarative label with operational reality.",
+      "proposal": "Apply a principled separation: do not allow a task to transition to 'done' solely via a declarative REST update. The transition must require operational evidence (knowing-how), such as a success token from the `TaskSyncScheduler` or the `GitHubWebhookController`.",
+      "dislike": "The category mistake of treating a declarative REST payload as sufficient proof of an operational success.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/controller/TaskController.java - `updateTaskStatus` changes state without requiring execution proof.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Рут Баркан Маркус",
+      "worldview": "Quantified modal logic and actualism - representing true, false, and inconsistent states explicitly rather than leaving them ambiguous.",
+      "critique": "The `NotificationService` handles missing or invalid analytical metadata by quietly skipping the notification or logging a warning, effectively ignoring the absence of a required domain object. This treats an invalid state as implicitly 'okay' rather than explicitly addressing it (D007 Evidence gap).",
+      "proposal": "Apply `RUT_BARKAN_MARKUS_07_CONSTRUCTIVE_PROOF_OBJECT`: Make the notification construction depend on a verified `NotificationContext` object that guarantees the presence of analytical metadata. If the metadata is missing, the construction fails explicitly rather than succeeding silently with missing data.",
+      "dislike": "Silently proceeding when an expected domain object (metadata) is missing, masking the failure and allowing incomplete entities to exist.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/service/NotificationService.java - Silently handles missing analytical metadata during notification generation.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Ахилле Варци",
+      "worldview": "Formal ontology of boundaries and spatial parts - demanding precise topological and spatial boundaries to prevent semantic leaks and dependency cycles.",
+      "critique": "The `CodeReviewSimulator` sits within the `com.eneik.production.services` package but asserts business logic rules regarding 'Must-Be' and Kano classifications that properly belong to the `TechnicalLeadCompiler` domain. This blurred boundary leaks domain definitions into a utility service, violating the topological separation of concerns.",
+      "proposal": "Apply `AHILLE_VARTSI_19_PROHIBITION_AS_CODE`: Extract the Kano classification and evaluation logic from the `CodeReviewSimulator` and move it into a dedicated, boundary-enforced domain service (e.g., `KanoEvaluationService`). The simulator should call this service, respecting spatial boundaries.",
+      "dislike": "Leaking core domain evaluation logic into a utility/simulation service, blurring the boundaries of where business decisions are made.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/production/services/CodeReviewSimulator.java - Contains hardcoded checks for Kano classifications.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Сол Крипке",
+      "worldview": "Rigid designation and necessary identity - names must refer to the same object across all possible worlds (or contexts) without ambiguity.",
+      "critique": "The `DocumentVersion` entity identifies documents using a combination of `documentId` and `versionNumber`. This composite identity is not a rigid designator, as a document's true identity might drift if versions are merged or reordered. It relies on contingent properties rather than a necessary identifier across all contexts.",
+      "proposal": "Apply `SOL_KRIPKE_19_LAMBDA_CORE_REDUCTION`: Introduce an immutable, rigidly designated identity key for the document's conceptual essence, completely decoupled from its contingent version history. This ensures the document refers to the same entity regardless of the specific version context.",
+      "dislike": "Relying on contingent, mutable attributes to establish the identity of a domain object across time.",
+      "kanoClass": "Attractive",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/DocumentVersion.java - Identity relies on version numbers and document IDs.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Роберт Сталнакер",
+      "worldview": "Assertion and possible-world pragmatics - requiring explicit handling of common ground and context change, ensuring abstraction levels are locked.",
+      "critique": "The UI displays error messages directly derived from the backend's HTTP response body or raw exception messages, failing to maintain a consistent 'Level of Abstraction Lock'. This leaks backend context directly into the user's visual context, exposing internal system details and violating the common ground expected by the user.",
+      "proposal": "Apply `ROBERT_STALNAKER_15_LEVEL_OF_ABSTRACTION_LOCK`: Implement a client-side error mapping layer that translates raw backend errors into user-appropriate contextual messages, ensuring that abstraction levels do not leak across the frontend-backend boundary.",
+      "dislike": "Leaking raw backend implementation context (exception messages) directly into the user's visual context without translation.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte - Raw errors from fetch calls are directly displayed in the UI.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Джон Перри",
+      "worldview": "Indexicals and self-locating content - preserving stable identity across time, migrations, and incident reconstructions.",
+      "critique": "The analytics event tracking (in `AnalyticsEvent.java` and `AnalyticsIntegrationTest`) uses loose strings like 'USER_LOGIN' for event types, lacking self-locating context about *which* subsystem or specific interface initiated the event. The context is implicit rather than explicitly tied to the actual object or location triggering the event.",
+      "proposal": "Apply `DZHON_PERRI_10_ACTUAL_OBJECT_REGISTER`: Force every analytics event to register against an explicit 'Actual Object' context (e.g., `sourceComponent: 'FinancialModule.svelte'`, `originatingSystem: 'LMS_CORE'`). This ensures self-locating identity is preserved during incident reconstruction.",
+      "dislike": "Creating decoupled events that lack explicit indexical context linking them back to their source origin.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/AnalyticsEvent.java - lacks strict self-locating contextual properties beyond basic user IDs.",
+      "screenshotFile": ""
     }
   ]
 }
