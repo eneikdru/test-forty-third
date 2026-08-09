@@ -1,0 +1,15 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "approve",
+      "criticalReason": "",
+      "concerns": [
+        {
+          "text": "The compiled frontend assets (JS/HTML) are committed directly to src/main/resources/static. While this allows the backend to serve the frontend immediately, it is generally preferred to build assets during the CI/CD pipeline to avoid git noise and merge conflicts on compiled code.",
+          "severity": "low"
+        }
+      ]
+    }
+  ]
+}
