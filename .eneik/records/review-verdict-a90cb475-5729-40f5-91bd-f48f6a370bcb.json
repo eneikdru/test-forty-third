@@ -1,0 +1,10 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "block",
+      "criticalReason": "The PR violates the explicit boundaries by committing files under `.eneik/records/`, specifically '.eneik/records/design-check-cff06586-e5e7-4ff2-bc4e-b78e5036c65e/desktop-1440.png' and '.eneik/records/design-check-cff06586-e5e7-4ff2-bc4e-b78e5036c65e/mobile-375.png'. The task rules strictly forbid committing anything under a path starting with `.eneik/`. Additionally, committing `.png` files is a violation of the rule against committing generated/build artifacts.",
+      "concerns": []
+    }
+  ]
+}
