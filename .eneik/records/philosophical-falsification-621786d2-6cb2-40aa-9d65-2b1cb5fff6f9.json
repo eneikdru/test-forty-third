@@ -71,6 +71,42 @@
       "confidence": "high",
       "evidence": "src/main/java/com/eneik/generated/service/TechnicalLeadCompiler.java - evaluateEchoCoherence method implements ECHO as a simple Jaccard similarity threshold.",
       "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00_CODE-GUARDIAN",
+      "philosopher": "Людвиг Витгенштейн",
+      "worldview": "Language-games and meaning as use. Truth and facts are established through reliable, verifiable processes, not just by declaring them.",
+      "critique": "In the `Task.java` entity, timestamps for `createdAt` and `updatedAt` are initialized inline with `LocalDateTime.now()`. This breaks the reliability chain of data acquisition because it forces tests to depend on the uncontrolled system clock, making outcomes non-reproducible and causing runtime drift (D013). This directly violates the principle that data acquisition must follow a reliable, verifiable process.",
+      "proposal": "Apply `LYUDVIG_VITGENSHTEYN_18_RELIABILITY_CHAIN` by removing inline `LocalDateTime.now()` initialization. Use `TimeProvider` or a `@PrePersist` / `@PreUpdate` listener with an injectable clock to ensure timestamps are deterministic and testable.",
+      "dislike": "The hardcoded reliance on `LocalDateTime.now()` which creates non-deterministic side effects and undermines the reliability of the evidence trail in testing environments.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/Task.java - `private LocalDateTime createdAt = LocalDateTime.now();`",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01_ACTUALIST-OBJECT",
+      "philosopher": "Рут Баркан Маркус",
+      "worldview": "Quantified modal logic and actualism - representing true, false, and inconsistent states explicitly rather than leaving them ambiguous.",
+      "critique": "The `Task.java` entity relies on separate string fields for `status` and `githubPrState`, alongside a boolean `githubPrMerged`. This creates a scattered, implicitly dependent state representation where contradictory states (e.g., status 'COMPLETED' but `githubPrState` 'OPEN') can easily coexist. This ambiguity and potential for conflicting evidence violates the Actualist requirement for clear truth status representation (D012 Policy contradiction).",
+      "proposal": "Apply `RUT_BARKAN_MARKUS_19_TRUTH_STATUS_TABLE` by introducing a unified, explicit orchestration status (e.g., an Enum or a dedicated status record) that explicitly defines and resolves all valid combinations of internal Task status and GitHub PR state, actively quarantining invalid combinations.",
+      "dislike": "The use of multiple primitive fields to represent a single, complex domain state, allowing for the existence of invalid, contradictory domain entities.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/Task.java - Uncoordinated fields `status`, `githubPrState`, and `githubPrMerged`.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02_RIGID-DESIGNATOR",
+      "philosopher": "Джон Перри",
+      "worldview": "Indexicals and self-locating content - preserving stable identity across time, migrations, and incident reconstructions.",
+      "critique": "The `Task` domain entity uses a `UUID` for its primary key but lacks a stable business identifier (e.g., a human-readable issue key or slug) that persists independently of the database's surrogate key. When tracing incidents across logs, GitHub Webhooks, and UI contexts, the lack of an actual object register grounded in business reality makes it difficult to maintain identity (D002 Invalid state).",
+      "proposal": "Implement `DZHON_PERRI_10_ACTUAL_OBJECT_REGISTER` by introducing a stable, unique business identifier (e.g., `taskKey`) in addition to the UUID. This guarantees that the entity's identity is preserved and verifiable across API contracts, UI rendering, and external integrations like GitHub.",
+      "dislike": "Relying solely on a surrogate UUID for identity, which disconnects the system's internal representation from the real-world domain entity it is supposed to track.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/Task.java - The entity only defines a UUID `id` without a stable business reference.",
+      "screenshotFile": ""
     }
   ]
 }
