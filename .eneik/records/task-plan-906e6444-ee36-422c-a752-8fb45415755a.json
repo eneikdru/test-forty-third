@@ -1,0 +1,36 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Address systemic sync failure between internal status and GitHub PR reality",
+        "R2: Remove fraudulent stubs masking the status mismatch"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch status sync logic and remove fraudulent stubs",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the direct patch for this epic, I want to remove the fraudulent stubs and fix the sync logic, so that internal task statuses accurately reflect actual GitHub PR states",
+          "acceptanceCriteria": "Given an internal task linked to a GitHub PR that is closed without a merge\nWhen the sync execution process verifies the status\nThen fraudulent stubs are removed and the internal status is accurately updated to unmerged",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Task status execution pipeline",
+          "sixSigmaMetric": "Reduce status mismatch occurrences and false positive completion reports from >100 to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ]
+}
