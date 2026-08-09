@@ -74,4 +74,29 @@ public class TaskStatusSyncServiceTest {
         String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, taskId);
         assertEquals("done", status, "The status should remain done.");
     }
+
+    @Test
+    public void testSyncTaskStatus_NullTaskId_ReturnsFalse() {
+        boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(null, true, false);
+        assertFalse(updated, "The task status sync should return false when taskId is null.");
+    }
+
+    @Test
+    public void testSyncTaskStatus_AlreadyFailed_ReturnsFalseAndNoRedundantUpdate() {
+        UUID failedTaskId = UUID.randomUUID();
+        jdbcTemplate.update("INSERT INTO sync_tasks (id, github_pr_number, status) VALUES (?, ?, ?)", failedTaskId, "999", "failed");
+
+        boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(failedTaskId, true, false);
+        assertFalse(updated, "Should return false since the task is already failed.");
+
+        String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, failedTaskId);
+        assertEquals("failed", status, "The status should remain failed.");
+    }
+
+    @Test
+    public void testSyncTaskStatus_TaskIdNotFound_ReturnsFalse() {
+        UUID nonExistentTaskId = UUID.randomUUID();
+        boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(nonExistentTaskId, true, false);
+        assertFalse(updated, "Should return false since the task ID does not exist in the database.");
+    }
 }
