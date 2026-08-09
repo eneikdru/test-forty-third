@@ -158,7 +158,54 @@ public class TechnicalLeadCompiler {
         }
     }
 
-    private double calculateJaccardSimilarity(String s1, String s2) {
+    /**
+     * Auto-detects and merges duplicate task plans in a list of plans.
+     * Two plans are considered duplicates if they have the same title (case-insensitive)
+     * or if their JTBD similarity is greater than 0.85.
+     * When merged, requirement references are combined (unique list),
+     * coverageComplete is true if any of the merged plans was true,
+     * and the title/jtbd/tocConstraintRef from the first plan are retained.
+     */
+    public List<TaskPlan> detectAndMergeDuplicatePlans(List<TaskPlan> plans) {
+        if (plans == null || plans.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<TaskPlan> mergedPlans = new ArrayList<>();
+
+        for (TaskPlan plan : plans) {
+            boolean merged = false;
+            for (int i = 0; i < mergedPlans.size(); i++) {
+                TaskPlan existing = mergedPlans.get(i);
+                double similarity = calculateJaccardSimilarity(existing.getJtbd(), plan.getJtbd());
+                if (similarity > 0.85 || existing.getTitle().equalsIgnoreCase(plan.getTitle())) {
+                    // Merge plan into existing
+                    Set<String> combinedRequirements = new LinkedHashSet<>(existing.getRequirementRefs());
+                    if (plan.getRequirementRefs() != null) {
+                        combinedRequirements.addAll(plan.getRequirementRefs());
+                    }
+                    boolean combinedCoverage = existing.isCoverageComplete() || plan.isCoverageComplete();
+
+                    TaskPlan mergedPlan = new TaskPlan(
+                        existing.getTitle(),
+                        existing.getJtbd(),
+                        combinedCoverage,
+                        existing.getTocConstraintRef() != null ? existing.getTocConstraintRef() : plan.getTocConstraintRef(),
+                        new ArrayList<>(combinedRequirements)
+                    );
+                    mergedPlans.set(i, mergedPlan);
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) {
+                mergedPlans.add(plan);
+            }
+        }
+        return mergedPlans;
+    }
+
+    public double calculateJaccardSimilarity(String s1, String s2) {
         if (s1 == null || s2 == null) return 0.0;
         Set<String> set1 = tokenize(s1);
         Set<String> set2 = tokenize(s2);
