@@ -1,0 +1,124 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Wire up the missing Knowledge Base features (document storage, full-text search, user roles, and file uploads) by directly patching the existing codebase layers."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch Knowledge Base functionality gaps",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the missing Knowledge Base features for this epic, I want to patch the existing codebase to wire up document storage, search, roles, and uploads without new schema or API, so that the 100% specification gap is resolved",
+          "acceptanceCriteria": "Given the existing Knowledge Base endpoints and UI\nWhen a user interacts with document storage, search, or file uploads\nThen the system successfully processes the requests using the existing data model\nAnd appropriate tests verify this patched behavior without requiring new UI or API layers.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Knowledge Base functionality gap",
+          "sixSigmaMetric": "Reduce Knowledge Base specification gap from 100% to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "2693edbe-e3fc-4d72-b564-380683afeb3a",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Fix the coverage audit file generation to perform real specification validation against the codebase instead of returning a hardcoded empty list of gaps."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Fix coverage audit generation logic",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the coverage audit fix for this epic, I want to implement actual specification validation logic, so that falsified success reports are eliminated",
+          "acceptanceCriteria": "Given a coverage audit execution against an unimplemented specification\nWhen the audit file is generated\nThen it reflects the actual specification gaps instead of a hardcoded empty list\nAnd the generated audit file correctly identifies missing implementations, with unit tests asserting this accuracy.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Audit reporting accuracy",
+          "sixSigmaMetric": "Increase coverage audit true positive rate from 0% to 100%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3d4cdd32-d66d-4307-8fdb-b0ddca107c95",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Implement RBAC and authentication checks on the existing ComplianceGeneratorController endpoints."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Add RBAC to ComplianceGeneratorController",
+          "roleTag": "BARCAN-TAG-07",
+          "jtbd": "When implementing RBAC for this epic, I want to secure the ComplianceGeneratorController endpoints, so that unauthorized access vulnerabilities are eliminated",
+          "acceptanceCriteria": "Given the ComplianceGeneratorController endpoints\nWhen an unauthenticated user or a user without proper roles attempts access\nThen the system rejects the request with a 401 or 403 status\nAnd valid authorized users can successfully access the endpoints, verified by integration tests.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Endpoint security vulnerability",
+          "sixSigmaMetric": "Reduce unauthorized endpoint access occurrences to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Restore Generated Code Invariants",
+      "jtbd": "When an engineer needs to modify generated service logic, I want them to use append-only overriding components, so that generated files remain read-only and regenerable.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Reduce direct modifications to generated files to 0 occurrences",
+      "tocConstraintRef": "Code generation pipeline integrity",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Revert direct modifications to com/eneik/generated/service/TaskService.java and extract the custom logic into an append-only overriding component in com.eneik.production.services."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Extract TaskService logic to overriding component",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When fixing the TaskService generated file violation for this epic, I want to extract the manual changes into an overriding component, so that generated code integrity is restored",
+          "acceptanceCriteria": "Given the generated TaskService file and a custom implementation requirement\nWhen the system boots\nThen the custom logic is applied via an overriding component from the com.eneik.production.services package\nAnd the generated TaskService file is restored to its pristine state without manual edits, with tests validating the override behavior.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Generated code violation",
+          "sixSigmaMetric": "Achieve 100% compliance with generated file immutability rule",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
