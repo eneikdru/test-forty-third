@@ -24,12 +24,14 @@ public class TaskServicePatch extends TaskService {
     private final TaskRepository taskRepository;
     private final GitHubService gitHubService;
     private final TimeProvider timeProvider;
+    private final PipelineTelemetryService pipelineTelemetryService;
 
-    public TaskServicePatch(TaskRepository taskRepository, GitHubService gitHubService, TimeProvider timeProvider) {
+    public TaskServicePatch(TaskRepository taskRepository, GitHubService gitHubService, TimeProvider timeProvider, PipelineTelemetryService pipelineTelemetryService) {
         super(taskRepository, gitHubService);
         this.taskRepository = taskRepository;
         this.gitHubService = gitHubService;
         this.timeProvider = timeProvider;
+        this.pipelineTelemetryService = pipelineTelemetryService;
     }
 
     @Override
@@ -117,8 +119,11 @@ public class TaskServicePatch extends TaskService {
 
     @Override
     public int syncTaskStatusesWithGitHub() {
+        // First invoke the telemetry-driven check and revert logic for stuck pipelines
+        int telemetryReverted = pipelineTelemetryService.checkAndRevertStuckPipelines();
+
         List<Task> tasks = taskRepository.findAll();
-        int reconciledCount = 0;
+        int reconciledCount = telemetryReverted;
 
         for (Task task : tasks) {
             if (task.getGithubPrNumber() == null) {
