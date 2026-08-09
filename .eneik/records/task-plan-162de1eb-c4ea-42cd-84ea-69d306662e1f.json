@@ -1,0 +1,48 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The backend PR event processor must correctly detect when a PR is closed without being merged and update the associated task's status to a failed or unmerged state instead of done."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch PR closed event handler for unmerged status",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the GitHub webhook handler for this epic, I want to update the task status using an atomic guard when a PR is closed without merge, so that systemic synchronization drift is eliminated.",
+          "acceptanceCriteria": "Given a PR webhook payload indicating a 'closed' action with 'merged: false',\nWhen the system processes the event,\nThen the corresponding task status is updated to failed/unmerged using an atomic database update (UPDATE ... WHERE id = ? AND status = ?).\nGiven an existing task status that is already set to done,\nWhen a late PR closed event arrives,\nThen the system must safely handle or ignore the transition appropriately.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Task state machine integrity",
+          "sixSigmaMetric": "Reduce false-positive done tasks due to closed-unmerged PRs to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        },
+        {
+          "title": "Verify task status synchronization for closed PRs",
+          "roleTag": "BARCAN-TAG-06",
+          "jtbd": "When implementing QA for this epic, I want to verify that tasks linked to unmerged PRs are not falsely marked as done, so that the synchronization drift fix is proven correct.",
+          "acceptanceCriteria": "Given the test environment,\nWhen a simulated PR closed event (without merge) is received,\nThen the corresponding task status in the database is verified to not be 'done'.\nGiven the E2E test setup,\nWhen a task is processed and its PR is rejected,\nThen the integration confirms the task flow halts or resets correctly.",
+          "leanValue": "essential",
+          "cynefinDomain": "complicated",
+          "tocConstraintRef": "Task state machine integrity",
+          "sixSigmaMetric": "Achieve 100% test coverage for PR-closed-without-merge webhook events",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
