@@ -372,18 +372,44 @@
     return dp[s2.length];
   }
 
-  async function fetchBackendDocuments() {
+  function getBackendRole(role) {
+    if (role === 'Admin') return 'administrator';
+    return role ? role.toLowerCase() : 'student';
+  }
+
+  let debouncedQuery = $state('');
+
+  // Svelte 5 effect for debouncing the searchQuery input
+  let debounceTimer;
+  $effect(() => {
+    const currentQuery = searchQuery;
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      debouncedQuery = currentQuery;
+    }, 300);
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  });
+
+  async function fetchBackendDocuments(queryVal, roleVal) {
+    const q = queryVal !== undefined ? queryVal : debouncedQuery;
+    const role = roleVal !== undefined ? roleVal : selectedRole;
+
     loading = true;
     errorMessage = '';
     try {
-      const res = await fetch(`/api/documents/search?q=${encodeURIComponent(searchQuery)}`, {
+      const backendRole = getBackendRole(role);
+      const res = await fetch(`/api/documents/search?q=${encodeURIComponent(q)}`, {
         headers: {
-          'X-User-Role': selectedRole
+          'X-User-Role': backendRole
         }
       });
       if (res.ok) {
-        const data = await res.json();
-        documents = data.map(item => ({
+        const json = await res.json();
+        // Support both array and paginated response objects
+        const items = Array.isArray(json) ? json : (json.data || json.results || json.documents || []);
+        documents = items.map(item => ({
           id: item.document.id,
           title: item.document.title,
           description: item.document.description,
@@ -407,6 +433,11 @@
       loading = false;
     }
   }
+
+  // Trigger search whenever debouncedQuery or selectedRole changes
+  $effect(() => {
+    fetchBackendDocuments(debouncedQuery, selectedRole);
+  });
 
   // Toggle Favorites
   function toggleFavorite(id, event) {
@@ -474,12 +505,7 @@
     }
   }
 
-  $effect(() => {
-    fetchBackendDocuments();
-  });
-
   onMount(() => {
-    fetchBackendDocuments();
     try {
       const storedFavs = localStorage.getItem('kb_favorites_v1');
       if (storedFavs) {
