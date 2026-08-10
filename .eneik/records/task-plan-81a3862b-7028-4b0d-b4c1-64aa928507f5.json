@@ -1,0 +1,124 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "f5da8084-2471-4d88-a384-e6f06165789f",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The backend DocumentSearchController must return a list of auto-complete suggestions and typo corrections when requested by the frontend."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Implement autocomplete suggestions in DocumentSearchController",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the autocomplete patch for this epic, I want to update DocumentSearchController to return suggestions, so that the search auto-suggestions feature works end-to-end.",
+          "acceptanceCriteria": "Given a search query fragment, When the frontend requests suggestions, Then the backend DocumentSearchController should return a list of auto-complete suggestions and typo corrections.\nGiven the controller logic is updated, When the test suite runs, Then the unit and integration tests must verify the autocomplete response format.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Client-side search suggestion limitations",
+          "sixSigmaMetric": "Reduce client-side search query zero-results by 20%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Search Event Analytics Logging",
+      "jtbd": "When a user performs a search, I want the search query logged, so that we can export statistics on popular search requests.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Increase the percentage of search queries logged via AnalyticsService from 0% to 100%",
+      "tocConstraintRef": "Lack of search analytics prevents data-driven optimization of the knowledge base",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The DocumentSearchController must log the SEARCH event with the query via AnalyticsService."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch DocumentSearchController for search analytics logging",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing analytics logging for this epic, I want to call AnalyticsService from DocumentSearchController, so that search statistics can be exported.",
+          "acceptanceCriteria": "Given a user searching for documents, When the search is performed, Then the DocumentSearchController should log the SEARCH event with the query via AnalyticsService.\nGiven the logging is implemented, When the tests are executed, Then the tests must verify that AnalyticsService is called with the correct search event data.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Unobservable search query patterns bottlenecking content optimization",
+          "sixSigmaMetric": "Achieve 100% logging rate for search endpoint calls",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The KnowledgeBase.svelte frontend component must implement pagination for search results."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Implement pagination in KnowledgeBase.svelte",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing the pagination patch for this epic, I want to add pagination controls to KnowledgeBase.svelte, so that users can browse large sets of documents.",
+          "acceptanceCriteria": "Given a search result with many documents, When I scroll or click next, Then I should see the next set of results.\nGiven the pagination is implemented, When tested, Then UI tests must assert that clicking next loads the subsequent page from the backend.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Frontend memory saturation for large dataset rendering",
+          "sixSigmaMetric": "Reduce frontend memory consumption and DOM nodes for large search results by 50%",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3d4cdd32-d66d-4307-8fdb-b0ddca107c95",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: FileDownloadController must verify that the user's role has permission to access the specific requested document before serving the file."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch FileDownloadController for document-specific access authorization",
+          "roleTag": "BARCAN-TAG-07",
+          "jtbd": "When implementing the authorization patch for this epic, I want to verify role permissions for the specific document in FileDownloadController, so that unauthorized downloads are prevented.",
+          "acceptanceCriteria": "Given a user requesting to download a file, When they provide the document ID, Then FileDownloadController should verify if the user's role allows access to that document before serving the file.\nGiven the authorization patch is added, When security tests are run, Then they must assert that users without document access receive a 403 Forbidden response.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Direct file download security vulnerability",
+          "sixSigmaMetric": "Eliminate 100% of unauthorized direct file downloads",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
