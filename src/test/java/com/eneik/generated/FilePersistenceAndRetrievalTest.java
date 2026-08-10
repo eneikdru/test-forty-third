@@ -135,4 +135,45 @@ public class FilePersistenceAndRetrievalTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code", is("UNAUTHORIZED")));
     }
+
+    @Test
+    public void testDownloadRestrictedFileAccessControl() throws Exception {
+        byte[] originalContent = "Confidential Budget Data".getBytes();
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "budget_data.pdf", "application/pdf", originalContent);
+
+        // 1. Upload the file with "Budget" schema tag
+        String response = mockMvc.perform(multipart("/api/documents")
+                        .file(file)
+                        .param("title", "Бюджетный отчет")
+                        .param("description", "Детализированный отчет по бюджету")
+                        .param("documentType", "Procedure")
+                        .param("academicYear", "2026-2027")
+                        .param("program", "both")
+                        .param("process", "practice")
+                        .param("documentNumber", "PROC-888")
+                        .param("schemaTags", "Budget")
+                        .header("X-User-Role", "Content Manager"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andReturn().getResponse().getContentAsString();
+
+        // Extract ID of the newly created document
+        String documentId = response.substring(response.indexOf("\"id\":\"") + 6, response.indexOf("\",\"title\""));
+
+        // 2. Try downloading as "Teacher" (Teacher role is not assigned to Budget schema tag) -> should return 403 Forbidden
+        String fileUrl = "/api/files/" + documentId + "/v1/budget_data.pdf";
+        mockMvc.perform(get(fileUrl)
+                        .header("X-User-Role", "Teacher"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code", is("ACCESS_DENIED")))
+                .andExpect(jsonPath("$.message", containsString("Access denied")));
+
+        // 3. Try downloading as "Economist" (Economist role is assigned to Budget schema tag) -> should return 200 OK
+        mockMvc.perform(get(fileUrl)
+                        .header("X-User-Role", "Economist"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/pdf"))
+                .andExpect(content().bytes(originalContent));
+    }
 }
