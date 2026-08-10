@@ -1,0 +1,32 @@
+{
+  "gaps": [
+    {
+      "title": "Missing autocomplete/suggestions backend API",
+      "roleTag": "BARCAN-TAG-09",
+      "jtbd": "When searching for documents, I want the system to suggest autocomplete options and correct typos via the server, so that I can quickly find documents even with imperfect search queries without relying solely on client-side mocks.",
+      "acceptanceCriteria": "Given a search query fragment, When the frontend requests suggestions, Then the backend DocumentSearchController should return a list of auto-complete suggestions and typo corrections.",
+      "reason": "literal brief requirement: 'автоподсказки и исправление опечаток;'. The current implementation only mocks typo corrections and suggestions on the Svelte client, with no backend API support in DocumentSearchController or DocumentSearchService."
+    },
+    {
+      "title": "Missing Search Event Analytics Logging",
+      "roleTag": "BARCAN-TAG-09",
+      "jtbd": "When a user performs a search, I want the search query logged, so that we can export statistics on popular search requests.",
+      "acceptanceCriteria": "Given a user searching for documents, When the search is performed, Then the DocumentSearchController should log the SEARCH event with the query via AnalyticsService.",
+      "reason": "literal brief requirement: 'экспорт статистики использования базы знаний (популярные запросы, просмотры, скачивания)'. DocumentSearchController currently does not call AnalyticsService to log search queries, though AnalyticsService supports it."
+    },
+    {
+      "title": "Missing pagination in frontend search results",
+      "roleTag": "BARCAN-TAG-09",
+      "jtbd": "When viewing search results, I want them paginated so that I can browse through a large number of documents without performance issues.",
+      "acceptanceCriteria": "Given a search result with many documents, When I scroll or click next, Then I should see the next set of results.",
+      "reason": "domain-standard expectation: A public list endpoint for searching a knowledge base usually needs pagination in the frontend even if the backend supports it. The backend DocumentSearchController supports pagination, but KnowledgeBase.svelte does not implement it."
+    },
+    {
+      "title": "Missing document access authorization in file download",
+      "roleTag": "BARCAN-TAG-09",
+      "jtbd": "When downloading a file, I want the system to verify my role has access to that specific document, so that unauthorized users cannot download sensitive documents.",
+      "acceptanceCriteria": "Given a user requesting to download a file, When they provide the document ID, Then FileDownloadController should verify if the user's role allows access to that document before serving the file.",
+      "reason": "literal brief requirement: 'разграничение прав по ролям и группам' and 'защита от несанкционированного скачивания'. FileDownloadController only checks that *a* role exists, not if the role has permission to access the requested document."
+    }
+  ]
+}
