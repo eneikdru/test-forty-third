@@ -21,7 +21,7 @@ public class TaskStatusSyncService {
             return false;
         }
         if (isPrClosed && !isPrMerged) {
-            String sql = "UPDATE sync_tasks SET status = 'unmerged' WHERE id = ? AND status != 'unmerged'";
+            String sql = "UPDATE sync_tasks SET status = 'failed' WHERE id = ? AND status != 'failed'";
             int updatedRows = jdbcTemplate.update(sql, taskId);
             return updatedRows > 0;
         }
