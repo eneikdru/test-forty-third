@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Welcome to test-forty-third</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#2e3a8c",
+                      "secondary-fixed-dim": "#4fdbc8",
+                      "on-primary-fixed": "#000d60",
+                      "surface-container-lowest": "#ffffff",
+                      "background": "#f8f9ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#f8f9ff",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed-variant": "#005048",
+                      "on-primary-fixed-variant": "#333f91",
+                      "secondary-fixed": "#71f8e4",
+                      "on-secondary-fixed": "#00201c",
+                      "inverse-primary": "#bcc3ff",
+                      "on-background": "#0d1c2e",
+                      "primary-fixed": "#dfe0ff",
+                      "on-surface-variant": "#454651",
+                      "surface": "#f8f9ff",
+                      "outline": "#767682",
+                      "surface-dim": "#ccdbf3",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-tint": "#4b57aa",
+                      "on-primary-container": "#9ea9ff",
+                      "primary-fixed-dim": "#bcc3ff",
+                      "primary": "#142175",
+                      "surface-container-low": "#eff4ff",
+                      "surface-variant": "#d5e3fc",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container-highest": "#d5e3fc",
+                      "on-tertiary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "tertiary": "#2a2d2f",
+                      "tertiary-container": "#404345",
+                      "inverse-surface": "#233144",
+                      "on-error-container": "#93000a",
+                      "on-secondary-container": "#006f64",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-secondary": "#ffffff",
+                      "secondary-container": "#6df5e1",
+                      "on-tertiary-fixed": "#191c1e",
+                      "on-tertiary-container": "#adb0b2",
+                      "outline-variant": "#c6c5d3",
+                      "secondary": "#006b5f",
+                      "on-error": "#ffffff",
+                      "on-surface": "#0d1c2e",
+                      "surface-container": "#e6eeff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "xl": "32px",
+                      "container-padding": "16px",
+                      "base": "4px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "gutter": "12px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "display-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-num": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-sm": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-num": [
+                              "14px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .glass-card {
+            background: rgba(248, 249, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col antialiased">
+<!-- Suppressed TopAppBar & BottomNavBar as this is a linear/transactional onboarding screen -->
+<main class="flex-grow flex flex-col justify-center items-center px-container-padding py-xl relative overflow-hidden">
+<!-- Decorative Background Element -->
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+<div class="absolute -top-1/4 -right-1/4 w-[150%] h-[150%] bg-gradient-to-br from-surface-container-high/40 to-transparent rounded-full blur-3xl opacity-60"></div>
+</div>
+<!-- Hero Content Area -->
+<div class="w-full max-w-md z-10 flex flex-col items-center">
+<!-- Brand Illustration Placeholder -->
+<div class="w-full aspect-square mb-xl rounded-xl overflow-hidden glass-card shadow-lg flex items-center justify-center p-md">
+<img class="w-full h-full object-cover rounded-lg" data-alt="A clean, abstract 3D illustration featuring geometric shapes like spheres and cubes in a soft, bright studio lighting setup. The color palette focuses on pristine whites, soft grays, and touches of deep indigo and teal. The composition implies connectivity, precision, and modern technology. The mood is calm, professional, and efficient." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmE-eHYQh2hkqjCDLnKW2pf88p524oPhaMR3WmnVw9U58Mz7T3zgLNUQDqZdiMhaa6lvI-nBLUMC0OCsbHWenWt8ez7lAZO1tFnMiMGcE6VvTJBOX-j1p9urHJ4xF7wnH9r6kO3G0sfmF_vnUFrqu6Qi7arU8KOTfD0D_vQxCjJr3DH7NB3gWZrcZisau_qpAIzr6YZnIAmAEDekLfE7HtKQuzW1Rmg0nLuf_Dzr_eIp3zY-Ef5yZBhNBnkzaTVeu4Rb7y-s7i3UZO"/>
+</div>
+<!-- Typography & Value Prop -->
+<div class="text-center mb-xl space-y-md">
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-primary tracking-tight">
+                    test-forty-third
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[280px] mx-auto">
+                    Unlock the power of test-forty-third. Precision efficiency for the modern professional.
+                </p>
+</div>
+<!-- Call to Action -->
+<div class="w-full space-y-md">
+<button class="w-full bg-primary text-on-primary py-sm px-md rounded-lg font-headline-sm text-headline-sm flex items-center justify-center gap-sm active:scale-95 transition-transform duration-200 shadow-md">
+<span>Get Started</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+</button>
+<button class="w-full bg-transparent border-2 border-secondary text-secondary py-sm px-md rounded-lg font-headline-sm text-headline-sm flex items-center justify-center active:bg-secondary-container/20 transition-colors duration-200">
+<span>Log In</span>
+</button>
+</div>
+</div>
+</main>
+<script>
+        // Simple entry animation script
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('main > div > div');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.15}s`;
+                
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 100);
+            });
+        });
+    </script>
+</body></html>
