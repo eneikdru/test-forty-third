@@ -33,26 +33,26 @@ public class TaskStatusSyncServiceTest {
     }
 
     @Test
-    public void testSyncTaskStatus_ClosedAndUnmerged_TransitionsToUnmerged() {
+    public void testSyncTaskStatus_ClosedAndUnmerged_TransitionsToFailed() {
         boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(taskId, true, false);
 
         assertTrue(updated, "The task status should have been updated.");
 
         String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, taskId);
-        assertEquals("unmerged", status, "The status should be transitioned to unmerged.");
+        assertEquals("failed", status, "The status should be transitioned to failed.");
     }
 
     @Test
-    public void testSyncTaskStatus_InProgress_TransitionsToUnmerged() {
+    public void testSyncTaskStatus_InProgress_TransitionsToFailed() {
         UUID newTaskId = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
         jdbcTemplate.update("INSERT INTO sync_tasks (id, github_pr_number, status) VALUES (?, ?, ?)", newTaskId, "456", "in_progress");
 
         boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(newTaskId, true, false);
 
-        assertTrue(updated, "The task status should be updated since it wasn't unmerged yet.");
+        assertTrue(updated, "The task status should be updated since it wasn't failed yet.");
 
         String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, newTaskId);
-        assertEquals("unmerged", status, "The status should transition to unmerged.");
+        assertEquals("failed", status, "The status should transition to failed.");
     }
 
     @Test
@@ -82,15 +82,15 @@ public class TaskStatusSyncServiceTest {
     }
 
     @Test
-    public void testSyncTaskStatus_AlreadyUnmerged_ReturnsFalseAndNoRedundantUpdate() {
-        UUID unmergedTaskId = UUID.fromString("123e4567-e89b-12d3-a456-426614174002");
-        jdbcTemplate.update("INSERT INTO sync_tasks (id, github_pr_number, status) VALUES (?, ?, ?)", unmergedTaskId, "999", "unmerged");
+    public void testSyncTaskStatus_AlreadyFailed_ReturnsFalseAndNoRedundantUpdate() {
+        UUID failedTaskId = UUID.fromString("123e4567-e89b-12d3-a456-426614174002");
+        jdbcTemplate.update("INSERT INTO sync_tasks (id, github_pr_number, status) VALUES (?, ?, ?)", failedTaskId, "999", "failed");
 
-        boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(unmergedTaskId, true, false);
-        assertFalse(updated, "Should return false since the task is already unmerged.");
+        boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(failedTaskId, true, false);
+        assertFalse(updated, "Should return false since the task is already failed.");
 
-        String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, unmergedTaskId);
-        assertEquals("unmerged", status, "The status should remain unmerged.");
+        String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, failedTaskId);
+        assertEquals("failed", status, "The status should remain failed.");
     }
 
     @Test
