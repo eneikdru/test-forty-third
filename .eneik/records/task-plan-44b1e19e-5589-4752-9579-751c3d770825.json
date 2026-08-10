@@ -1,0 +1,124 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "f5da8084-2471-4d88-a384-e6f06165789f",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The backend API must return autocomplete suggestions and typo corrections for a given search query fragment"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Implement backend autocomplete and typo correction in DocumentSearchController",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the autocomplete API for this epic, I want to patch DocumentSearchController to return suggestions, so that the frontend can rely on server-side logic instead of client mocks.",
+          "acceptanceCriteria": "Given a search query fragment, When the frontend requests suggestions, Then the backend DocumentSearchController should return a list of auto-complete suggestions and typo corrections.\nGiven a test environment, When verifying the API, Then integration tests should confirm correct suggestions are returned.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "TOC-SearchAPI",
+          "sixSigmaMetric": "Reduce client-side autocomplete mock usage from 100% to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Knowledge Base Usage Analytics",
+      "jtbd": "When managing the platform, I want the system to log user interactions, so that administrators can export usage statistics such as popular queries and downloads.",
+      "kanoClass": "Performance",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "Increase coverage of logged search events from 0% to 100%",
+      "tocConstraintRef": "TOC-AnalyticsData",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The DocumentSearchController must log the SEARCH event with the search query via AnalyticsService"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Integrate AnalyticsService into DocumentSearchController for search logging",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing search event logging for this epic, I want to call AnalyticsService in DocumentSearchController, so that every search query is persistently recorded.",
+          "acceptanceCriteria": "Given a user searching for documents, When the search is performed, Then the DocumentSearchController should log the SEARCH event with the query via AnalyticsService.\nGiven an automated test run, When executing search operations, Then the test must assert that AnalyticsService was invoked with the correct payload.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "TOC-SearchLogging",
+          "sixSigmaMetric": "Reduce unlogged search queries from 100% to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The frontend KnowledgeBase.svelte component must implement pagination for search results"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Implement pagination in KnowledgeBase.svelte search results",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing search results UI for this epic, I want to add pagination controls to KnowledgeBase.svelte, so that users can browse large result sets smoothly.",
+          "acceptanceCriteria": "Given a search result with many documents, When I scroll or click next, Then I should see the next set of results fetched and rendered correctly.\nGiven a frontend component test, When interacting with the pagination controls, Then the component must fetch and display the correct page.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "TOC-FrontendRendering",
+          "sixSigmaMetric": "Reduce DOM nodes rendered per large search query from >1000 to <50",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3d4cdd32-d66d-4307-8fdb-b0ddca107c95",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: FileDownloadController must verify that the user's role has permission to access the specific document being downloaded"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Add document-level authorization checks to FileDownloadController",
+          "roleTag": "BARCAN-TAG-07",
+          "jtbd": "When implementing file downloads for this epic, I want to enforce document-level role access in FileDownloadController, so that unauthorized downloads are blocked.",
+          "acceptanceCriteria": "Given a user requesting to download a file, When they provide the document ID, Then FileDownloadController should verify if the user's role allows access to that document before serving the file.\nGiven an unauthorized user requesting a file, When the request reaches the controller, Then it must return a 403 Forbidden response.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "TOC-SecurityChecks",
+          "sixSigmaMetric": "Reduce unauthorized file download incidents from potential 100% to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
