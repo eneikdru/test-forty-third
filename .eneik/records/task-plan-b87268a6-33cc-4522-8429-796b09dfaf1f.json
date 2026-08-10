@@ -1,0 +1,109 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "f5da8084-2471-4d88-a384-e6f06165789f",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The backend DocumentSearchController must return a list of auto-complete suggestions and typo corrections for a given search query fragment."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch DocumentSearchController to return autocomplete suggestions",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the autocomplete API for this epic, I want to patch DocumentSearchController to return suggestions, so that the client can use real server-side typo corrections.",
+          "acceptanceCriteria": "Given a search query fragment\nWhen the frontend requests suggestions\nThen the backend DocumentSearchController should return auto-complete suggestions\nGiven unit tests, When executed, Then they should assert the returned suggestions are correct",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Client-side mock limitation in search suggestions",
+          "sixSigmaMetric": "Reduce client-side search typo errors by 100% via server-side resolution",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: The DocumentSearchController must log the SEARCH event with the query via AnalyticsService when a search is performed.",
+        "R2: The frontend KnowledgeBase.svelte component must implement pagination for search results, allowing the user to view results across multiple pages."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch DocumentSearchController to log search events",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing search event logging for this epic, I want to call AnalyticsService in DocumentSearchController, so that search queries are recorded for statistics.",
+          "acceptanceCriteria": "Given a user searching for documents\nWhen the search is performed\nThen DocumentSearchController should log the SEARCH event via AnalyticsService\nGiven a test context, When verified, Then it should assert the logging interaction occurred",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Lack of visibility into user search behavior",
+          "sixSigmaMetric": "Increase the percentage of search queries logged in AnalyticsService from 0% to 100%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        },
+        {
+          "title": "Patch KnowledgeBase.svelte to support pagination",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing frontend pagination for this epic, I want to patch KnowledgeBase.svelte, so that users can browse through a large number of search results without performance issues.",
+          "acceptanceCriteria": "Given a search result spanning multiple pages\nWhen the user interacts with pagination controls\nThen KnowledgeBase.svelte should render the requested page of results\nGiven automated tests, When run, Then they should verify the pagination state changes",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Frontend rendering bottleneck for large search results",
+          "sixSigmaMetric": "Reduce frontend rendering latency for large search queries by displaying only paginated results",
+          "hasUi": true,
+          "requirementRefs": [
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "3d4cdd32-d66d-4307-8fdb-b0ddca107c95",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: The FileDownloadController must verify that the user's role has permission to access the specific requested document before serving the file."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch FileDownloadController to enforce document access authorization",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing document access authorization for this epic, I want to patch FileDownloadController to verify specific document permissions, so that unauthorized users cannot download sensitive documents.",
+          "acceptanceCriteria": "Given a user requesting a file\nWhen their role lacks access to the specific document\nThen FileDownloadController should reject the download\nGiven unit tests, When run, Then they should assert the authorization checks fail correctly",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Security vulnerability in document access",
+          "sixSigmaMetric": "Reduce unauthorized document download incidents to 0",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
