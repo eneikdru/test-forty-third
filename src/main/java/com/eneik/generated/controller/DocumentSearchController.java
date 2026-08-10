@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class DocumentSearchController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DocumentSearchController.class);
+
     private final DocumentSearchService documentSearchService;
     private final AnalyticsService analyticsService;
 
@@ -92,6 +94,7 @@ public class DocumentSearchController {
 
             // Log SEARCH event with query via AnalyticsService
             if (query != null && !query.trim().isEmpty()) {
+                logger.info("Logging search event in AnalyticsService for query: {}", query);
                 analyticsService.logEvent("SEARCH", userId, null, query);
             }
 
