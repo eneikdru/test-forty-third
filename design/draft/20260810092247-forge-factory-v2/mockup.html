@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Forge - Factory Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#0e1418",
+                        "on-secondary-fixed-variant": "#504700",
+                        "on-tertiary": "#2b3137",
+                        "on-tertiary-fixed-variant": "#41474e",
+                        "on-primary-container": "#888c91",
+                        "on-surface-variant": "#c5c6ca",
+                        "primary": "#c3c7cc",
+                        "on-primary": "#2d3135",
+                        "background": "#0e1418",
+                        "tertiary-fixed": "#dde3eb",
+                        "surface-variant": "#2f363a",
+                        "secondary": "#d8c860",
+                        "on-primary-fixed-variant": "#43474c",
+                        "secondary-fixed-dim": "#d8c860",
+                        "inverse-surface": "#dde3e9",
+                        "on-secondary-container": "#fbea7e",
+                        "surface": "#0e1418",
+                        "primary-fixed-dim": "#c3c7cc",
+                        "on-secondary-fixed": "#201c00",
+                        "tertiary-container": "#1f252b",
+                        "inverse-on-surface": "#2b3136",
+                        "primary-container": "#212529",
+                        "on-primary-fixed": "#181c20",
+                        "outline": "#8f9194",
+                        "outline-variant": "#44474a",
+                        "surface-bright": "#343a3f",
+                        "secondary-container": "#756901",
+                        "tertiary-fixed-dim": "#c1c7ce",
+                        "on-background": "#dde3e9",
+                        "secondary-fixed": "#f5e479",
+                        "on-surface": "#dde3e9",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-lowest": "#090f13",
+                        "inverse-primary": "#5b5f63",
+                        "on-tertiary-fixed": "#161c22",
+                        "surface-container": "#1a2025",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#161c21",
+                        "on-secondary": "#373100",
+                        "tertiary": "#c1c7ce",
+                        "on-error": "#690005",
+                        "primary-fixed": "#e0e3e8",
+                        "surface-container-high": "#242b2f",
+                        "on-tertiary-container": "#868c93",
+                        "surface-tint": "#c3c7cc",
+                        "surface-container-highest": "#2f363a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container_margin": "32px",
+                        "gutter": "24px",
+                        "base_unit": "8px",
+                        "compact_gap": "12px",
+                        "panel_padding": "24px"
+                    },
+                    "fontFamily": {
+                        "data-lg": ["JetBrains Mono"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "data-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .brass-gradient {
+            background: conic-gradient(from 180deg at 50% 50%, #d8c860 0deg, #504700 90deg, #d8c860 180deg, #504700 270deg, #d8c860 360deg);
+        }
+        .dial-shadow {
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(255, 255, 255, 0.05);
+        }
+        .needle {
+            transform-origin: bottom center;
+            transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .ambient-shadow {
+            box-shadow: 0 20px 40px rgba(14, 20, 24, 0.4);
+        }
+        
+        /* Progress Bar Animation */
+        .progress-bar-fill {
+            transition: width 1.5s ease-out;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col antialiased">
+<!-- TopAppBar -->
+<header class="bg-surface-dim border-b border-outline-variant sticky top-0 z-50 w-full flex-none">
+<div class="flex justify-between items-center px-container_margin w-full max-w-[1440px] mx-auto py-base_unit">
+<div class="flex items-center gap-compact_gap">
+<span class="material-symbols-outlined text-secondary font-variation-settings: 'FILL' 1;" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+<span class="font-display-lg text-display-lg text-secondary tracking-tighter">The Forge</span>
+</div>
+<div class="flex items-center gap-base_unit">
+<button class="flex items-center gap-2 hover:text-secondary transition-colors duration-200">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Factory</span>
+<span class="material-symbols-outlined text-on-surface-variant">arrow_drop_down</span>
+</button>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex px-container_margin max-w-[1440px] mx-auto overflow-x-auto gap-gutter">
+<button class="font-label-caps text-label-caps text-on-surface border-b-2 border-secondary pb-2 pt-2 whitespace-nowrap active-nav">Factory</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant pb-2 pt-2 whitespace-nowrap hover:text-secondary transition-colors duration-200">Delivery</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant pb-2 pt-2 whitespace-nowrap hover:text-secondary transition-colors duration-200">Product</button>
+</nav>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-[1440px] mx-auto px-container_margin py-gutter flex flex-col gap-gutter">
+<!-- Section Header -->
+<div class="flex justify-between items-end mb-base_unit">
+<h1 class="font-headline-md text-headline-md text-on-surface">Factory Room</h1>
+<span class="font-data-lg text-label-caps text-outline font-mono">ID: SIGMA-09</span>
+</div>
+<!-- Gauges Section (Bento Grid Style) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Metric 1: Sigma Level -->
+<article class="bg-surface-container rounded-xl p-panel_padding ambient-shadow border border-surface-bright flex flex-col items-center justify-center relative overflow-hidden group hover:bg-surface-container-high transition-colors">
+<div class="absolute top-4 right-4 font-label-caps text-label-caps text-outline">T-01</div>
+<div class="w-32 h-32 rounded-full border-4 border-outline-variant dial-shadow flex items-center justify-center relative mb-4">
+<div class="absolute inset-2 rounded-full border border-surface-bright"></div>
+<!-- Decorative Ticks -->
+<div class="absolute inset-0 rounded-full" style="background: repeating-conic-gradient(from 0deg, transparent 0deg, transparent 15deg, var(--color-outline-variant) 15deg, var(--color-outline-variant) 16deg);"></div>
+<div class="absolute inset-4 bg-surface-container rounded-full flex items-center justify-center z-10">
+<span class="font-data-lg text-data-lg text-on-surface">4.1</span>
+</div>
+<!-- Brass Ring -->
+<div class="absolute inset-0 rounded-full brass-gradient opacity-20 group-hover:opacity-40 transition-opacity"></div>
+<!-- Needle -->
+<div class="absolute bottom-1/2 left-1/2 w-0.5 h-14 bg-secondary needle -translate-x-1/2 z-20" style="transform: rotate(65deg) translate(-50%, 0);"></div>
+<div class="absolute top-1/2 left-1/2 w-3 h-3 bg-on-surface rounded-full -translate-x-1/2 -translate-y-1/2 z-30 border-2 border-surface-container"></div>
+</div>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Sigma Level</h2>
+</article>
+<!-- Metric 2: Defect Rate -->
+<article class="bg-surface-container rounded-xl p-panel_padding ambient-shadow border border-surface-bright flex flex-col items-center justify-center relative overflow-hidden group hover:bg-surface-container-high transition-colors">
+<div class="absolute top-4 right-4 font-label-caps text-label-caps text-outline">D-RATE</div>
+<div class="w-32 h-32 rounded-full border-4 border-outline-variant dial-shadow flex items-center justify-center relative mb-4">
+<div class="absolute inset-2 rounded-full border border-surface-bright"></div>
+<div class="absolute inset-0 rounded-full" style="background: repeating-conic-gradient(from 0deg, transparent 0deg, transparent 15deg, var(--color-outline-variant) 15deg, var(--color-outline-variant) 16deg);"></div>
+<div class="absolute inset-4 bg-surface-container rounded-full flex items-center justify-center z-10">
+<span class="font-data-lg text-data-lg text-error">0.8%</span>
+</div>
+<div class="absolute inset-0 rounded-full brass-gradient opacity-20 group-hover:opacity-40 transition-opacity"></div>
+<div class="absolute bottom-1/2 left-1/2 w-0.5 h-14 bg-error needle -translate-x-1/2 z-20" style="transform: rotate(-45deg) translate(-50%, 0);"></div>
+<div class="absolute top-1/2 left-1/2 w-3 h-3 bg-on-surface rounded-full -translate-x-1/2 -translate-y-1/2 z-30 border-2 border-surface-container"></div>
+</div>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Defect Rate</h2>
+</article>
+<!-- Metric 3: Process Capability -->
+<article class="bg-surface-container rounded-xl p-panel_padding ambient-shadow border border-surface-bright flex flex-col items-center justify-center relative overflow-hidden group hover:bg-surface-container-high transition-colors">
+<div class="absolute top-4 right-4 font-label-caps text-label-caps text-outline">CPK</div>
+<div class="w-32 h-32 rounded-full border-4 border-outline-variant dial-shadow flex items-center justify-center relative mb-4">
+<div class="absolute inset-2 rounded-full border border-surface-bright"></div>
+<div class="absolute inset-0 rounded-full" style="background: repeating-conic-gradient(from 0deg, transparent 0deg, transparent 15deg, var(--color-outline-variant) 15deg, var(--color-outline-variant) 16deg);"></div>
+<div class="absolute inset-4 bg-surface-container rounded-full flex items-center justify-center z-10">
+<span class="font-data-lg text-data-lg text-on-surface">1.3</span>
+</div>
+<div class="absolute inset-0 rounded-full brass-gradient opacity-20 group-hover:opacity-40 transition-opacity"></div>
+<div class="absolute bottom-1/2 left-1/2 w-0.5 h-14 bg-secondary needle -translate-x-1/2 z-20" style="transform: rotate(20deg) translate(-50%, 0);"></div>
+<div class="absolute top-1/2 left-1/2 w-3 h-3 bg-on-surface rounded-full -translate-x-1/2 -translate-y-1/2 z-30 border-2 border-surface-container"></div>
+</div>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Process Capability</h2>
+</article>
+</section>
+<!-- Theory of Constraints Bar -->
+<section class="bg-surface-container rounded-xl p-panel_padding ambient-shadow border border-surface-bright">
+<div class="flex justify-between items-center mb-compact_gap">
+<h3 class="font-headline-md text-headline-md text-on-surface">Drum-Buffer-Rope</h3>
+<span class="font-label-caps text-label-caps text-outline">TOC Status</span>
+</div>
+<div class="w-full bg-surface-dim h-8 rounded-full overflow-hidden flex dial-shadow">
+<!-- Drum -->
+<div class="h-full bg-secondary-fixed-dim relative flex items-center px-2 group" style="width: 85%;">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 mix-blend-overlay"></div>
+<span class="font-label-caps text-label-caps text-on-secondary-fixed z-10 hidden sm:inline">Drum</span>
+<span class="font-label-caps text-label-caps text-on-secondary-fixed z-10 ml-auto">85%</span>
+</div>
+<!-- Buffer -->
+<div class="h-full bg-tertiary-fixed-dim border-l border-surface-dim relative flex items-center px-2" style="width: 60%;">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 mix-blend-overlay"></div>
+<span class="font-label-caps text-label-caps text-on-tertiary-fixed z-10 hidden sm:inline">Buffer</span>
+<span class="font-label-caps text-label-caps text-on-tertiary-fixed z-10 ml-auto">60%</span>
+</div>
+<!-- Rope -->
+<div class="h-full bg-surface-variant border-l border-surface-dim relative flex items-center px-2" style="width: 40%;">
+<span class="font-label-caps text-label-caps text-on-surface-variant z-10 hidden sm:inline">Rope</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant z-10 ml-auto">40%</span>
+</div>
+</div>
+</section>
+<!-- Kaizen Log Table -->
+<section class="bg-surface-container rounded-xl p-panel_padding ambient-shadow border border-surface-bright overflow-hidden">
+<div class="flex justify-between items-center mb-gutter">
+<h3 class="font-headline-md text-headline-md text-on-surface">Kaizen Log</h3>
+<button class="bg-secondary text-on-secondary px-4 py-2 rounded font-label-caps text-label-caps hover:bg-secondary-fixed transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">add</span> New Entry
+                </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-dim border-b border-surface-variant">
+<th class="py-compact_gap px-4 font-label-caps text-label-caps text-on-surface-variant font-medium">Date</th>
+<th class="py-compact_gap px-4 font-label-caps text-label-caps text-on-surface-variant font-medium">Category</th>
+<th class="py-compact_gap px-4 font-label-caps text-label-caps text-on-surface-variant font-medium">Description</th>
+<th class="py-compact_gap px-4 font-label-caps text-label-caps text-on-surface-variant font-medium">Status</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface">
+<tr class="border-b border-surface-variant/50 hover:bg-surface-variant/30 transition-colors">
+<td class="py-compact_gap px-4 font-mono text-sm text-outline">2024-10-24</td>
+<td class="py-compact_gap px-4">
+<span class="inline-block px-2 py-1 rounded bg-error-container/20 border border-error-container text-error text-xs font-label-caps">Systemic Defect</span>
+</td>
+<td class="py-compact_gap px-4 truncate max-w-[200px] md:max-w-none">Misalignment in milling unit B.</td>
+<td class="py-compact_gap px-4">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined text-[16px]">warning</span> Open
+                                </div>
+</td>
+</tr>
+<tr class="border-b border-surface-variant/50 hover:bg-surface-variant/30 transition-colors">
+<td class="py-compact_gap px-4 font-mono text-sm text-outline">2024-10-23</td>
+<td class="py-compact_gap px-4">
+<span class="inline-block px-2 py-1 rounded bg-secondary-container/20 border border-secondary-container text-secondary text-xs font-label-caps">Role Quality Drift</span>
+</td>
+<td class="py-compact_gap px-4 truncate max-w-[200px] md:max-w-none">Operator fatigue during night shift.</td>
+<td class="py-compact_gap px-4">
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-[16px]">pending</span> Review
+                                </div>
+</td>
+</tr>
+<tr class="border-b border-surface-variant/50 hover:bg-surface-variant/30 transition-colors">
+<td class="py-compact_gap px-4 font-mono text-sm text-outline">2024-10-21</td>
+<td class="py-compact_gap px-4">
+<span class="inline-block px-2 py-1 rounded bg-surface-variant border border-outline-variant text-on-surface-variant text-xs font-label-caps">Standard Work</span>
+</td>
+<td class="py-compact_gap px-4 truncate max-w-[200px] md:max-w-none">Updated calibration protocol for sensor array.</td>
+<td class="py-compact_gap px-4">
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Closed
+                                </div>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/30 transition-colors">
+<td class="py-compact_gap px-4 font-mono text-sm text-outline">2024-10-18</td>
+<td class="py-compact_gap px-4">
+<span class="inline-block px-2 py-1 rounded bg-surface-variant border border-outline-variant text-on-surface-variant text-xs font-label-caps">5S</span>
+</td>
+<td class="py-compact_gap px-4 truncate max-w-[200px] md:max-w-none">Tool shadow board implemented in zone 4.</td>
+<td class="py-compact_gap px-4">
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Closed
+                                </div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant w-full mt-auto">
+<div class="w-full py-base_unit px-container_margin flex justify-between items-center max-w-[1440px] mx-auto">
+<span class="font-label-caps text-label-caps text-outline">© 2024 The Forge Industrial Systems | Unit ID: SIGMA-09</span>
+<div class="flex gap-gutter">
+<a class="font-data-lg text-data-lg-mobile md:text-data-lg text-on-surface-variant hover:text-on-surface transition-colors" href="#">System Logs</a>
+<a class="font-data-lg text-data-lg-mobile md:text-data-lg text-on-surface-variant hover:text-on-surface transition-colors" href="#">Support</a>
+<a class="font-data-lg text-data-lg-mobile md:text-data-lg text-on-surface-variant hover:text-on-surface transition-colors" href="#">Compliance</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple entry animation for dials
+        document.addEventListener('DOMContentLoaded', () => {
+            const needles = document.querySelectorAll('.needle');
+            needles.forEach(needle => {
+                const finalTransform = needle.style.transform;
+                needle.style.transform = 'rotate(-90deg) translate(-50%, 0)';
+                setTimeout(() => {
+                    needle.style.transform = finalTransform;
+                }, 100);
+            });
+        });
+    </script>
+</body></html>
