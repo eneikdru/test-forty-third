@@ -419,6 +419,21 @@ public class DocumentSearchControllerTest {
     }
 
     @Test
+    public void testSearchQueryAnalyticsLoggingWithEmptyQuery() throws Exception {
+        analyticsEventRepository.deleteAll();
+
+        // Perform a search request with an empty/whitespace query
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "   ")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        List<AnalyticsEvent> loggedEvents = analyticsEventRepository.findAll();
+        org.junit.jupiter.api.Assertions.assertTrue(loggedEvents.isEmpty(), "No search analytics event should be logged for empty query");
+    }
+
+    @Test
     public void testSearchSuggestionsAndTypoCorrections() throws Exception {
         createDocument("Регламент ГИА по ординатуре", "Процедура проведения аттестации.", "residency", "Procedure");
         createDocument("Инструкция по ФГОС", "Стандарты обучения.", "both", "Other");
