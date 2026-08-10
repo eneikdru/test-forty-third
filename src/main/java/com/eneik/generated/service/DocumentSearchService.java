@@ -39,6 +39,98 @@ public class DocumentSearchService {
         this.timeProvider = timeProvider;
     }
 
+    public static class SuggestionsResult {
+        private final List<String> suggestions;
+        private final String typoCorrection;
+
+        public SuggestionsResult(List<String> suggestions, String typoCorrection) {
+            this.suggestions = suggestions;
+            this.typoCorrection = typoCorrection;
+        }
+
+        public List<String> getSuggestions() {
+            return suggestions;
+        }
+
+        public String getTypoCorrection() {
+            return typoCorrection;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public SuggestionsResult getSuggestionsAndCorrections(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return new SuggestionsResult(Collections.emptyList(), null);
+        }
+
+        String trimmedQuery = query.trim();
+        String normalizedQuery = normalizeText(trimmedQuery);
+
+        List<Document> allDocs = documentRepository.findAll();
+
+        // 1. Suggestions List (up to 5 document titles containing the normalized query)
+        List<String> suggestions = new ArrayList<>();
+        if (trimmedQuery.length() >= 2) {
+            for (Document doc : allDocs) {
+                if (doc.getTitle() != null && doc.getTitle().toLowerCase().contains(normalizedQuery)) {
+                    suggestions.add(doc.getTitle());
+                }
+                if (suggestions.size() >= 5) {
+                    break;
+                }
+            }
+        }
+
+        // 2. Typo Correction
+        String typoCorrection = null;
+        if (trimmedQuery.length() >= 3) {
+            // Check if there is an exact match (if so, we don't suggest correction)
+            boolean hasExactMatch = false;
+            for (Document doc : allDocs) {
+                if (doc.getTitle() != null && doc.getTitle().toLowerCase().contains(normalizedQuery)) {
+                    hasExactMatch = true;
+                    break;
+                }
+                if (doc.getDocumentNumber() != null && doc.getDocumentNumber().toLowerCase().contains(normalizedQuery)) {
+                    hasExactMatch = true;
+                    break;
+                }
+            }
+
+            if (!hasExactMatch) {
+                String bestMatch = null;
+                double bestSim = 0.0;
+
+                for (Document doc : allDocs) {
+                    if (doc.getTitle() == null) continue;
+                    String titleLower = normalizeText(doc.getTitle());
+                    String[] titleWords = titleLower.split("\\s+");
+                    String[] queryWords = normalizedQuery.split("\\s+");
+
+                    double docMaxSim = 0.0;
+                    for (String qw : queryWords) {
+                        if (qw.length() < 3) continue;
+                        for (String tw : titleWords) {
+                            if (tw.length() < 3) continue;
+                            double sim = getFuzzySimilarity(qw, tw);
+                            if (sim > docMaxSim) {
+                                docMaxSim = sim;
+                            }
+                        }
+                    }
+
+                    if (docMaxSim > bestSim && docMaxSim > 0.5 && docMaxSim < 1.0) {
+                        bestSim = docMaxSim;
+                        bestMatch = doc.getTitle();
+                    }
+                }
+                typoCorrection = bestMatch;
+            }
+        }
+
+        return new SuggestionsResult(suggestions, typoCorrection);
+    }
+
     @Transactional(readOnly = true)
     public List<SearchResult> search(String query, String programFilter, String documentTypeFilter) {
         return search(query, programFilter, documentTypeFilter, null, null);
