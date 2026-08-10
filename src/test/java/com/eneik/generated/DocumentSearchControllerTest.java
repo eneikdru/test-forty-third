@@ -3,8 +3,10 @@ package com.eneik.generated;
 import com.eneik.generated.model.Category;
 import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
+import com.eneik.generated.model.AnalyticsEvent;
 import com.eneik.generated.repository.CategoryRepository;
 import com.eneik.generated.repository.DocumentRepository;
+import com.eneik.generated.repository.AnalyticsEventRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,9 @@ public class DocumentSearchControllerTest {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private AnalyticsEventRepository analyticsEventRepository;
+
+    @Autowired
     private com.eneik.generated.util.TimeProvider timeProvider;
 
     private Category testCategory;
@@ -47,6 +52,7 @@ public class DocumentSearchControllerTest {
     public void setup() {
         documentRepository.deleteAll();
         categoryRepository.deleteAll();
+        analyticsEventRepository.deleteAll();
         timeProvider.setFixedDateTime(LocalDateTime.of(2026, 9, 20, 0, 0));
 
         testCategory = new Category();
@@ -382,5 +388,26 @@ public class DocumentSearchControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(docA.getId().toString(), docB.getId().toString(), docC.getId().toString())));
+    }
+
+    @Test
+    public void testSearchLogging() throws Exception {
+        analyticsEventRepository.deleteAll();
+
+        String testUserId = "12345678-1234-1234-1234-123456789012";
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "student")
+                        .header("X-User-Id", testUserId)
+                        .param("q", "Регламент")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        java.util.List<AnalyticsEvent> events = analyticsEventRepository.findAll();
+        org.junit.jupiter.api.Assertions.assertEquals(1, events.size());
+        AnalyticsEvent event = events.get(0);
+        org.junit.jupiter.api.Assertions.assertEquals("SEARCH", event.getEventType());
+        org.junit.jupiter.api.Assertions.assertEquals("Регламент", event.getSearchQuery());
+        org.junit.jupiter.api.Assertions.assertEquals(UUID.fromString(testUserId), event.getUserId());
+        org.junit.jupiter.api.Assertions.assertNull(event.getDocumentId());
     }
 }

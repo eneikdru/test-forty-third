@@ -4,6 +4,7 @@ import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.model.SchemaTag;
 import com.eneik.generated.service.DocumentSearchService;
+import com.eneik.generated.service.AnalyticsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,15 @@ import java.util.stream.Collectors;
 public class DocumentSearchController {
 
     private final DocumentSearchService documentSearchService;
+    private final AnalyticsService analyticsService;
 
     private static final Set<String> ALLOWED_ROLES = Set.of(
         "administrator", "content_manager", "teacher", "student", "economist", "postgraduate", "resident", "hr"
     );
 
-    public DocumentSearchController(DocumentSearchService documentSearchService) {
+    public DocumentSearchController(DocumentSearchService documentSearchService, AnalyticsService analyticsService) {
         this.documentSearchService = documentSearchService;
+        this.analyticsService = analyticsService;
     }
 
     @GetMapping("/documents/search")
@@ -51,6 +54,9 @@ public class DocumentSearchController {
         }
 
         try {
+            UUID userId = extractUserId(request);
+            analyticsService.logEvent("SEARCH", userId, null, query);
+
             List<DocumentSearchService.SearchResult> searchResults = documentSearchService.search(query, program, documentType, educationLevel, updateDate);
 
             List<SearchResultResponse> responseList = searchResults.stream()
@@ -91,6 +97,29 @@ public class DocumentSearchController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("INTERNAL_ERROR", e.getMessage()));
         }
+    }
+
+    private UUID extractUserId(HttpServletRequest request) {
+        UUID userId = null;
+        Object validatedUserId = request.getAttribute("X-User-Id");
+        if (validatedUserId instanceof String) {
+            try {
+                userId = UUID.fromString((String) validatedUserId);
+            } catch (IllegalArgumentException e) {
+            }
+        } else if (validatedUserId instanceof UUID) {
+            userId = (UUID) validatedUserId;
+        }
+        if (userId == null) {
+            String xUserId = request.getHeader("X-User-Id");
+            if (xUserId != null && !xUserId.trim().isEmpty()) {
+                try {
+                    userId = UUID.fromString(xUserId.trim());
+                } catch (IllegalArgumentException e) {
+                }
+            }
+        }
+        return userId;
     }
 
     private String extractRole(HttpServletRequest request) {
