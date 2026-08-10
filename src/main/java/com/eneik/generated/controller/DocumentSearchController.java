@@ -4,6 +4,7 @@ import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
 import com.eneik.generated.model.SchemaTag;
 import com.eneik.generated.service.DocumentSearchService;
+import com.eneik.generated.service.AnalyticsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,40 @@ import java.util.stream.Collectors;
 public class DocumentSearchController {
 
     private final DocumentSearchService documentSearchService;
+    private final AnalyticsService analyticsService;
 
     private static final Set<String> ALLOWED_ROLES = Set.of(
         "administrator", "content_manager", "teacher", "student", "economist", "postgraduate", "resident", "hr"
     );
 
-    public DocumentSearchController(DocumentSearchService documentSearchService) {
+    public DocumentSearchController(DocumentSearchService documentSearchService, AnalyticsService analyticsService) {
         this.documentSearchService = documentSearchService;
+        this.analyticsService = analyticsService;
+    }
+
+    @GetMapping("/documents/search/suggestions")
+    public ResponseEntity<?> getSearchSuggestions(
+            HttpServletRequest request,
+            @RequestParam("q") String query) {
+
+        String role = extractRole(request);
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+
+        if (!ALLOWED_ROLES.contains(role.toLowerCase())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("ACCESS_DENIED", "Access forbidden for user role: " + role));
+        }
+
+        try {
+            DocumentSearchService.SuggestionsResult result = documentSearchService.getSuggestionsAndCorrections(query);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("INTERNAL_ERROR", e.getMessage()));
+        }
     }
 
     @GetMapping("/documents/search")
@@ -51,6 +79,22 @@ public class DocumentSearchController {
         }
 
         try {
+            // Extract user ID if available
+            UUID userId = null;
+            String xUserId = request.getHeader("X-User-Id");
+            try {
+                if (xUserId != null && !xUserId.trim().isEmpty()) {
+                    userId = UUID.fromString(xUserId.trim());
+                }
+            } catch (IllegalArgumentException e) {
+                // Proceed with null
+            }
+
+            // Log SEARCH event with query via AnalyticsService
+            if (query != null && !query.trim().isEmpty()) {
+                analyticsService.logEvent("SEARCH", userId, null, query);
+            }
+
             List<DocumentSearchService.SearchResult> searchResults = documentSearchService.search(query, program, documentType, educationLevel, updateDate);
 
             List<SearchResultResponse> responseList = searchResults.stream()

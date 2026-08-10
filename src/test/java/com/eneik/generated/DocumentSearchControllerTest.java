@@ -3,8 +3,11 @@ package com.eneik.generated;
 import com.eneik.generated.model.Category;
 import com.eneik.generated.model.Document;
 import com.eneik.generated.model.DocumentVersion;
+import com.eneik.generated.model.AnalyticsEvent;
 import com.eneik.generated.repository.CategoryRepository;
+import java.util.List;
 import com.eneik.generated.repository.DocumentRepository;
+import com.eneik.generated.repository.AnalyticsEventRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +40,9 @@ public class DocumentSearchControllerTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private AnalyticsEventRepository analyticsEventRepository;
 
     @Autowired
     private com.eneik.generated.util.TimeProvider timeProvider;
@@ -382,5 +388,74 @@ public class DocumentSearchControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[*].document.id", containsInAnyOrder(docA.getId().toString(), docB.getId().toString(), docC.getId().toString())));
+    }
+
+    @Test
+    public void testSearchQueryAnalyticsLogging() throws Exception {
+        analyticsEventRepository.deleteAll();
+
+        createDocument("Положение о стипендиях ординаторов", "Документ об академических выплатах.", "residency", "Position");
+
+        UUID testUserId = UUID.fromString("00000000-0000-0000-0000-000000000005");
+
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .header("X-User-Id", testUserId.toString())
+                        .param("q", "стипендиях")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        List<AnalyticsEvent> loggedEvents = analyticsEventRepository.findAll();
+        org.junit.jupiter.api.Assertions.assertFalse(loggedEvents.isEmpty(), "An analytics event should be logged");
+
+        AnalyticsEvent searchEvent = loggedEvents.stream()
+                .filter(e -> "SEARCH".equalsIgnoreCase(e.getEventType()))
+                .findFirst()
+                .orElse(null);
+
+        org.junit.jupiter.api.Assertions.assertNotNull(searchEvent, "Search analytics event should exist");
+        org.junit.jupiter.api.Assertions.assertEquals("стипендиях", searchEvent.getSearchQuery());
+        org.junit.jupiter.api.Assertions.assertEquals(testUserId, searchEvent.getUserId());
+    }
+
+    @Test
+    public void testSearchSuggestionsAndTypoCorrections() throws Exception {
+        createDocument("Регламент ГИА по ординатуре", "Процедура проведения аттестации.", "residency", "Procedure");
+        createDocument("Инструкция по ФГОС", "Стандарты обучения.", "both", "Other");
+
+        // 1. Partial query with matching suggestions
+        mockMvc.perform(get("/api/documents/search/suggestions")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ординат")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.suggestions", hasSize(1)))
+                .andExpect(jsonPath("$.suggestions[0]", is("Регламент ГИА по ординатуре")))
+                .andExpect(jsonPath("$.typoCorrection", nullValue()));
+
+        // 2. Query with typo, matching typo correction
+        mockMvc.perform(get("/api/documents/search/suggestions")
+                        .header("X-User-Role", "Teacher")
+                        .param("q", "ординато")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.suggestions", hasSize(0)))
+                .andExpect(jsonPath("$.typoCorrection", is("Регламент ГИА по ординатуре")));
+    }
+
+    @Test
+    public void testSuggestionsSecurityCheck() throws Exception {
+        // 1. Missing credentials -> 401
+        mockMvc.perform(get("/api/documents/search/suggestions")
+                        .param("q", "тест")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+
+        // 2. Invalid role -> 403
+        mockMvc.perform(get("/api/documents/search/suggestions")
+                        .header("X-User-Role", "InvalidRole")
+                        .param("q", "тест")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }
