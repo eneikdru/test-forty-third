@@ -12,12 +12,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.Optional;
+import java.util.Set;
+import com.eneik.generated.repository.DocumentRepository;
+import com.eneik.generated.repository.RoleRepository;
+import com.eneik.generated.model.Document;
+import com.eneik.generated.model.Role;
+import com.eneik.generated.model.SchemaTag;
 
 @RestController
 @RequestMapping("/api/files")
 public class FileDownloadController {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileDownloadController.class);
+
+    private final DocumentRepository documentRepository;
+    private final RoleRepository roleRepository;
+
+    public FileDownloadController(DocumentRepository documentRepository, RoleRepository roleRepository) {
+        this.documentRepository = documentRepository;
+        this.roleRepository = roleRepository;
+    }
 
     @GetMapping("/{documentId}/v{versionNumber}/{filename}")
     public ResponseEntity<?> downloadFile(
@@ -30,6 +45,35 @@ public class FileDownloadController {
         if (role == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("UNAUTHORIZED", "Missing or invalid credentials"));
+        }
+
+        Optional<Document> docOpt = documentRepository.findById(documentId);
+        if (docOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("NOT_FOUND", "File not found"));
+        }
+
+        Document document = docOpt.get();
+        Set<SchemaTag> docTags = document.getSchemaTags();
+        if (docTags != null && !docTags.isEmpty()) {
+            Optional<Role> roleOpt = roleRepository.findByName(role);
+            if (roleOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ErrorResponse("ACCESS_DENIED", "Access denied: unauthorized role"));
+            }
+            Role roleEntity = roleOpt.get();
+            Set<SchemaTag> roleTags = roleEntity.getSchemaTags();
+            boolean hasAccess = false;
+            for (SchemaTag docTag : docTags) {
+                if (roleTags.stream().anyMatch(rt -> rt.getId().equals(docTag.getId()))) {
+                    hasAccess = true;
+                    break;
+                }
+            }
+            if (!hasAccess) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ErrorResponse("ACCESS_DENIED", "Access denied: unauthorized role"));
+            }
         }
 
         // Sanitize the filename to prevent directory traversal
