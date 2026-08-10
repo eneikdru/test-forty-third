@@ -9,6 +9,8 @@
   let selectedDocument = $state(null);
   let searchQuery = $state('');
   let debouncedSearchQuery = $state('');
+  let currentPage = $state(1);
+  let pageSize = $state(6);
 
   function selectDocument(doc) {
     selectedDocument = doc;
@@ -208,7 +210,7 @@
       return { icon: 'picture_as_pdf', color: 'text-[#E53E3E]', bg: 'bg-[#FFF5F5]', border: 'border-[#FED7D7]', label: 'ПДФ' };
     }
     if (fileType === 'Table' || lowerTitle.includes('таблиц') || lowerTitle.includes('протокол') || lowerTitle.includes('оплат') || lowerTitle.includes('бюджет')) {
-      return { icon: 'table_chart', color: 'text-[#38A169]', bg: 'bg-[#F0FFF4]', border: 'border-[#C6F6D5]', label: 'Table' };
+      return { icon: 'table_chart', color: 'text-[#38A169]', bg: 'bg-[#F0FFF4]', border: 'border-[#C6F6D5]', label: 'Таблица' };
     }
     return { icon: 'article', color: 'text-[#3182CE]', bg: 'bg-[#EBF8FF]', border: 'border-[#BEE3F8]', label: 'Документ' };
   }
@@ -292,6 +294,17 @@
   // Filtered favorite documents
   let favoriteDocuments = $derived.by(() => {
     return combinedUnfiltered.filter(doc => favorites.includes(doc.id));
+  });
+
+  // Derived pagination variables
+  let totalPages = $derived.by(() => {
+    return Math.max(1, Math.ceil(filteredDocuments.length / pageSize));
+  });
+
+  let paginatedDocuments = $derived.by(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredDocuments.slice(startIndex, endIndex);
   });
 
   // Fuzzy search and Typo Correction calculation
@@ -501,6 +514,19 @@
     const query = debouncedSearchQuery;
     const role = selectedRole;
     fetchBackendDocuments(query, role);
+  });
+
+  // Reset page when search or filters change
+  $effect(() => {
+    // Read the filter state dependencies
+    const _q = searchQuery;
+    const _p = selectedProgram;
+    const _t = selectedDocType;
+    const _pr = selectedProcess;
+    const _e = selectedEduLevel;
+    const _d = selectedDateFilter;
+
+    currentPage = 1;
   });
 
   onMount(() => {
@@ -848,7 +874,7 @@
         </p>
       </div>
     {:else}
-      {#each filteredDocuments as doc}
+      {#each paginatedDocuments as doc}
         {@const fileMeta = getFileTypeIcon(doc.fileType, doc.title)}
         <!-- Карточка документа (Белый фон, тонкая рамка, 0.25rem скругления, hover ambient-shadow, Inter) -->
         <div
@@ -917,6 +943,50 @@
       {/each}
     {/if}
   </div>
+
+  <!-- Пагинация (в соответствии с дизайн-системой Lexicon Flux: закругление 4px (0.25rem)) -->
+  {#if filteredDocuments.length > 0}
+    <section class="max-w-[1200px] w-full flex justify-center items-center py-4 border-t border-[#E2E8F0] mt-2 mb-8 mx-auto px-5 md:px-0">
+      <nav aria-label="Пагинация" class="flex items-center gap-2">
+        <button
+          type="button"
+          onclick={() => currentPage = Math.max(1, currentPage - 1)}
+          disabled={currentPage === 1}
+          class="flex items-center gap-1.5 px-4 py-2 border border-[#E2E8F0] rounded-[0.25rem] text-[#0b1c30] bg-[#FFFFFF] hover:bg-[#F9F9FF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-sans text-xs font-semibold"
+        >
+          <span class="material-symbols-outlined text-sm">chevron_left</span>
+          <span>Назад</span>
+        </button>
+
+        <div class="hidden md:flex items-center gap-2">
+          {#each Array(totalPages) as _, i}
+            {@const pageNum = i + 1}
+            <button
+              type="button"
+              onclick={() => currentPage = pageNum}
+              class="w-10 h-10 flex items-center justify-center rounded-[0.25rem] border text-xs font-semibold font-sans transition-colors {currentPage === pageNum ? 'bg-[#3182CE] text-white border-[#3182CE]' : 'border-[#E2E8F0] text-[#0b1c30] bg-[#FFFFFF] hover:bg-[#F9F9FF]'}"
+            >
+              {pageNum}
+            </button>
+          {/each}
+        </div>
+
+        <div class="md:hidden text-xs font-sans text-slate-500">
+          Страница {currentPage} из {totalPages}
+        </div>
+
+        <button
+          type="button"
+          onclick={() => currentPage = Math.min(totalPages, currentPage + 1)}
+          disabled={currentPage === totalPages}
+          class="flex items-center gap-1.5 px-4 py-2 border border-[#E2E8F0] rounded-[0.25rem] text-[#0b1c30] bg-[#FFFFFF] hover:bg-[#F9F9FF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-sans text-xs font-semibold"
+        >
+          <span>Вперед</span>
+          <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </button>
+      </nav>
+    </section>
+  {/if}
 
 </div>
 {/if}
