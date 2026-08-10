@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Forge - Product Room</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=Libre+Caslon+Text:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration (From Guidance) -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#c2cab2",
+                      "on-tertiary-container": "#fffbff",
+                      "on-primary-fixed": "#171e0f",
+                      "surface-bright": "#fcf9f6",
+                      "on-error": "#ffffff",
+                      "outline-variant": "#c6c7bd",
+                      "background": "#fcf9f6",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#feca5a",
+                      "on-background": "#1c1c1a",
+                      "primary-container": "#6f7763",
+                      "tertiary-fixed-dim": "#d9c0cd",
+                      "surface-dim": "#dcdad6",
+                      "surface": "#fcf9f6",
+                      "primary-fixed": "#dee6cd",
+                      "error-container": "#ffdad6",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#6a5662",
+                      "surface-tint": "#59614e",
+                      "inverse-on-surface": "#f3f0ed",
+                      "inverse-surface": "#31302f",
+                      "on-surface": "#1c1c1a",
+                      "inverse-primary": "#c2cab2",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-container": "#f9ffea",
+                      "surface-variant": "#e5e2df",
+                      "on-secondary-fixed-variant": "#5c4200",
+                      "on-tertiary-fixed-variant": "#54414c",
+                      "surface-container-low": "#f6f3f0",
+                      "on-surface-variant": "#454840",
+                      "tertiary-fixed": "#f6dbe9",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-container": "#846f7a",
+                      "secondary-fixed-dim": "#f2bf50",
+                      "outline": "#76786f",
+                      "on-secondary-container": "#745400",
+                      "on-primary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#424937",
+                      "surface-container-high": "#eae8e4",
+                      "on-secondary-fixed": "#261900",
+                      "secondary": "#7a5900",
+                      "secondary-fixed": "#ffdea2",
+                      "surface-container": "#f0edea",
+                      "on-tertiary-fixed": "#261720",
+                      "surface-container-highest": "#e5e2df",
+                      "primary": "#575f4b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "unit": "8px",
+                      "margin-desktop": "40px",
+                      "container-max-width": "1440px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "IBM Plex Sans"
+                      ],
+                      "display-lg": [
+                              "Libre Caslon Text"
+                      ],
+                      "label-md": [
+                              "IBM Plex Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Libre Caslon Text"
+                      ],
+                      "headline-lg": [
+                              "Libre Caslon Text"
+                      ],
+                      "headline-md": [
+                              "Libre Caslon Text"
+                      ],
+                      "mono-data": [
+                              "IBM Plex Sans"
+                      ],
+                      "body-md": [
+                              "IBM Plex Sans"
+                      ],
+                      "body-lg": [
+                              "IBM Plex Sans"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono-data": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Sublte ambient shadow for panels */
+        .shadow-ambient {
+            box-shadow: 0 10px 25px -5px rgba(28, 28, 26, 0.05), 0 8px 10px -6px rgba(28, 28, 26, 0.01);
+        }
+        /* Custom scrollbar for horizontal scroll areas if needed */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen pb-20">
+<!-- TopAppBar -->
+<header class="w-full top-0 bg-background border-b border-outline-variant flex flex-col pt-4 px-margin-mobile z-50 sticky">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="precision_manufacturing">precision_manufacturing</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile tracking-tight text-primary">The Forge</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+</div>
+</div>
+<!-- Navigation Tab Strip -->
+<nav class="flex w-full gap-6 overflow-x-auto hide-scrollbar">
+<a class="font-label-md text-label-md text-on-surface-variant pb-2 border-b-2 border-transparent hover:text-secondary transition-colors whitespace-nowrap cursor-pointer active:opacity-70" href="#">
+                Factory
+            </a>
+<a class="font-label-md text-label-md text-on-surface-variant pb-2 border-b-2 border-transparent hover:text-secondary transition-colors whitespace-nowrap cursor-pointer active:opacity-70" href="#">
+                Delivery
+            </a>
+<a class="font-label-md text-label-md text-secondary border-b-2 border-secondary pb-2 whitespace-nowrap cursor-pointer active:opacity-70" href="#">
+                Product
+            </a>
+</nav>
+</header>
+<main class="flex flex-col gap-8 px-margin-mobile pt-8">
+<!-- Header for current view context -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-background">Product Room</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Operational Metrics &amp; Health</p>
+</section>
+<!-- Metrics Row (Horizontal Scroll on Mobile) -->
+<section class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 -mx-margin-mobile px-margin-mobile">
+<!-- Metric Card 1: Sigma Level -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 min-w-[160px] flex-shrink-0 shadow-ambient flex flex-col items-center justify-center gap-3">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase text-center w-full">Sigma Level</h3>
+<!-- Circular Gauge Representation -->
+<div class="relative w-20 h-20 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<!-- Background Circle -->
+<path class="text-surface-variant stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="2"></path>
+<!-- Value Arc (approx 73% for 4.4/6) -->
+<path class="text-secondary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="73, 100" stroke-width="2"></path>
+</svg>
+<span class="absolute font-mono-data text-mono-data text-on-background">4.4</span>
+</div>
+</div>
+<!-- Metric Card 2: Runtime Errors -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 min-w-[160px] flex-shrink-0 shadow-ambient flex flex-col items-center justify-center gap-3">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase text-center w-full">Runtime Errors</h3>
+<div class="relative w-20 h-20 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-variant stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="2"></path>
+<!-- Very small arc for 0.3% -->
+<path class="text-secondary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="2, 100" stroke-width="2"></path>
+</svg>
+<span class="absolute font-mono-data text-mono-data text-on-background">0.3%</span>
+</div>
+</div>
+<!-- Metric Card 3: Uptime -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 min-w-[160px] flex-shrink-0 shadow-ambient flex flex-col items-center justify-center gap-3">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase text-center w-full">Uptime</h3>
+<div class="relative w-20 h-20 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-variant stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="2"></path>
+<!-- Almost full arc for 99.6% -->
+<path class="text-secondary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="99.6, 100" stroke-width="2"></path>
+</svg>
+<span class="absolute font-mono-data text-mono-data text-on-background">99.6%</span>
+</div>
+</div>
+</section>
+<!-- Main Panel: Runtime Health Pulse -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-ambient">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-label-md text-label-md text-on-background uppercase tracking-wider">Runtime Health Pulse</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Posterior-mean readout</p>
+</div>
+<div class="font-display-lg text-display-lg text-secondary leading-none">0.94</div>
+</div>
+<!-- Sparkline Placeholder -->
+<div class="w-full h-32 bg-surface-container-low rounded-lg border border-surface-variant flex items-center justify-center overflow-hidden relative">
+<!-- Abstract representation of a sparkline chart -->
+<svg class="w-full h-full opacity-60" preserveaspectratio="none" viewbox="0 0 400 100">
+<path class="text-primary" d="M0,80 Q20,60 40,75 T80,40 T120,50 T160,20 T200,45 T240,15 T280,30 T320,10 T360,25 T400,5" fill="none" stroke="currentColor" stroke-width="2"></path>
+<path class="text-primary opacity-10" d="M0,100 L0,80 Q20,60 40,75 T80,40 T120,50 T160,20 T200,45 T240,15 T280,30 T320,10 T360,25 T400,5 L400,100 Z" fill="currentColor"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-lowest px-2 py-1 rounded opacity-70 border border-outline-variant">Recent Observations</span>
+</div>
+</div>
+</section>
+<!-- Table: Kaizen Log -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-ambient">
+<div class="p-4 border-b border-outline-variant">
+<h3 class="font-label-md text-label-md text-on-background uppercase tracking-wider">Kaizen Log</h3>
+</div>
+<div class="overflow-x-auto hide-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-low">
+<th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold whitespace-nowrap">Date</th>
+<th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold whitespace-nowrap">Category</th>
+<th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold min-w-[200px]">Description</th>
+<th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold whitespace-nowrap">Status</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-background divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-4 font-mono-data text-mono-data text-on-surface-variant whitespace-nowrap">2023-10-24</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-error-container text-on-error-container whitespace-nowrap">
+                                    Product Runtime Defect
+                                </span>
+</td>
+<td class="p-4 text-sm">Thread deadlock in worker pool during peak load.</td>
+<td class="p-4">
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="pending">pending</span> Open
+                                </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-4 font-mono-data text-mono-data text-on-surface-variant whitespace-nowrap">2023-10-22</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-surface-variant text-on-surface-variant whitespace-nowrap">
+                                    Process Opt
+                                </span>
+</td>
+<td class="p-4 text-sm">Cache invalidation strategy refinement.</td>
+<td class="p-4">
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span> Resolved
+                                </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-4 font-mono-data text-mono-data text-on-surface-variant whitespace-nowrap">2023-10-20</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-error-container text-on-error-container whitespace-nowrap">
+                                    Product Runtime Defect
+                                </span>
+</td>
+<td class="p-4 text-sm">Memory leak in legacy telemetry module.</td>
+<td class="p-4">
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span> Resolved
+                                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+</body></html>
