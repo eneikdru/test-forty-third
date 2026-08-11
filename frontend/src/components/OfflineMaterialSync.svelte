@@ -266,23 +266,23 @@
   });
 </script>
 
-<div id="offline-sync-form" class="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[0.25rem] p-[1.5rem] shadow-sm font-sans mb-[1.5rem] w-full max-w-[1200px] mx-auto px-5 md:px-5">
+<div id="offline-sync-form" class="bg-surface-container-lowest border border-surface-container-high rounded-[0.25rem] p-[1.5rem] shadow-sm font-sans mb-[1.5rem] w-full max-w-[1200px] mx-auto px-5 md:px-5">
 
   <!-- Заголовок и статус подключения -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[1rem] mb-[1.5rem] border-b border-[#E2E8F0] pb-[1rem]">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[1rem] mb-[1.5rem] border-b border-surface-container-high pb-[1rem]">
     <div class="flex flex-col gap-1">
-      <h3 class="text-[1.25rem] font-bold text-[#1A365D]">
+      <h3 class="text-[1.25rem] font-bold text-primary-container">
         {editingId ? 'Редактировать материал' : 'Добавить материал'}
       </h3>
-      <p class="text-xs text-[#515f74]">
+      <p class="text-xs text-on-secondary-container">
         Ввод материалов с полной поддержкой офлайн-режима и автоматической очередью синхронизации.
       </p>
     </div>
 
     <div class="flex flex-wrap items-center gap-[1rem]">
       <div class="flex items-center gap-[0.5rem]" aria-live="polite">
-        <span class="inline-block w-[0.75rem] h-[0.75rem] rounded-[50%] {effectiveOnline ? 'bg-[#3182CE]' : 'bg-amber-400'}" aria-hidden="true"></span>
-        <span class="text-[0.875rem] font-bold uppercase tracking-wider {effectiveOnline ? 'text-[#3182CE]' : 'text-amber-700'}">
+        <span class="inline-block w-[0.75rem] h-[0.75rem] rounded-[50%] {effectiveOnline ? 'bg-primary' : 'bg-amber-400'}" aria-hidden="true"></span>
+        <span class="text-[0.875rem] font-bold uppercase tracking-wider {effectiveOnline ? 'text-primary' : 'text-amber-700'}">
           {effectiveOnline ? 'В сети' : 'Офлайн (Имитация)'}
         </span>
       </div>
@@ -295,7 +295,7 @@
             syncMaterials();
           }
         }}
-        class="text-[0.875rem] font-bold px-[0.75rem] py-[0.375rem] rounded-[0.25rem] border transition-colors {simulatedOffline ? 'bg-[#3182CE] border-[#3182CE] text-[#FFFFFF]' : 'bg-[#FFFFFF] border-[#E2E8F0] text-[#1A365D] hover:bg-[#F9F9FF]'}"
+        class="text-[0.875rem] font-bold px-[0.75rem] py-[0.375rem] rounded-[0.25rem] border transition-colors {simulatedOffline ? 'bg-primary border-primary text-on-primary' : 'bg-surface-container-lowest border-surface-container-high text-primary-container hover:bg-surface-bright'}"
       >
         {simulatedOffline ? 'Подключить сеть' : 'Имитировать автономный режим'}
       </button>
@@ -308,36 +308,36 @@
 
       <!-- Название -->
       <div class="flex flex-col gap-[0.5rem]">
-        <label for="material-title" class="text-[0.875rem] font-bold text-[#1A365D]">Название материала</label>
+        <label for="material-title" class="text-[0.875rem] font-bold text-primary-container">Название материала</label>
         <input
           id="material-title"
           type="text"
           bind:value={title}
           placeholder="Введите название материала"
-          class="border border-[#E2E8F0] rounded-[0.25rem] p-[0.5rem] text-[1rem] focus:outline-none focus:border-[#3182CE]"
+          class="border border-surface-container-high rounded-[0.25rem] p-[0.5rem] text-[1rem] focus:outline-none focus:border-primary"
           required
         />
       </div>
 
       <!-- Шифр -->
       <div class="flex flex-col gap-[0.5rem]">
-        <label for="material-number" class="text-[0.875rem] font-bold text-[#1A365D]">Шифр документа</label>
+        <label for="material-number" class="text-[0.875rem] font-bold text-primary-container">Шифр документа</label>
         <input
           id="material-number"
           type="text"
           bind:value={documentNumber}
           placeholder="Например, ФГОС-32.08.12"
-          class="border border-[#E2E8F0] rounded-[0.25rem] p-[0.5rem] text-[1rem] focus:outline-none focus:border-[#3182CE]"
+          class="border border-surface-container-high rounded-[0.25rem] p-[0.5rem] text-[1rem] focus:outline-none focus:border-primary"
         />
       </div>
 
       <!-- Тип документа -->
       <div class="flex flex-col gap-[0.5rem]">
-        <label for="material-type" class="text-[0.875rem] font-bold text-[#1A365D]">Тип документа</label>
+        <label for="material-type" class="text-[0.875rem] font-bold text-primary-container">Тип документа</label>
         <select
           id="material-type"
           bind:value={documentType}
-          class="border border-[#E2E8F0] rounded-[0.25rem] p-[0.5rem] text-[1rem] bg-white focus:outline-none focus:border-[#3182CE]"
+          class="border border-surface-container-high rounded-[0.25rem] p-[0.5rem] text-[1rem] bg-white focus:outline-none focus:border-primary"
         >
           <option value="Position">Положение</option>
           <option value="Procedure">Порядок</option>
@@ -348,11 +348,11 @@
 
       <!-- Программа обучения -->
       <div class="flex flex-col gap-[0.5rem]">
-        <label for="material-program" class="text-[0.875rem] font-bold text-[#1A365D]">Направление обучения</label>
+        <label for="material-program" class="text-[0.875rem] font-bold text-primary-container">Направление обучения</label>
         <select
           id="material-program"
           bind:value={program}
-          class="border border-[#E2E8F0] rounded-[0.25rem] p-[0.5rem] text-[1rem] bg-white focus:outline-none focus:border-[#3182CE]"
+          class="border border-surface-container-high rounded-[0.25rem] p-[0.5rem] text-[1rem] bg-white focus:outline-none focus:border-primary"
         >
           <option value="postgraduate">Аспирантура</option>
           <option value="residency">Ординатура</option>
@@ -362,11 +362,11 @@
 
       <!-- Процесс -->
       <div class="flex flex-col gap-[0.5rem]">
-        <label for="material-process" class="text-[0.875rem] font-bold text-[#1A365D]">Процесс / Категория</label>
+        <label for="material-process" class="text-[0.875rem] font-bold text-primary-container">Процесс / Категория</label>
         <select
           id="material-process"
           bind:value={process}
-          class="border border-[#E2E8F0] rounded-[0.25rem] p-[0.5rem] text-[1rem] bg-white focus:outline-none focus:border-[#3182CE]"
+          class="border border-surface-container-high rounded-[0.25rem] p-[0.5rem] text-[1rem] bg-white focus:outline-none focus:border-primary"
         >
           <option value="admission">Приёмная кампания</option>
           <option value="certification">Аттестация кадров</option>
@@ -379,13 +379,13 @@
 
       <!-- Период действия -->
       <div class="flex flex-col gap-[0.5rem]">
-        <label for="material-year" class="text-[0.875rem] font-bold text-[#1A365D]">Период действия</label>
+        <label for="material-year" class="text-[0.875rem] font-bold text-primary-container">Период действия</label>
         <input
           id="material-year"
           type="text"
           bind:value={academicYear}
           placeholder="Например, 2026-2027 или бессрочно"
-          class="border border-[#E2E8F0] rounded-[0.25rem] p-[0.5rem] text-[1rem] focus:outline-none focus:border-[#3182CE]"
+          class="border border-surface-container-high rounded-[0.25rem] p-[0.5rem] text-[1rem] focus:outline-none focus:border-primary"
           required
         />
       </div>
@@ -394,12 +394,12 @@
 
     <!-- Описание / Аннотация -->
     <div class="flex flex-col gap-[0.5rem]">
-      <label for="material-description" class="text-[0.875rem] font-bold text-[#1A365D]">Аннотация</label>
+      <label for="material-description" class="text-[0.875rem] font-bold text-primary-container">Аннотация</label>
       <textarea
         id="material-description"
         bind:value={description}
         placeholder="Введите краткое описание или аннотацию материала..."
-        class="border border-[#E2E8F0] rounded-[0.25rem] p-[0.5rem] text-[1rem] min-h-[5rem] focus:outline-none focus:border-[#3182CE]"
+        class="border border-surface-container-high rounded-[0.25rem] p-[0.5rem] text-[1rem] min-h-[5rem] focus:outline-none focus:border-primary"
       ></textarea>
     </div>
 
@@ -407,7 +407,7 @@
     <div class="flex items-center gap-[1rem] mt-[0.5rem]">
       <button
         type="submit"
-        class="bg-[#3182CE] hover:bg-[#1A365D] text-[#FFFFFF] font-bold py-[0.5rem] px-[1.25rem] rounded-[0.25rem] transition-colors"
+        class="bg-primary hover:bg-primary-container text-on-primary font-bold py-[0.5rem] px-[1.25rem] rounded-[0.25rem] transition-colors"
       >
         {editingId ? 'Сохранить изменения' : 'Добавить'}
       </button>
@@ -416,14 +416,14 @@
         <button
           type="button"
           onclick={resetForm}
-          class="border border-[#E2E8F0] hover:bg-slate-50 text-slate-600 font-bold py-[0.5rem] px-[1.25rem] rounded-[0.25rem] transition-colors"
+          class="border border-surface-container-high hover:bg-surface-container-low text-slate-600 font-bold py-[0.5rem] px-[1.25rem] rounded-[0.25rem] transition-colors"
         >
           Отмена
         </button>
       {/if}
 
       {#if statusMessage}
-        <span class="text-[0.875rem] font-bold text-[#3182CE]" role="status" aria-live="polite">
+        <span class="text-[0.875rem] font-bold text-primary" role="status" aria-live="polite">
           {statusMessage}
         </span>
       {/if}
@@ -432,9 +432,9 @@
 
   <!-- Очередь синхронизации (визуализация по макету с янтарными плашками) -->
   {#if syncQueue.length > 0}
-    <div class="mt-[1.5rem] border-t border-[#E2E8F0] pt-[1.5rem]">
+    <div class="mt-[1.5rem] border-t border-surface-container-high pt-[1.5rem]">
       <div class="flex items-center justify-between mb-4">
-        <h4 class="text-[1.125rem] font-bold text-[#1A365D] flex items-center gap-2">
+        <h4 class="text-[1.125rem] font-bold text-primary-container flex items-center gap-2">
           <span class="material-symbols-outlined text-amber-500 animate-spin">sync</span>
           Очередь синхронизации ({syncQueue.length})
         </h4>
@@ -442,7 +442,7 @@
           <button
             type="button"
             onclick={syncMaterials}
-            class="text-[0.875rem] font-bold text-[#3182CE] hover:underline flex items-center gap-1"
+            class="text-[0.875rem] font-bold text-primary hover:underline flex items-center gap-1"
           >
             <span class="material-symbols-outlined text-sm">cloud_sync</span>
             Синхронизировать сейчас
@@ -453,7 +453,7 @@
       <!-- Очередь элементов -->
       <div class="flex flex-col gap-3">
         {#each syncQueue as item}
-          <div class="flex items-stretch bg-white border border-[#E2E8F0] rounded-[0.25rem] relative overflow-hidden group hover:border-slate-300 transition-all shadow-sm">
+          <div class="flex items-stretch bg-white border border-surface-container-high rounded-[0.25rem] relative overflow-hidden group hover:border-slate-300 transition-all shadow-sm">
 
             <!-- Янтарный индикатор слева -->
             <div class="w-[4px] bg-amber-400 flex-shrink-0"></div>
@@ -461,10 +461,10 @@
             <!-- Содержимое карточки -->
             <div class="p-4 flex-grow flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div class="flex flex-col gap-1">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider font-mono">
                   {item.isUpdate ? 'Обновление документа' : 'Создание документа'}
                 </span>
-                <span class="font-bold text-[#1A365D] text-[0.9375rem]">{item.title}</span>
+                <span class="font-bold text-primary-container text-[0.9375rem]">{item.title}</span>
                 {#if item.description}
                   <p class="text-xs text-slate-500 line-clamp-1 max-w-xl">{item.description}</p>
                 {/if}
@@ -476,7 +476,7 @@
                   <span class="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-[4px] flex items-center gap-1 font-bold">
                     <span class="material-symbols-outlined text-[14px]">schedule</span> Ожидает
                   </span>
-                  <span class="text-[10px] font-mono text-[#515f74]">
+                  <span class="text-[10px] font-mono text-on-secondary-container">
                     {new Date(item.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -486,7 +486,7 @@
                   <button
                     type="button"
                     onclick={() => handleEditQueueItem(item)}
-                    class="p-1 hover:bg-[#F9F9FF] text-[#3182CE] rounded transition-colors"
+                    class="p-1 hover:bg-surface-bright text-primary rounded transition-colors"
                     title="Редактировать запись очереди"
                   >
                     <span class="material-symbols-outlined text-[18px]">edit</span>
@@ -494,7 +494,7 @@
                   <button
                     type="button"
                     onclick={(e) => handleDeleteQueueItem(item.id, e)}
-                    class="p-1 hover:bg-[#FFF5F5] text-red-500 rounded transition-colors"
+                    class="p-1 hover:bg-error-container text-red-500 rounded transition-colors"
                     title="Удалить из очереди"
                   >
                     <span class="material-symbols-outlined text-[18px]">delete</span>
@@ -508,7 +508,7 @@
       </div>
 
       <!-- Action Area Info Box (matching mockup text) -->
-      <div class="bg-[#F9F9FF] p-4 rounded-[0.25rem] border border-[#E2E8F0] flex items-start gap-3 mt-4 text-xs text-[#515f74]">
+      <div class="bg-surface-bright p-4 rounded-[0.25rem] border border-surface-container-high flex items-start gap-3 mt-4 text-xs text-on-secondary-container">
         <span class="material-symbols-outlined text-slate-500 mt-0.5">info</span>
         <p class="leading-relaxed">
           Изменения сохранены в локальном хранилище браузера. Они автоматически начнут синхронизироваться в порядке приоритета, как только восстановится стабильное сетевое подключение.
