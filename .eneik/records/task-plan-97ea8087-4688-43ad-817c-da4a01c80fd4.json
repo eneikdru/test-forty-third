@@ -1,0 +1,64 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "f5da8084-2471-4d88-a384-e6f06165789f",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Implement real-time auto-suggestions and typo correction in the search bar"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch search input for real-time auto-suggestions",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing auto-suggestions for this epic, I want to add real-time dropdowns to the search input, so that the epic's outcome is achieved",
+          "acceptanceCriteria": "Given a search input field,\nWhen a user starts typing,\nThen the system returns a list of suggested queries or matching document titles.\nGiven an automated UI test,\nWhen auto-suggestions are triggered,\nThen the UI test verifies that real-time dropdown renders correctly without regressions.",
+          "leanValue": "valuable",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "frontend search input component",
+          "sixSigmaMetric": "Reduce search refinement steps from 4 to 1",
+          "hasUi": true,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "a136bf09-0f75-413f-a079-312a84fc0ee5",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: Enable offline material creation with automatic synchronization upon reconnection"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch frontend state for offline creation and sync",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing offline creation for this epic, I want to store materials locally, so that the epic's outcome is achieved",
+          "acceptanceCriteria": "Given an offline state,\nWhen a user creates or modifies a document,\nThen it is stored locally and automatically pushed to the server upon reconnection.\nGiven an integration test for offline sync,\nWhen a reconnection event occurs,\nThen it verifies that locally stored materials are pushed to the server.",
+          "leanValue": "valuable",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "frontend service worker or local storage",
+          "sixSigmaMetric": "Reduce data loss in offline states from 5% to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
