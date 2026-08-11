@@ -1,0 +1,34 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Patch existing status synchronization logic to correctly assign rootCausePatternId for PRs closed without merge."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch defect categorization logic",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the defect categorization patch for this epic, I want to assign rootCausePatternId to uncategorized defect events, so that task status mismatches are properly tracked and reduced.",
+          "acceptanceCriteria": "Given a task status mismatch defect event from an unmerged PR,\nWhen the system evaluates the state,\nThen a valid rootCausePatternId must be assigned to the defect event.\nGiven unit and integration tests executing this logic,\nWhen the PR is closed without merge,\nThen tests must verify the correct rootCausePatternId is saved.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Defect categorization throughput",
+          "sixSigmaMetric": "Reduce the rate of uncategorized status mismatch review concerns from 2.7% to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
