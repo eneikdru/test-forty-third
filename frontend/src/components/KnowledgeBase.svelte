@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import DocumentViewer from './DocumentViewer.svelte';
 
   // Props
@@ -529,6 +529,10 @@
     currentPage = 1;
   });
 
+  function handleMaterialsSynced() {
+    fetchBackendDocuments(debouncedSearchQuery, selectedRole);
+  }
+
   onMount(() => {
     try {
       const storedFavs = localStorage.getItem('kb_favorites_v1');
@@ -549,6 +553,14 @@
       }
     } catch (e) {
       console.error(e);
+    }
+
+    window.addEventListener('materials-synced', handleMaterialsSynced);
+  });
+
+  onDestroy(() => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('materials-synced', handleMaterialsSynced);
     }
   });
 </script>
@@ -677,14 +689,28 @@
             <!-- Иконка и звезда в Избранном -->
             <div class="flex items-center justify-between">
               <span class="material-symbols-outlined text-2xl {fileMeta.color}">{fileMeta.icon}</span>
-              <button
-                type="button"
-                onclick={(e) => toggleFavorite(doc.id, e)}
-                class="text-amber-500 hover:text-slate-400 p-1 flex items-center justify-center rounded-full active:scale-90 transition-transform"
-                aria-label="Убрать из избранного"
-              >
-                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
-              </button>
+              <div class="flex items-center gap-1">
+                <button
+                  type="button"
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    window.dispatchEvent(new CustomEvent('edit-document', { detail: doc }));
+                  }}
+                  class="text-slate-400 hover:text-[#3182CE] p-1 flex items-center justify-center rounded-full active:scale-90 transition-transform"
+                  title="Редактировать"
+                  aria-label="Редактировать"
+                >
+                  <span class="material-symbols-outlined text-[18px]">edit</span>
+                </button>
+                <button
+                  type="button"
+                  onclick={(e) => toggleFavorite(doc.id, e)}
+                  class="text-amber-500 hover:text-slate-400 p-1 flex items-center justify-center rounded-full active:scale-90 transition-transform"
+                  aria-label="Убрать из избранного"
+                >
+                  <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                </button>
+              </div>
             </div>
             <!-- Название и мета-информация -->
             <div class="flex flex-col gap-1 mt-1">
@@ -887,6 +913,19 @@
 
           <!-- Звезда избранного и Иконка типа документа сверху справа -->
           <div class="absolute top-4 right-4 flex items-center gap-2">
+            <!-- Кнопка редактирования -->
+            <button
+              type="button"
+              onclick={(e) => {
+                e.stopPropagation();
+                window.dispatchEvent(new CustomEvent('edit-document', { detail: doc }));
+              }}
+              class="hover:text-[#3182CE] text-slate-400 p-1 flex items-center justify-center rounded-full active:scale-90 transition-transform"
+              title="Редактировать документ"
+              aria-label="Редактировать документ"
+            >
+              <span class="material-symbols-outlined text-lg">edit</span>
+            </button>
             <button
               type="button"
               onclick={(e) => toggleFavorite(doc.id, e)}

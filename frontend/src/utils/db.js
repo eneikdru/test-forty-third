@@ -27,7 +27,7 @@ export async function addMaterialToDB(material) {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE_NAME, 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
-    const request = store.add(material);
+    const request = store.put(material); // Use put so it handles updates as well!
 
     request.onsuccess = () => resolve();
     request.onerror = (event) => reject(event.target.error);

@@ -42,6 +42,11 @@
     return map[type] || 'Документ';
   }
 
+  // Check if role is authorized to edit
+  let canEdit = $derived(
+    selectedRole === 'Admin' || selectedRole === 'Economist'
+  );
+
   function getProgramRu(prog) {
     const map = {
       postgraduate: 'Аспирантура',
@@ -325,6 +330,20 @@
     </button>
 
     <div class="flex w-full sm:w-auto gap-2">
+      <!-- Edit button triggered here -->
+      {#if canEdit}
+        <button
+          onclick={() => {
+            window.dispatchEvent(new CustomEvent('edit-document', { detail: selectedDocument }));
+            onBack();
+          }}
+          class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 bg-[#1A365D] hover:bg-slate-800 text-white rounded-[0.25rem] text-xs font-bold font-sans transition-colors shadow-sm"
+        >
+          <span class="material-symbols-outlined text-[18px]">edit</span>
+          <span>Редактировать</span>
+        </button>
+      {/if}
+
       <button
         onclick={() => showRequestModal = true}
         class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 border border-[#3182CE] hover:bg-blue-50 text-[#3182CE] rounded-[0.25rem] text-xs font-bold font-sans transition-colors"
