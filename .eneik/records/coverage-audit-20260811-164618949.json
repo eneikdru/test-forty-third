@@ -1,0 +1,18 @@
+{
+  "gaps": [
+    {
+      "title": "Search Auto-Suggestions",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When typing a query in the search bar, I want to see real-time auto-suggestions, so that I can find materials faster and correct my input on the fly.",
+      "acceptanceCriteria": "Given a search input field, When a user starts typing, Then the system returns a list of suggested queries or matching document titles.",
+      "reason": "literal brief requirement: 'автоподсказки и исправление опечаток'"
+    },
+    {
+      "title": "Offline Material Creation and Sync",
+      "roleTag": "BARCAN-TAG-02",
+      "jtbd": "When I have no internet access, I want to be able to add materials offline, so that my work is saved locally and synchronized to the server when connection is restored.",
+      "acceptanceCriteria": "Given an offline state, When a user creates or modifies a document, Then it is stored locally and automatically pushed to the server upon reconnection.",
+      "reason": "literal brief requirement: 'Возможность добавления материалов в офлайн-режиме с последующей синхронизацией'"
+    }
+  ]
+}
