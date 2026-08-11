@@ -1,0 +1,28 @@
+{
+  "violations": [
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "type": "stub",
+      "prNumber": 308,
+      "reason": "In UserActionAuditAspect.auditSyncRoles, the code hardcodes the user identity as 'SYSTEM_SYNC' or 'INTERNAL_SERVICE' instead of actually extracting the real user identity, faking success without doing the real work of tracking the actual user."
+    },
+    {
+      "roleTag": "BARCAN-TAG-11",
+      "type": "refusal_criteria",
+      "prNumber": 307,
+      "reason": "The dashboard design introduces English text into the UI (e.g., 'Good morning, Alex', 'Home', 'Modules') as noted in PR #309, which directly violates the system constraint that the frontend user interface must be exclusively in Russian."
+    },
+    {
+      "roleTag": "BARCAN-TAG-06",
+      "type": "methodological",
+      "prNumber": 306,
+      "philosopher": "Нуэль Белнап",
+      "thesis": "Принцип четырёхзначной логики (True/False/Both/Neither) — отвергается для итогового статуса, применяется для диагностики",
+      "score": "14.000394",
+      "mustBe": "Write the check that would refute the agent's claim before accepting the claim.",
+      "performance": "Show a failing counterexample or a targeted passing test that would fail under the defect.",
+      "attractive": "Implement comprehensive verification before merging.",
+      "reason": "PR #306 implements the AntivirusScannerService but completely omits the tests required by the Acceptance Criteria, violating the Falsification Harness pattern (NUEL_BELNAP_01) which demands a targeted passing test that would fail under the defect."
+    }
+  ]
+}
