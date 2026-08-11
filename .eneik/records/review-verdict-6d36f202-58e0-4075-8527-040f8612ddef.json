@@ -1,0 +1,10 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "block",
+      "criticalReason": "The PR commits generated build artifacts, specifically compiled JS/CSS files in src/main/resources/static/assets/ and .png image files.",
+      "concerns": []
+    }
+  ]
+}
