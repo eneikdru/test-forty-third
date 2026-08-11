@@ -1,18 +1,22 @@
 package com.eneik.production.services;
 
+import com.eneik.generated.util.TimeProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Service
 public class TaskStatusSyncService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final TimeProvider timeProvider;
 
-    public TaskStatusSyncService(JdbcTemplate jdbcTemplate) {
+    public TaskStatusSyncService(JdbcTemplate jdbcTemplate, TimeProvider timeProvider) {
         this.jdbcTemplate = jdbcTemplate;
+        this.timeProvider = timeProvider;
     }
 
     @Transactional
@@ -21,8 +25,8 @@ public class TaskStatusSyncService {
             return false;
         }
         if (isPrClosed && !isPrMerged) {
-            String sql = "UPDATE sync_tasks SET status = 'failed' WHERE id = ? AND status != 'failed'";
-            int updatedRows = jdbcTemplate.update(sql, taskId);
+            String sql = "UPDATE sync_tasks SET status = 'failed', updated_at = ? WHERE id = ? AND status != 'failed'";
+            int updatedRows = jdbcTemplate.update(sql, Timestamp.valueOf(timeProvider.now()), taskId);
             return updatedRows > 0;
         }
         return false;
