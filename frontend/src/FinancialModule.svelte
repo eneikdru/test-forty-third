@@ -3,11 +3,12 @@
   import SettingsAndAnalytics from './components/SettingsAndAnalytics.svelte';
   import KnowledgeBase from './components/KnowledgeBase.svelte';
   import OfflineMaterialSync from './components/OfflineMaterialSync.svelte';
+  import Dashboard from './components/Dashboard.svelte';
 
   // Svelte 5 state runes
   let isStarted = $state(false);
   let selectedRole = $state('Economist'); // 'Economist', 'Teacher', 'Postgraduate'
-  let activeCategory = $state('База знаний'); // 'База знаний' по умолчанию
+  let activeCategory = $state('Панель'); // 'Панель' по умолчанию
   let activeSubTab = $state('Бюджет'); // 'Бюджет' или 'Нагрузка' (для экономиста)
   let budgetDocs = $state([]);
   let loadDocs = $state([]);
@@ -173,7 +174,7 @@
 
   // Fetch when role changes
   $effect(() => {
-    if (activeCategory !== 'База знаний') {
+    if (activeCategory !== 'База знаний' && activeCategory !== 'Панель') {
       if (selectedRole === 'Admin') {
         activeCategory = 'Интеграция';
       } else if (selectedRole === 'Economist') {
@@ -256,6 +257,16 @@
       </div>
 
       <nav class="flex-1 py-4 flex flex-col gap-1">
+        <!-- Панель управления доступна для всех -->
+        <button
+          type="button"
+          onclick={() => activeCategory = 'Панель'}
+          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Панель' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+        >
+          <span class="material-symbols-outlined">dashboard</span>
+          <span>Панель управления</span>
+        </button>
+
         <!-- База знаний доступна для всех -->
         <button
           type="button"
@@ -413,10 +424,10 @@
       <div class="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
 
         <!-- Уведомление об ошибке в системе -->
-        {#if errorMessage}
-          <div class="bg-[#ffdad6] text-[#93000a] p-4 rounded-lg border border-[#ba1a1a] flex items-center gap-3">
-            <span class="material-symbols-outlined">error</span>
-            <span class="font-semibold text-sm">{errorMessage}</span>
+        {#if errorMessage && errorMessage.trim() !== ''}
+          <div class="bg-[#ffdad6] text-[#93000a] p-4 rounded-lg border border-[#ba1a1a] flex items-center gap-3 w-full min-h-[56px] flex-shrink-0">
+            <span class="material-symbols-outlined shrink-0">error</span>
+            <span class="font-semibold text-sm break-words">{errorMessage}</span>
           </div>
         {/if}
 
@@ -426,6 +437,8 @@
             <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
             <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
           </div>
+        {:else if activeCategory === 'Панель'}
+          <Dashboard />
         {:else if activeCategory === 'База знаний'}
           <OfflineMaterialSync />
           <KnowledgeBase {selectedRole} />
@@ -816,6 +829,16 @@
 
     <!-- Нижняя панель навигации (для мобильных устройств) -->
     <nav class="md:hidden fixed bottom-0 w-full z-50 bg-[#e5eeff] border-t border-[#c6c6cd] flex justify-around items-center h-16 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+      <!-- Панель в мобильном меню для всех ролей -->
+      <button
+        type="button"
+        onclick={() => activeCategory = 'Панель'}
+        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Панель' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+      >
+        <span class="material-symbols-outlined text-xl">dashboard</span>
+        <span>Панель</span>
+      </button>
+
       <!-- База знаний в мобильном меню для всех ролей -->
       <button
         type="button"
