@@ -1,0 +1,136 @@
+{
+  "critiques": [
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "philosopher": "Людвиг Витгенштейн",
+      "worldview": "Philosophical Investigations - language-games, meaning as use, private-language argument (Принцип языковых игр)",
+      "critique": "The frontend UI FinancialModule.svelte uses hardcoded string literals like 'Панель', 'Кадры', 'Стипендии' to represent internal state (activeCategory), treating meaning as private use within the component. This creates an isolated language game that isn't formally grounded in the backend API or domain model.",
+      "proposal": "Extract these category identifiers into shared constants or types that span both frontend and backend boundaries.",
+      "dislike": "Private, implicit state tracking without explicit translation at the system boundary.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte -> let activeCategory = $state('Панель');",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "philosopher": "Нельсон Гудман",
+      "worldview": "Ways of Worldmaking / Fact, Fiction, and Forecast - worldmaking and projectibility (Принцип проектных миров)",
+      "critique": "The getDocumentTypeName function locally constructs a projection of reality (a 'world') by translating arbitrary English keys (e.g., 'Position') to Russian strings. This ad-hoc worldmaking creates a semantic drift risk if the backend 'world' of document types diverges.",
+      "proposal": "Centralize the dictionary of document types into the backend API contract so the frontend does not manually construct a separate semantic world.",
+      "dislike": "Ad-hoc semantic mappings localized to the frontend.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte -> getDocumentTypeName(type) { const map = { Position: 'Положение', ... }; }",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "philosopher": "Майкл Дамит",
+      "worldview": "Truth and Other Enigmas / Frege: Philosophy of Language - verificationist theory of meaning (Принцип верификационизма значений)",
+      "critique": "The frontend asserts loading = false and errorMessage = '' without a rigorous verification mechanism linking these visual states to actual backend availability. The truth value of the 'loaded' state is purely phenomenological and unverified against the real system state.",
+      "proposal": "Bind loading and error states explicitly to formal API response statuses and verification gates.",
+      "dislike": "Unverified phenomenological state claims.",
+      "kanoClass": "Performance",
+      "confidence": "medium",
+      "evidence": "frontend/src/FinancialModule.svelte -> let loading = $state(false);",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01",
+      "philosopher": "Рут Баркан Маркус",
+      "worldview": "A Functional Calculus of First Order Based on Strict Implication - quantified modal logic (Принцип квантифицированного актуализма)",
+      "critique": "The Document entity maps to a Category but allows arbitrary title strings without ensuring identical terms refer to the same actual domain object in different possible contexts. Duplicated string titles might secretly represent the same actualist object across categories.",
+      "proposal": "Enforce canonical identifiers for Document titles within a Category to prevent duplication of actual domain entities.",
+      "dislike": "Permissive string fields that risk domain object duplication.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/Document.java -> String title lacking unique constraints.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01",
+      "philosopher": "Бэрри Смит",
+      "worldview": "Applied ontology and Basic Formal Ontology - formal taxonomies for real domains (Принцип прикладной формальной онтологии)",
+      "critique": "The Category entity has a parentId of type UUID without a formalized taxonomic relationship. This flat structural reference fails to explicitly model the real-world ontology of part-whole or genus-species relationships, leading to a weakly typed domain taxonomy.",
+      "proposal": "Model categories as a strict formal ontology tree with explicit domain-meaningful bounds rather than a recursive pointer.",
+      "dislike": "Weak, untyped hierarchical relationships that fail to model reality.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/Category.java -> private UUID parentId;",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01",
+      "philosopher": "Кит Файн",
+      "worldview": "Essence and Modality - essence before modal description (Принцип метафизики сущностей)",
+      "critique": "In Document.java, createdAt and updatedAt are modeled as contingent properties (fields) directly on the document rather than separating the essential identity of the document from its temporal/modal descriptions.",
+      "proposal": "Isolate the essential core of a Document from its mutable descriptions by extracting a separate Version or Metadata entity.",
+      "dislike": "Conflating essential object identity with contingent historical properties.",
+      "kanoClass": "Attractive",
+      "confidence": "medium",
+      "evidence": "src/main/java/com/eneik/generated/model/Document.java -> createdAt, updatedAt.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "philosopher": "Сол Крипке",
+      "worldview": "Naming and Necessity - rigid designation and necessary identity (Принцип жёсткой десигнации)",
+      "critique": "The Svelte frontend uses non-rigid designators for roles, like the string 'Economist' for selectedRole. This designator is not rigidly attached to a necessary backend identity, making the contract brittle and susceptible to naming drift.",
+      "proposal": "Use explicit, rigid identifiers (like Enums or UUIDs) from the API contract for role selection instead of string literals.",
+      "dislike": "Using string literals as non-rigid identifiers across system boundaries.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte -> let selectedRole = $state('Economist');",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "philosopher": "Джон Перри",
+      "worldview": "The Problem of the Essential Indexical - indexicals and self-locating content (Принцип индексикальной семантики)",
+      "critique": "The UI handles activeSubTab = 'Бюджет' as a global state, but it is deeply indexical—it only makes sense relative to the selectedRole. When the role changes, this state may become invalid or point to nothing, mishandling self-locating content.",
+      "proposal": "Bind the sub-tab state directly to the indexical context of the selected role, clearing or validating it strictly upon role transition.",
+      "dislike": "Global state that is implicitly dependent on an unstable indexical context.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte -> let activeSubTab = $state('Бюджет');",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "philosopher": "Роберт Сталнакер",
+      "worldview": "Assertion and possible-world pragmatics - common ground and context change (Принцип динамики контекста)",
+      "critique": "The conditional rendering in FinancialModule.svelte ({#if selectedRole === 'Economist'}) implicitly changes the 'common ground' of the interface without a formalized context change protocol. This can lead to race conditions if data fetches overlap with context shifts.",
+      "proposal": "Formalize the context transition by grouping role changes and data invalidations into atomic state machine transitions.",
+      "dislike": "Implicit, unmanaged context shifts that alter the common ground of the application.",
+      "kanoClass": "Performance",
+      "confidence": "medium",
+      "evidence": "frontend/src/FinancialModule.svelte -> {#if selectedRole === 'Economist'}",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "philosopher": "Джейсон Стэнли",
+      "worldview": "Knowledge and Practical Interests - contextualism in language and knowledge (Принцип семантического контекстуализма)",
+      "critique": "The term Document is used universally in the domain, but its meaning changes based on the user's practical interests (e.g., a teacher sees workload vs an economist seeing budget). The API contract does not contextually separate these distinct informational domains.",
+      "proposal": "Create context-specific API contracts (e.g., WorkloadDocument, BudgetDocument) rather than relying on a single, overloaded Document structure.",
+      "dislike": "Single domain entity overloaded with contextually disjoint meanings.",
+      "kanoClass": "Attractive",
+      "confidence": "medium",
+      "evidence": "src/main/java/com/eneik/generated/model/Document.java lacking subtype contexts.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "philosopher": "Дэвид Чалмерс",
+      "worldview": "Two-Dimensional Semantics - primary and secondary intensions (Принцип двумерной семантики)",
+      "critique": "The UI relies heavily on secondary intensions (string names like 'Кадры' or 'Стипендии') for logic, rather than primary intensions (IDs). This makes the interface brittle across different environments or translations.",
+      "proposal": "Ensure all API routing and state logic is driven by primary intensions (unique IDs) rather than secondary intensions (Names).",
+      "dislike": "Using secondary intensions (names/labels) for control flow and state management.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte -> onclick={() => activeCategory = 'Кадры'}",
+      "screenshotFile": ""
+    }
+  ]
+}
