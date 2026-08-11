@@ -1,0 +1,64 @@
+{
+  "epics": [
+    {
+      "existingEpicId": null,
+      "title": "System Action Audit Log",
+      "jtbd": "When users interact with the system, I want their actions to be logged in a dedicated journal, so that administrators can audit metadata changes and permission updates.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "percentage of user modification actions successfully recorded in the audit log",
+      "tocConstraintRef": "metadata change traceability constraint",
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: When an authenticated user modifies document metadata or access rights, a record must be created in a central audit journal capturing the user identity, timestamp, and details of the change."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch audit logging into metadata and access right modification flows",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the central audit journal patch for this epic, I want to insert logging calls into existing metadata and access modification methods, so that the central user action audit journal is populated.",
+          "acceptanceCriteria": "Given an authenticated user,\nWhen the user modifies document metadata or access rights,\nThen a record must be created in the central audit journal capturing the user identity, timestamp, and details of the change, and tested verifying the audit log persistence.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "audit log insertion bottleneck",
+          "sixSigmaMetric": "percentage of patched modification methods successfully logging actions",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": null,
+      "title": "Anti-Virus Scan on File Uploads",
+      "jtbd": "When a user uploads a file, I want the file to be scanned for malware, so that the knowledge base does not distribute infected documents.",
+      "kanoClass": "Must-Be",
+      "cynefinDomain": "clear",
+      "sixSigmaMetric": "percentage of uploaded files successfully scanned for malware before saving",
+      "tocConstraintRef": "file upload security validation bottleneck",
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: When a user uploads a new document or version, the file must be passed through an anti-virus scanner before being saved to the upload directory."
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch anti-virus scan into file upload service",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the anti-virus scan patch for this epic, I want to insert scanning logic into the existing file upload flow, so that malware scanning occurs before saving.",
+          "acceptanceCriteria": "Given a user uploading a new document or version,\nWhen the file is transferred to the server,\nThen it must be passed through an anti-virus scanner before being saved to the upload directory, and tested verifying infected files are rejected.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "upload stream validation bottleneck",
+          "sixSigmaMetric": "percentage of file uploads passing through malware scanning",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
