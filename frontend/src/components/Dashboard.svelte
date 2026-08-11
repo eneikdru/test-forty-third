@@ -4,10 +4,14 @@
   // State runes for interactive actions
   let alertMessage = $state('');
   let reportCount = $state(0);
+  let timeoutId = $state(null);
 
   function triggerAction(actionName) {
     alertMessage = `Действие "${actionName}" успешно выполнено!`;
-    setTimeout(() => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
       alertMessage = '';
     }, 4000);
   }
@@ -16,214 +20,126 @@
     reportCount += 1;
     triggerAction(`Новый отчет #${reportCount}`);
   }
+
+  function handleManageAccess() {
+    triggerAction('Управление доступом');
+  }
+
+  function handleTriggerSync() {
+    triggerAction('Синхронизация');
+  }
 </script>
 
-<div class="flex flex-col gap-lg w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-lg md:py-xl text-on-background font-body-md antialiased">
-
-  <!-- Alert Banner for actions feedback -->
-  {#if alertMessage}
-    <div class="bg-secondary-container text-on-secondary-container p-sm rounded-xl border border-outline-variant flex items-center gap-sm transition-all animate-pulse">
-      <span class="material-symbols-outlined">info</span>
-      <span class="font-semibold text-sm">{alertMessage}</span>
-    </div>
-  {/if}
-
-  <!-- Welcome & Hero Section -->
-  <section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-sm mb-sm">
-    <div>
-      <h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-base">С возвращением, Алекс.</h1>
-      <p class="font-body-lg text-body-lg text-on-surface-variant">Вот ваш ежедневный обзор.</p>
-    </div>
-    <div class="flex gap-sm w-full md:w-auto mt-sm md:mt-0">
-      <button
-        type="button"
-        onclick={handleNewReport}
-        class="flex-1 md:flex-none flex items-center justify-center gap-base px-sm py-sm bg-primary text-on-primary rounded font-body-sm text-body-sm font-semibold hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
-      >
-        <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
-        <span>Новый отчет</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Metrics Grid (Bento Style) -->
-  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter w-full">
-    <!-- Metric 1 -->
-    <div class="bento-card flex flex-col justify-between h-32 ambient-shadow">
-      <div class="flex justify-between items-start w-full">
-        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Общий объем</span>
-        <span class="material-symbols-outlined text-secondary">monitoring</span>
-      </div>
-      <div>
-        <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">24,592</div>
-        <div class="font-body-sm text-[11px] leading-tight text-on-surface-variant flex flex-wrap items-center gap-1 mt-1">
-          <span class="material-symbols-outlined text-primary shrink-0" style="font-size: 16px;">trending_up</span>
-          <span class="text-primary font-semibold shrink-0">+12.5%</span>
-          <span>по сравнению с прошлой неделей</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Metric 2 -->
-    <div class="bento-card flex flex-col justify-between h-32 ambient-shadow">
-      <div class="flex justify-between items-start w-full">
-        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Активные сессии</span>
-        <span class="material-symbols-outlined text-secondary">group</span>
-      </div>
-      <div>
-        <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">1,843</div>
-        <div class="font-body-sm text-[11px] leading-tight text-on-surface-variant flex flex-wrap items-center gap-1 mt-1">
-          <span class="material-symbols-outlined text-secondary shrink-0" style="font-size: 16px;">trending_flat</span>
-          <span>Без изменений</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Metric 3 -->
-    <div class="bento-card flex flex-col justify-between h-32 ambient-shadow">
-      <div class="flex justify-between items-start w-full">
-        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Состояние системы</span>
-        <span class="material-symbols-outlined text-secondary">health_and_safety</span>
-      </div>
-      <div>
-        <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">99.9%</div>
-        <div class="font-body-sm text-[11px] leading-tight text-on-surface-variant flex flex-wrap items-center gap-1 mt-1">
-          <span class="material-symbols-outlined text-primary shrink-0" style="font-size: 16px;">check_circle</span>
-          <span class="font-semibold text-primary">Оптимально</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Metric 4 -->
-    <div class="bento-card flex flex-col justify-between h-32 ambient-shadow bg-surface-container-low border-none">
-      <div class="flex justify-between items-start w-full">
-        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Ожидающие действия</span>
-        <span class="material-symbols-outlined text-secondary">pending_actions</span>
-      </div>
-      <div>
-        <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">14</div>
-        <div class="font-body-sm text-[11px] leading-tight text-on-surface-variant flex flex-wrap items-center gap-1 mt-1">
-          <span>Требует внимания</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Content Area: Activity & Quick Actions -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg w-full mt-sm">
-    <!-- Recent Activity List -->
-    <section class="lg:col-span-2 flex flex-col gap-sm">
-      <div class="flex justify-between items-center mb-xs">
-        <h2 class="font-headline-md text-headline-md text-on-surface">Последняя активность</h2>
-        <button
-          type="button"
-          onclick={() => triggerAction('Показать все активности')}
-          class="font-label-caps text-label-caps text-primary hover:underline uppercase focus:outline-none"
-        >
-          Показать все
-        </button>
-      </div>
-      <div class="bento-card flex flex-col p-0 ambient-shadow overflow-hidden">
-        <!-- Activity Item 1 -->
-        <button
-          type="button"
-          onclick={() => triggerAction('Сгенерирован финансовый отчет за 3-й квартал')}
-          class="flex items-center p-sm md:p-md border-b border-surface-container w-full min-h-[64px] hover:bg-surface-bright transition-colors cursor-pointer group text-left focus:outline-none focus:bg-surface-bright"
-        >
-          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-secondary mr-sm shrink-0">
-            <span class="material-symbols-outlined">description</span>
-          </div>
-          <div class="flex-grow">
-            <h3 class="font-body-md text-body-md text-on-surface font-semibold group-hover:text-primary transition-colors">Сгенерирован финансовый отчет за 3-й квартал</h3>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">Система автоматизирована</p>
-          </div>
-          <div class="text-right shrink-0 ml-sm">
-            <span class="font-label-caps text-label-caps text-on-surface-variant">10 МИНУТ НАЗАД</span>
-          </div>
-        </button>
-
-        <!-- Activity Item 2 -->
-        <button
-          type="button"
-          onclick={() => triggerAction('Зарегистрирован новый пользователь Сара Дженкинс')}
-          class="flex items-center p-sm md:p-md border-b border-surface-container w-full min-h-[64px] hover:bg-surface-bright transition-colors cursor-pointer group text-left focus:outline-none focus:bg-surface-bright"
-        >
-          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-secondary mr-sm shrink-0">
-            <span class="material-symbols-outlined">person_add</span>
-          </div>
-          <div class="flex-grow">
-            <h3 class="font-body-md text-body-md text-on-surface font-semibold group-hover:text-primary transition-colors">Зарегистрирован новый пользователь</h3>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">Сара Дженкинс (Отдел продаж)</p>
-          </div>
-          <div class="text-right shrink-0 ml-sm">
-            <span class="font-label-caps text-label-caps text-on-surface-variant">2 ЧАСА НАЗАД</span>
-          </div>
-        </button>
-
-        <!-- Activity Item 3 -->
-        <button
-          type="button"
-          onclick={() => triggerAction('Синхронизация базы данных завершена')}
-          class="flex items-center p-sm md:p-md w-full min-h-[64px] hover:bg-surface-bright transition-colors cursor-pointer group text-left focus:outline-none focus:bg-surface-bright"
-        >
-          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-secondary mr-sm shrink-0">
-            <span class="material-symbols-outlined">cloud_sync</span>
-          </div>
-          <div class="flex-grow">
-            <h3 class="font-body-md text-body-md text-on-surface font-semibold group-hover:text-primary transition-colors">Синхронизация базы данных завершена</h3>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">Регион US-East</p>
-          </div>
-          <div class="text-right shrink-0 ml-sm">
-            <span class="font-label-caps text-label-caps text-on-surface-variant">5 ЧАСОВ НАЗАД</span>
-          </div>
-        </button>
-      </div>
-    </section>
-
-    <!-- Quick Actions & Context -->
-    <section class="lg:col-span-1 flex flex-col gap-sm">
-      <h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Быстрые инструменты</h2>
-      <div class="bento-card ambient-shadow flex flex-col gap-sm">
-        <button
-          type="button"
-          onclick={() => triggerAction('Экспорт текущего вида')}
-          class="w-full flex items-center justify-start gap-sm p-sm rounded hover:bg-surface-container-low transition-colors text-on-surface font-body-md text-body-md border border-transparent hover:border-outline-variant focus:outline-none focus:border-outline-variant"
-        >
-          <span class="material-symbols-outlined text-secondary">file_download</span>
-          <span>Экспорт текущего вида</span>
-        </button>
-        <button
-          type="button"
-          onclick={() => triggerAction('Поделиться ссылкой панели')}
-          class="w-full flex items-center justify-start gap-sm p-sm rounded hover:bg-surface-container-low transition-colors text-on-surface font-body-md text-body-md border border-transparent hover:border-outline-variant focus:outline-none focus:border-outline-variant"
-        >
-          <span class="material-symbols-outlined text-secondary">share</span>
-          <span>Поделиться ссылкой панели</span>
-        </button>
-        <button
-          type="button"
-          onclick={() => triggerAction('Настроить макет')}
-          class="w-full flex items-center justify-start gap-sm p-sm rounded hover:bg-surface-container-low transition-colors text-on-surface font-body-md text-body-md border border-transparent hover:border-outline-variant focus:outline-none focus:border-outline-variant"
-        >
-          <span class="material-symbols-outlined text-secondary">settings_suggest</span>
-          <span>Настроить макет</span>
-        </button>
-      </div>
-
-      <!-- Visual Context Area (Image/Graphic) -->
-      <button
-        type="button"
-        onclick={() => triggerAction('Переход к описанию релиза')}
-        class="mt-sm rounded-xl overflow-hidden h-48 ambient-shadow relative group text-left w-full block focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
-      >
-        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Текстурированный фон" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCophFntr39N9H99DAOwWJJ6eWbtYANhjZnqwtf5hctoNi1hDZBdXMaza_O08VoR25EImch4G-evGlYutRzvDsuv7xUT1D7DT08yL2Gw6q5OjPj9ASy4aRQ6yvUYUl6R1SF20JjBrfN3L25OwZ3mfOPsFU1KLZNMlTfShEy0LqeTMOl0dibvMxMlILqQgFoGmzDzusRpJ_M0eUtpNarhimhTyJZWEVWx_hEBbcoAi76jbFF0O2vU9sapnbwzNyBMCTvDgYKlFtc-SGl"/>
-        <div class="absolute inset-0 bg-gradient-to-t from-primary-container/80 to-transparent flex items-end p-md">
-          <div class="text-on-primary">
-            <h4 class="font-body-md text-body-md font-semibold">Обновление системы V2.4</h4>
-            <p class="font-body-sm text-body-sm opacity-80">Читать описание релиза</p>
-          </div>
-        </div>
-      </button>
-    </section>
-  </div>
+{#if alertMessage}
+<div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-secondary-container text-on-secondary-container p-sm rounded-xl border border-outline-variant flex items-center gap-sm transition-all animate-pulse">
+  <span class="material-symbols-outlined">info</span>
+  <span class="font-semibold text-sm">{alertMessage}</span>
 </div>
+{/if}
+
+<main class="max-w-[1200px] mx-auto px-container-margin py-lg grid grid-cols-4 md:grid-cols-12 gap-gutter">
+<!-- Welcome Section (Full Width) -->
+<section class="col-span-4 md:col-span-12 mb-lg">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-sm">С возвращением, Алекс.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Вот ваш ежедневный обзор.</p>
+</section>
+<!-- Bento Grid Layout -->
+<!-- Large Metrics Card (Spans 4 cols on mobile, 8 on desktop) -->
+<div class="col-span-4 md:col-span-8 bg-surface-container-high border border-outline-variant rounded-xl p-md flex flex-col justify-between min-h-[300px]">
+<div class="flex justify-between items-start mb-lg">
+<div>
+<h3 class="font-headline-md text-headline-md mb-xs">Производительность системы</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Агрегированная задержка и пропускная способность.</p>
+</div>
+<div class="bg-tertiary-container/10 text-tertiary px-sm py-xs rounded-DEFAULT font-label-sm text-label-sm border border-tertiary/20 flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                    Оптимально
+                </div>
+</div>
+<div class="flex-grow w-full rounded-lg overflow-hidden relative">
+<!-- Abstract Data Visualization Placeholder -->
+<div class="bg-cover bg-center w-full h-full absolute inset-0 opacity-60" data-alt="A highly abstract, dark-themed data visualization chart featuring glowing electric blue and cyan lines charting a complex path across a dark navy grid. The style is modern, cinematic, and sleek, resembling a high-end corporate dashboard rendering with subtle depth of field and soft glowing particles." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC2WlqXv54TGDiIDRM4tW0RcqwjDCRysTFHn44i3gK4NNuXE3xxRptSF9lJH0aIgzpSdhO_jXOO4AksK6f9P4hfYwCwK-uEhdjZzQ_B5Rt9ZDI42MxeIUlUot_uU3mNy3gPYVYBPqpVQv0UCwmz13LTJxxAcetQ1IL2zBgaWZASgWQSEeOeNx4_jCatlSVIFFPrOFD6gqE9dPPfYOOiks9lDdCMo3G5djx-utHaTBNpNc8UX9RwMyLqDfxkrcsfsZYugtat8gw7XCk')"></div>
+<div class="absolute bottom-md left-md right-md flex justify-between">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Ср. задержка</p>
+<p class="font-headline-md text-headline-md text-primary-fixed">24ms</p>
+</div>
+<div class="text-right">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Запросов/сек</p>
+<p class="font-headline-md text-headline-md text-primary-fixed">14.2k</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Actions (Spans 4 cols on mobile, 4 on desktop) -->
+<div class="col-span-4 md:col-span-4 bg-surface-container-high border border-outline-variant rounded-xl p-md flex flex-col gap-md min-h-[300px]">
+<h3 class="font-headline-md text-headline-md">Быстрые действия</h3>
+<button onclick={handleNewReport} aria-label="Новый отчет" class="w-full flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant transition-colors border border-transparent hover:border-outline-variant group">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary-fixed group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add_chart</span>
+</div>
+<span class="font-body-md text-body-md">Новый отчет</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button onclick={handleManageAccess} aria-label="Управление доступом" class="w-full flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant transition-colors border border-transparent hover:border-outline-variant group">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary-fixed group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">manage_accounts</span>
+</div>
+<span class="font-body-md text-body-md">Управление доступом</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button onclick={handleTriggerSync} aria-label="Запустить синхронизацию" class="w-full flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant transition-colors border border-transparent hover:border-outline-variant group">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">sync</span>
+</div>
+<span class="font-body-md text-body-md">Запустить синхронизацию</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</div>
+<!-- Status List (Full width below) -->
+<div class="col-span-4 md:col-span-12 bg-surface-container-high border border-outline-variant rounded-xl p-md mt-sm">
+<div class="flex justify-between items-center mb-md border-b border-surface-variant pb-sm">
+<h3 class="font-headline-md text-headline-md">Статус модулей</h3>
+<a class="font-label-md text-label-md text-primary hover:text-primary-fixed-dim transition-colors" href="javascript:void(0);">Смотреть все</a>
+</div>
+<!-- Divideless List -->
+<div class="flex flex-col gap-sm">
+<div class="flex items-center justify-between p-sm hover:bg-surface-variant/50 rounded-lg transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">database</span>
+<div>
+<p class="font-body-md text-body-md">Основная база данных</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Последний бэкап: 2ч назад</p>
+</div>
+</div>
+<div class="bg-tertiary-container/10 text-tertiary px-xs py-[2px] rounded-DEFAULT font-label-sm text-label-sm border border-tertiary/20">В сети</div>
+</div>
+<div class="flex items-center justify-between p-sm hover:bg-surface-variant/50 rounded-lg transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">api</span>
+<div>
+<p class="font-body-md text-body-md">Внешний шлюз API</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Обнаружен высокий объем</p>
+</div>
+</div>
+<div class="bg-primary-container/10 text-primary-fixed-dim px-xs py-[2px] rounded-DEFAULT font-label-sm text-label-sm border border-primary/20">Нагружен</div>
+</div>
+<div class="flex items-center justify-between p-sm hover:bg-surface-variant/50 rounded-lg transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">shield</span>
+<div>
+<p class="font-body-md text-body-md">Служба безопасности</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Определения обновлены</p>
+</div>
+</div>
+<div class="bg-tertiary-container/10 text-tertiary px-xs py-[2px] rounded-DEFAULT font-label-sm text-label-sm border border-tertiary/20">В сети</div>
+</div>
+</div>
+</div>
+</main>
