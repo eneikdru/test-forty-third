@@ -1,5 +1,7 @@
 package com.eneik.production.services;
 
+import com.eneik.generated.util.TimeProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +9,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes = {com.eneik.generated.Application.class, com.eneik.production.config.ProductionConfig.class})
 @Transactional
@@ -23,13 +28,25 @@ public class TaskStatusSyncServiceTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private TimeProvider timeProvider;
+
     private UUID taskId;
+    private LocalDateTime fixedTime;
 
     @BeforeEach
     public void setUp() {
         taskId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         String sql = "INSERT INTO sync_tasks (id, github_pr_number, status) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, taskId, "123", "done");
+
+        fixedTime = LocalDateTime.of(2026, 8, 11, 12, 0, 0);
+        timeProvider.setFixedDateTime(fixedTime);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        timeProvider.reset();
     }
 
     @Test
@@ -40,6 +57,10 @@ public class TaskStatusSyncServiceTest {
 
         String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, taskId);
         assertEquals("failed", status, "The status should be transitioned to failed.");
+
+        Timestamp updatedAt = jdbcTemplate.queryForObject("SELECT updated_at FROM sync_tasks WHERE id = ?", Timestamp.class, taskId);
+        assertNotNull(updatedAt, "The updated_at timestamp should not be null.");
+        assertEquals(Timestamp.valueOf(fixedTime), updatedAt, "The updated_at timestamp should match the fixed time from TimeProvider.");
     }
 
     @Test
@@ -53,6 +74,10 @@ public class TaskStatusSyncServiceTest {
 
         String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, newTaskId);
         assertEquals("failed", status, "The status should transition to failed.");
+
+        Timestamp updatedAt = jdbcTemplate.queryForObject("SELECT updated_at FROM sync_tasks WHERE id = ?", Timestamp.class, newTaskId);
+        assertNotNull(updatedAt, "The updated_at timestamp should not be null.");
+        assertEquals(Timestamp.valueOf(fixedTime), updatedAt, "The updated_at timestamp should match the fixed time from TimeProvider.");
     }
 
     @Test
