@@ -176,4 +176,37 @@ public class FilePersistenceAndRetrievalTest {
                 .andExpect(content().contentType("application/pdf"))
                 .andExpect(content().bytes(originalContent));
     }
+
+    @Test
+    public void testUploadInfectedFileRejected() throws Exception {
+        byte[] infectedContent = "My test file with EICAR-STANDARD-ANTIVIRUS-TEST-FILE signature.".getBytes();
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "infected.pdf", "application/pdf", infectedContent);
+
+        // Upload the infected file
+        mockMvc.perform(multipart("/api/documents")
+                        .file(file)
+                        .param("title", "Вредоносный документ")
+                        .param("description", "Тест антивируса")
+                        .param("documentType", "Procedure")
+                        .param("academicYear", "2026-2027")
+                        .param("program", "both")
+                        .param("process", "practice")
+                        .param("documentNumber", "PROC-VIRUS")
+                        .header("X-User-Role", "Content Manager"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code", is("BAD_REQUEST")))
+                .andExpect(jsonPath("$.message", containsString("malware or virus signature")));
+
+        // Verify that the file was NOT persisted to disk
+        if (Files.exists(UPLOADS_DIR)) {
+            try (java.util.stream.Stream<Path> paths = Files.walk(UPLOADS_DIR)) {
+                long fileCount = paths.filter(Files::isRegularFile).count();
+                org.junit.jupiter.api.Assertions.assertEquals(0, fileCount, "No files should have been stored on disk");
+            }
+        }
+
+        // Also check that nothing was stored in the database
+        org.junit.jupiter.api.Assertions.assertEquals(0, documentRepository.count(), "No documents should be in database");
+    }
 }
