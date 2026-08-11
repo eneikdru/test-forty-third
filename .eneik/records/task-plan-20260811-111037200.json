@@ -1,0 +1,59 @@
+{
+    "epics": [
+        {
+            "existingEpicId": "20e28c3c-f180-43d2-8fd3-18bb02b90776",
+            "title": null,
+            "jtbd": null,
+            "kanoClass": null,
+            "cynefinDomain": null,
+            "sixSigmaMetric": null,
+            "tocConstraintRef": null,
+            "sourceIndex": 0,
+            "requirements": [
+                "R1: Rewrite the Dockerfile to use a multi-stage build.",
+                "R2: Build the backend JAR using Maven (maven:3.9-eclipse-temurin-17 AS build).",
+                "R3: Build the Svelte frontend (npm ci && npm run build) inside the frontend/ directory.",
+                "R4: Copy the compiled frontend dist/ into src/main/resources/static before building the backend JAR.",
+                "R5: Use a lightweight runtime image (eclipse-temurin:21-jre-alpine) for the final stage and copy the built JAR into it.",
+                "R6: The docker compose up --build command must succeed on a fresh repository clone without manual pre-compilation."
+            ],
+            "coverageComplete": true,
+            "slices": [
+                {
+                    "title": "Implement multi-stage Dockerfile with frontend static generation",
+                    "roleTag": "BARCAN-TAG-05",
+                    "jtbd": "When implementing the multi-stage build for this epic, I want to compile both frontend and backend within the container, so that the application can be built from a fresh clone without manual local builds.",
+                    "acceptanceCriteria": "Given a fresh clone of the repository without a target directory\nWhen a user runs docker compose up --build\nThen the image should build successfully and start the application container\nAnd opening http://localhost:8080/ should serve the real frontend UI",
+                    "leanValue": "essential",
+                    "cynefinDomain": "clear",
+                    "tocConstraintRef": "Deployment bottlenecks",
+                    "sixSigmaMetric": "Reduce local setup failure rate from 100% to 0% on fresh clones",
+                    "hasUi": false,
+                    "requirementRefs": [
+                        "R1",
+                        "R2",
+                        "R3",
+                        "R4",
+                        "R5",
+                        "R6"
+                    ]
+                },
+                {
+                    "title": "Verify standalone Docker build and static asset serving",
+                    "roleTag": "BARCAN-TAG-06",
+                    "jtbd": "When verifying the multi-stage build for this epic, I want to ensure that the container builds from scratch and serves the frontend, so that we prevent regressions where local artifacts are accidentally required.",
+                    "acceptanceCriteria": "Given a local environment with Docker\nWhen the image is built using the provided Dockerfile without a target/ directory\nThen the build process should successfully complete without finding missing JARs\nAnd when the container is started, it should return a 200 OK and frontend HTML on the root path",
+                    "leanValue": "essential",
+                    "cynefinDomain": "clear",
+                    "tocConstraintRef": "Deployment bottlenecks",
+                    "sixSigmaMetric": "Reduce deployment regression rate from 10% to 0% by testing container build end-to-end",
+                    "hasUi": false,
+                    "requirementRefs": [
+                        "R1",
+                        "R6"
+                    ]
+                }
+            ]
+        }
+    ]
+}
