@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Search - Productivity App</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-dim": "#d8dadc",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#75859d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "primary": "#000000",
+                        "on-background": "#191c1e",
+                        "tertiary": "#000000",
+                        "background": "#f7f9fb",
+                        "tertiary-container": "#0b1c30",
+                        "surface": "#f7f9fb",
+                        "on-surface-variant": "#45464d",
+                        "secondary-container": "#2170e4",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "primary-container": "#131b2e",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-container": "#fefcff",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-container": "#eceef0",
+                        "inverse-on-surface": "#eff1f3",
+                        "outline-variant": "#c6c6cd",
+                        "inverse-surface": "#2d3133",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-surface": "#191c1e",
+                        "surface-tint": "#565e74",
+                        "outline": "#76777d",
+                        "surface-variant": "#e0e3e5",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-error-container": "#93000a",
+                        "secondary": "#0058be",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-container": "#7c839b",
+                        "inverse-primary": "#bec6e0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "base": "4px",
+                        "gutter": "12px",
+                        "container-padding": "20px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-caps": ["Geist"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F8FAFC; }
+        .blurry-bg { filter: blur(4px); opacity: 0.6; }
+        .search-shadow { box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05); }
+        .dropdown-shadow { box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col relative pb-16 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface w-full top-0 sticky z-50">
+<div class="flex items-center justify-between px-container-padding h-16 w-full z-50">
+<button class="text-primary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 transition-transform p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Search</h1>
+<button class="text-primary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 transition-transform p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow px-container-padding relative">
+<!-- Search Input Wrapper (Elevated over blurred content) -->
+<div class="relative z-20 mt-4">
+<div class="relative bg-surface-container-lowest rounded-xl border border-secondary-container search-shadow overflow-visible">
+<div class="flex items-center px-gutter h-[48px]">
+<span class="material-symbols-outlined text-outline mr-sm">search</span>
+<input autofocus="" class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-lg p-0 m-0" placeholder="Search projects, tasks, or people" type="text" value="Desi"/>
+<div class="w-[2px] h-[20px] bg-secondary-container ml-1 animate-pulse"></div>
+<span class="text-outline-variant font-label-caps ml-sm hidden md:block">⌘K</span>
+</div>
+<!-- Dropdown Suggestions -->
+<div class="absolute top-full left-0 right-0 mt-xs bg-surface-container-lowest rounded-xl border border-outline-variant dropdown-shadow overflow-hidden z-30">
+<ul class="py-sm">
+<li class="px-md py-sm hover:bg-surface-container-low cursor-pointer flex items-center gap-md">
+<span class="material-symbols-outlined text-outline-variant">folder_open</span>
+<span class="font-body-md text-on-surface"><span class="font-bold text-primary">Desi</span>gn system</span>
+</li>
+<li class="px-md py-sm hover:bg-surface-container-low cursor-pointer flex items-center gap-md">
+<span class="material-symbols-outlined text-outline-variant">folder_open</span>
+<span class="font-body-md text-on-surface"><span class="font-bold text-primary">Desi</span>gn review</span>
+</li>
+<li class="px-md py-sm hover:bg-surface-container-low cursor-pointer flex items-center gap-md">
+<span class="material-symbols-outlined text-outline-variant">folder_open</span>
+<span class="font-body-md text-on-surface"><span class="font-bold text-primary">Desi</span>gner recruitment</span>
+</li>
+<li class="px-md py-sm hover:bg-surface-container-low cursor-pointer flex items-center gap-md">
+<span class="material-symbols-outlined text-outline-variant">folder_open</span>
+<span class="font-body-md text-on-surface"><span class="font-bold text-primary">Desi</span>gn feedback</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Blurred Background Content -->
+<div class="mt-xl blurry-bg z-10 select-none pointer-events-none">
+<h2 class="font-headline-sm text-on-surface-variant mb-md">Recent Projects</h2>
+<div class="grid grid-cols-1 gap-md">
+<!-- Skeleton/Blurred Card 1 -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-outline-variant">
+<div class="flex items-center gap-md mb-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant"></div>
+<div class="h-4 bg-surface-variant rounded w-1/3"></div>
+</div>
+<div class="h-3 bg-surface-variant rounded w-full mb-xs"></div>
+<div class="h-3 bg-surface-variant rounded w-5/6"></div>
+</div>
+<!-- Skeleton/Blurred Card 2 -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-outline-variant">
+<div class="flex items-center gap-md mb-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant"></div>
+<div class="h-4 bg-surface-variant rounded w-1/4"></div>
+</div>
+<div class="h-3 bg-surface-variant rounded w-full mb-xs"></div>
+<div class="h-3 bg-surface-variant rounded w-4/5"></div>
+</div>
+<!-- Skeleton/Blurred Card 3 -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-outline-variant">
+<div class="flex items-center gap-md mb-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant"></div>
+<div class="h-4 bg-surface-variant rounded w-2/5"></div>
+</div>
+<div class="h-3 bg-surface-variant rounded w-full mb-xs"></div>
+<div class="h-3 bg-surface-variant rounded w-3/4"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant h-16 flex justify-around items-center px-4 pb-[env(safe-area-inset-bottom)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary hover:bg-surface-container-high transition-colors active:scale-90 duration-100 transition-transform flex-1 h-full rounded-xl mx-1" href="#">
+<span class="material-symbols-outlined mb-1">task_alt</span>
+<span class="font-label-sm text-label-sm">Tasks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary relative after:content-[''] after:absolute after:top-0 after:w-8 after:h-0.5 after:bg-secondary hover:bg-surface-container-high transition-colors active:scale-90 duration-100 transition-transform flex-1 h-full rounded-xl mx-1" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-label-sm text-label-sm font-bold">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary hover:bg-surface-container-high transition-colors active:scale-90 duration-100 transition-transform flex-1 h-full rounded-xl mx-1" href="#">
+<span class="material-symbols-outlined mb-1">folder_open</span>
+<span class="font-label-sm text-label-sm">Projects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary hover:bg-surface-container-high transition-colors active:scale-90 duration-100 transition-transform flex-1 h-full rounded-xl mx-1" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<!-- Keep focus on input for demo purposes -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.querySelector('input[type="text"]');
+            if(input) {
+                input.focus();
+                // Move cursor to end
+                const val = input.value;
+                input.value = '';
+                input.value = val;
+            }
+        });
+    </script>
+</body></html>
