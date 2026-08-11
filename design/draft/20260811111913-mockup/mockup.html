@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard - test-forty-third</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&amp;family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#003ec7",
+                        "secondary": "#515f78",
+                        "on-surface": "#191c1e",
+                        "on-primary-fixed-variant": "#0038b6",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#d3e4fe",
+                        "surface-container-high": "#e6e8ea",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-fixed": "#d6e3ff",
+                        "secondary-container": "#d2e0fe",
+                        "surface-container": "#eceef0",
+                        "surface-tint": "#004ced",
+                        "on-error": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#001452",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "inverse-surface": "#2d3133",
+                        "outline-variant": "#c3c5d9",
+                        "on-secondary-fixed": "#0d1c32",
+                        "primary-container": "#0052ff",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#39475f",
+                        "primary-fixed": "#dde1ff",
+                        "surface-bright": "#f7f9fb",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#d6e6ff",
+                        "on-primary-container": "#dfe3ff",
+                        "tertiary": "#3f4f65",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#b7c4ff",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-surface-variant": "#434656",
+                        "primary-fixed-dim": "#b7c4ff",
+                        "tertiary-container": "#57677e",
+                        "on-secondary-container": "#55637d",
+                        "background": "#f7f9fb",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-variant": "#e0e3e5",
+                        "on-background": "#191c1e",
+                        "outline": "#737688",
+                        "secondary-fixed-dim": "#b9c7e4",
+                        "surface-dim": "#d8dadc",
+                        "tertiary-fixed-dim": "#b7c8e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "margin-mobile": "20px",
+                        "gutter-mobile": "12px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "sm": "12px",
+                        "xs": "8px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "button": ["Inter"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "button": ["14px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased pt-16 pb-20 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface border-b border-outline-variant shadow-sm transition-transform duration-150">
+<button class="text-primary hover:bg-surface-container-high p-2 rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-md-mobile text-headline-md-mobile font-bold text-primary truncate mx-4 flex-1 text-center">
+            test-forty-third
+        </h1>
+<button class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant flex items-center justify-center hover:bg-surface-container-highest transition-colors">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A small circular avatar placeholder image showing a subtle, modern gradient pattern of electric blue and slate gray, suitable for a professional user profile in a minimalist, corporate light-mode dashboard context. The lighting is soft and even." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcC2nDEisU4ZRFdVVoTt-i8olNByMRXNUlICpdXb1pt4brhKqrwyN1qcWtQxRCZ2LsenROyKCzQaddtrfVh00AGWuN9oufFC-Aw3YvJk_BVa8avh2cBQZU0mkACqvSRT_-fMRVFXzQgbV9a2TvmPK_Qe3Qa8mF1H_fvF-KVHjQFPZtfjOjRtc2YGqx1JZ2jvTBHsj-w7kgSyjPVWwWPlAwJZmGosU40RRo6hlFEat-x9gg3CM40DdLgY-WC5JCHJeAkXj8bQqxsqM"/>
+</button>
+</header>
+<!-- Main Content -->
+<main class="px-margin-mobile py-lg max-w-7xl mx-auto md:px-xl">
+<!-- Hero Section -->
+<section class="mb-xl bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-outline-variant/30 flex flex-col md:flex-row items-center gap-lg">
+<div class="flex-1 space-y-md">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">Welcome back, Engineer.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">System performance is optimal. All nodes are reporting nominal status. Review your daily metrics and pending tasks below.</p>
+<div class="flex gap-sm">
+<button class="bg-primary text-on-primary font-button text-button px-md py-sm rounded transition-all hover:shadow-lg active:scale-95 flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">bolt</span> Quick Scan
+                    </button>
+<button class="border border-outline text-secondary font-button text-button px-md py-sm rounded transition-colors hover:bg-surface-container-low active:scale-95">
+                        View Logs
+                    </button>
+</div>
+</div>
+<div class="w-full md:w-1/3 h-48 rounded-lg overflow-hidden bg-surface-container-low relative flex items-center justify-center border border-outline-variant/20">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
+<span class="material-symbols-outlined text-[64px] text-primary/40 relative z-10">monitoring</span>
+</div>
+</section>
+<!-- Bento Grid Metrics -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter-mobile md:gap-lg mb-xl">
+<!-- Metric 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<div class="bg-primary/10 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary">speed</span>
+</div>
+<span class="font-label-caps text-label-caps bg-surface-container px-2 py-1 rounded text-secondary">LIVE</span>
+</div>
+<div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-xs">Throughput</div>
+<div class="font-headline-md text-headline-md text-on-surface">94.2k <span class="font-body-sm text-body-sm text-secondary">req/s</span></div>
+</div>
+<div class="mt-md h-1 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4 rounded-full"></div>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<div class="bg-primary/10 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary">dns</span>
+</div>
+<span class="font-label-caps text-label-caps bg-error-container text-on-error-container px-2 py-1 rounded">2 ALERTS</span>
+</div>
+<div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-xs">Active Nodes</div>
+<div class="font-headline-md text-headline-md text-on-surface">1,024 <span class="font-body-sm text-body-sm text-secondary">/ 1,028</span></div>
+</div>
+<div class="mt-md h-1 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98%] rounded-full"></div>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-outline-variant/30 flex flex-col justify-between md:col-span-1">
+<div class="flex justify-between items-start mb-md">
+<div class="bg-primary/10 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary">memory</span>
+</div>
+</div>
+<div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-xs">CPU Load</div>
+<div class="font-headline-md text-headline-md text-on-surface">42%</div>
+</div>
+<div class="mt-md h-1 w-full bg-surface-variant rounded-full overflow-hidden flex">
+<div class="h-full bg-primary w-[42%] rounded-full"></div>
+</div>
+</div>
+</section>
+<!-- Activity Feed & Tasks -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-gutter-mobile md:gap-lg">
+<!-- Tasks -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-outline-variant/30">
+<div class="flex justify-between items-center mb-md pb-xs border-b border-surface-variant">
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface">Pending Tasks</h3>
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<ul class="space-y-sm">
+<li class="flex items-start gap-sm p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-outline mt-1 group-hover:text-primary transition-colors">radio_button_unchecked</span>
+<div class="flex-1">
+<div class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Review Security Patch v2.4</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Due in 2 hours</div>
+</div>
+</li>
+<li class="flex items-start gap-sm p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-outline mt-1 group-hover:text-primary transition-colors">radio_button_unchecked</span>
+<div class="flex-1">
+<div class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Optimize Database Queries</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">High Priority</div>
+</div>
+</li>
+<li class="flex items-start gap-sm p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group opacity-60">
+<span class="material-symbols-outlined text-primary mt-1 filled">check_circle</span>
+<div class="flex-1 line-through">
+<div class="font-body-md text-body-md text-on-surface">Deploy Microservice A</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Completed yesterday</div>
+</div>
+</li>
+</ul>
+<button class="w-full mt-md py-sm border border-outline text-secondary font-button text-button rounded hover:bg-surface-container-low transition-colors">View All Tasks</button>
+</div>
+<!-- Recent Activity -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-outline-variant/30">
+<div class="flex justify-between items-center mb-md pb-xs border-b border-surface-variant">
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface">Recent Activity</h3>
+<span class="material-symbols-outlined text-secondary">history</span>
+</div>
+<div class="relative pl-sm before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-variant">
+<div class="mb-sm relative pl-lg">
+<span class="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-primary outline outline-4 outline-surface-container-lowest"></span>
+<div class="font-body-sm text-body-sm text-on-surface-variant">10:42 AM</div>
+<div class="font-body-md text-body-md text-on-surface">System Backup Completed</div>
+</div>
+<div class="mb-sm relative pl-lg">
+<span class="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-error outline outline-4 outline-surface-container-lowest"></span>
+<div class="font-body-sm text-body-sm text-on-surface-variant">09:15 AM</div>
+<div class="font-body-md text-body-md text-on-surface">Failed Login Attempt (Node 4)</div>
+</div>
+<div class="relative pl-lg">
+<span class="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-secondary outline outline-4 outline-surface-container-lowest"></span>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Yesterday</div>
+<div class="font-body-md text-body-md text-on-surface">Configuration Updated by Admin</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-base pb-safe h-20 bg-surface-container-lowest shadow-[0px_-4px_20px_rgba(10,25,47,0.05)] border-t-0">
+<!-- Active: Home -->
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 scale-90 transition-all duration-200">
+<span class="material-symbols-outlined filled" data-icon="home" data-weight="fill">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-secondary-container px-4 py-1 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-caps text-label-caps mt-1">Insights</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-secondary-container px-4 py-1 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-label-caps text-label-caps mt-1">Tasks</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-secondary-container px-4 py-1 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-caps text-label-caps mt-1">Activity</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-secondary-container px-4 py-1 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps mt-1">Settings</span>
+</button>
+</nav>
+<!-- SideNav (Desktop Concept mapped from Drawer JSON for wider screens if needed, but per instructions, focusing on specific shell elements requested. NavigationDrawer logic applied if screen > md in a real app, here hidden to focus on the BottomNav mobile/TopNav combo requested) -->
+<aside class="hidden md:flex fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-surface border-r border-outline-variant flex-col py-lg z-40">
+<div class="px-lg mb-md flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A small circular avatar placeholder image showing a subtle, modern gradient pattern of electric blue and slate gray, suitable for a professional user profile in a minimalist, corporate light-mode dashboard context. The lighting is soft and even." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx0eav63w3ogjiHEcG6eOrAgK0axZfDZhH8s3OiudKiPumbZ1j-vDevnu9ncDJs7w356TWJeaaJ7leK6BROhMR4Tt3DJnZo_rvwY2dhcVOBy3rtjSXFhtsmeM1dxz9doY3sI2x9OlRc0IxUIOheY7KvZ7XMQpY30c1hsgVaZs5AHXeorfczMsXHS1X1c6b08UvcURgucXfgpRXBX7GPsvsXjpRtuTI17ApgwlmCe7l4LpoM1gNCbv8JbuZxDnGAerMSGKKAfDxVUs"/>
+</div>
+<div class="overflow-hidden">
+<div class="font-body-md text-body-md text-primary font-bold truncate">Professional User</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate">Lead Engineer</div>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto mt-sm">
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container font-bold rounded-lg mx-2 px-4 py-3 group" href="#">
+<span class="material-symbols-outlined filled">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-container-high mx-2 px-4 py-3 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">bar_chart</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Analytics</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-container-high mx-2 px-4 py-3 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">account_tree</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Projects</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:bg-surface-container-high mx-2 px-4 py-3 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="font-body-md text-body-md group-hover:text-primary transition-colors">Settings</span>
+</a>
+</nav>
+<div class="px-lg mt-auto pt-md border-t border-surface-variant">
+<span class="font-label-caps text-label-caps text-on-surface-variant">v1.0.43</span>
+</div>
+</aside>
+<!-- Adjust main content margin for desktop sidenav -->
+<style>
+        @media (min-width: 768px) {
+            main {
+                margin-left: 16rem; /* w-64 */
+                max-width: calc(100% - 16rem);
+            }
+        }
+    </style>
+</body></html>
