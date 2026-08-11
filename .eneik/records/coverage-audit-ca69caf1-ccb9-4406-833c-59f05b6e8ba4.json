@@ -1,0 +1,18 @@
+{
+  "gaps": [
+    {
+      "title": "Missing system action audit log",
+      "roleTag": "BARCAN-TAG-09",
+      "jtbd": "When users interact with the system, I want their actions (who, when, what) to be logged in a dedicated journal, so that administrators can audit metadata changes and permission updates.",
+      "acceptanceCriteria": "Given an authenticated user, When the user modifies document metadata or access rights, Then a record must be created in a central audit journal capturing the user's identity, timestamp, and details of the change.",
+      "reason": "The brief explicitly requests 'журналирование действий пользователей (кто, когда и что изменил)', but the system only tracks authors of document versions, lacking a central, comprehensive journal for administrative and metadata actions."
+    },
+    {
+      "title": "Missing anti-virus scan on upload",
+      "roleTag": "BARCAN-TAG-09",
+      "jtbd": "When a user uploads a file, I want the file to be scanned for malware, so that the knowledge base does not distribute infected documents.",
+      "acceptanceCriteria": "Given a user uploading a new document or version, When the file is transferred to the server, Then it must be passed through an anti-virus scanner before being saved to the upload directory.",
+      "reason": "The system accepts generic file uploads (PDF, DOCX, XLSX, etc.) from various users. In any public educational platform, it is a domain-standard requirement to scan uploaded files for malware to prevent security breaches and protect downstream users who download these materials."
+    }
+  ]
+}
