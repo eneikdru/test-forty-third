@@ -1,0 +1,10 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "block",
+      "criticalReason": "PR contains committed generated/build artifacts in src/main/resources/static/assets/ (index-DY1KWLEH.js and index-DU4o3WXd.css). Generated artifacts must not be committed to version control.",
+      "concerns": []
+    }
+  ]
+}
