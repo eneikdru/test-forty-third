@@ -81,21 +81,17 @@ public class DocumentSearchController {
         }
 
         try {
-            // Extract user ID if available
-            UUID userId = null;
-            String xUserId = request.getHeader("X-User-Id");
-            try {
-                if (xUserId != null && !xUserId.trim().isEmpty()) {
-                    userId = UUID.fromString(xUserId.trim());
-                }
-            } catch (IllegalArgumentException e) {
-                // Proceed with null
-            }
+            // Extract user ID securely via centralized extractor helper
+            UUID userId = com.eneik.generated.util.RequestUserIdExtractor.extractUserId(request);
 
-            // Log SEARCH event with query via AnalyticsService
+            // Log SEARCH event with query via AnalyticsService in an isolated try-catch block to prevent logging failures from failing the search request
             if (query != null && !query.trim().isEmpty()) {
-                logger.info("Logging search event in AnalyticsService for query: {}", query);
-                analyticsService.logEvent("SEARCH", userId, null, query);
+                try {
+                    logger.info("Logging search event in AnalyticsService for query: {}", query);
+                    analyticsService.logEvent("SEARCH", userId, null, query);
+                } catch (Exception e) {
+                    logger.error("Failed to log SEARCH event in AnalyticsService for query: {}", query, e);
+                }
             }
 
             List<DocumentSearchService.SearchResult> searchResults = documentSearchService.search(query, program, documentType, educationLevel, updateDate);
