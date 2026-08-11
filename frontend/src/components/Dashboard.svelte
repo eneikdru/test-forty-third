@@ -1,9 +1,8 @@
 <script>
   import { onMount } from 'svelte';
 
-  // State runes for interactive actions
+  // Svelte 5 state runes for interactive actions
   let alertMessage = $state('');
-  let reportCount = $state(0);
 
   function triggerAction(actionName) {
     alertMessage = `Действие "${actionName}" успешно выполнено!`;
@@ -11,219 +10,223 @@
       alertMessage = '';
     }, 4000);
   }
-
-  function handleNewReport() {
-    reportCount += 1;
-    triggerAction(`Новый отчет #${reportCount}`);
-  }
 </script>
 
-<div class="flex flex-col gap-lg w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-lg md:py-xl text-on-background font-body-md antialiased">
+<div class="flex flex-col gap-6 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 text-[#191c1e] font-sans antialiased">
 
   <!-- Alert Banner for actions feedback -->
   {#if alertMessage}
-    <div class="bg-secondary-container text-on-secondary-container p-sm rounded-xl border border-outline-variant flex items-center gap-sm transition-all animate-pulse">
+    <div role="alert" class="bg-[#d2e0fe] text-[#0c1c32] p-3 rounded-xl border border-[#c3c5d9] flex items-center gap-3 transition-all animate-pulse">
       <span class="material-symbols-outlined">info</span>
       <span class="font-semibold text-sm">{alertMessage}</span>
     </div>
   {/if}
 
   <!-- Welcome & Hero Section -->
-  <section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-sm mb-sm">
-    <div>
-      <h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-base">С возвращением, Алекс.</h1>
-      <p class="font-body-lg text-body-lg text-on-surface-variant">Вот ваш ежедневный обзор.</p>
-    </div>
-    <div class="flex gap-sm w-full md:w-auto mt-sm md:mt-0">
-      <button
-        type="button"
-        onclick={handleNewReport}
-        class="flex-1 md:flex-none flex items-center justify-center gap-base px-sm py-sm bg-primary text-on-primary rounded font-body-sm text-body-sm font-semibold hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
-      >
-        <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
-        <span>Новый отчет</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Metrics Grid (Bento Style) -->
-  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter w-full">
-    <!-- Metric 1 -->
-    <div class="bento-card flex flex-col justify-between h-32 ambient-shadow">
-      <div class="flex justify-between items-start w-full">
-        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Общий объем</span>
-        <span class="material-symbols-outlined text-secondary">monitoring</span>
-      </div>
-      <div>
-        <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">24,592</div>
-        <div class="font-body-sm text-[11px] leading-tight text-on-surface-variant flex flex-wrap items-center gap-1 mt-1">
-          <span class="material-symbols-outlined text-primary shrink-0" style="font-size: 16px;">trending_up</span>
-          <span class="text-primary font-semibold shrink-0">+12.5%</span>
-          <span>по сравнению с прошлой неделей</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Metric 2 -->
-    <div class="bento-card flex flex-col justify-between h-32 ambient-shadow">
-      <div class="flex justify-between items-start w-full">
-        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Активные сессии</span>
-        <span class="material-symbols-outlined text-secondary">group</span>
-      </div>
-      <div>
-        <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">1,843</div>
-        <div class="font-body-sm text-[11px] leading-tight text-on-surface-variant flex flex-wrap items-center gap-1 mt-1">
-          <span class="material-symbols-outlined text-secondary shrink-0" style="font-size: 16px;">trending_flat</span>
-          <span>Без изменений</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Metric 3 -->
-    <div class="bento-card flex flex-col justify-between h-32 ambient-shadow">
-      <div class="flex justify-between items-start w-full">
-        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Состояние системы</span>
-        <span class="material-symbols-outlined text-secondary">health_and_safety</span>
-      </div>
-      <div>
-        <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">99.9%</div>
-        <div class="font-body-sm text-[11px] leading-tight text-on-surface-variant flex flex-wrap items-center gap-1 mt-1">
-          <span class="material-symbols-outlined text-primary shrink-0" style="font-size: 16px;">check_circle</span>
-          <span class="font-semibold text-primary">Оптимально</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Metric 4 -->
-    <div class="bento-card flex flex-col justify-between h-32 ambient-shadow bg-surface-container-low border-none">
-      <div class="flex justify-between items-start w-full">
-        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Ожидающие действия</span>
-        <span class="material-symbols-outlined text-secondary">pending_actions</span>
-      </div>
-      <div>
-        <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">14</div>
-        <div class="font-body-sm text-[11px] leading-tight text-on-surface-variant flex flex-wrap items-center gap-1 mt-1">
-          <span>Требует внимания</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Content Area: Activity & Quick Actions -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg w-full mt-sm">
-    <!-- Recent Activity List -->
-    <section class="lg:col-span-2 flex flex-col gap-sm">
-      <div class="flex justify-between items-center mb-xs">
-        <h2 class="font-headline-md text-headline-md text-on-surface">Последняя активность</h2>
+  <section class="mb-8 bg-[#ffffff] rounded-xl p-6 shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-[#e0e3e5]/50 flex flex-col md:flex-row items-center gap-6">
+    <div class="flex-1 space-y-4">
+      <h2 class="text-2xl md:text-3xl font-bold text-[#191c1e] font-sans leading-tight">С возвращением, Инженер.</h2>
+      <p class="text-sm md:text-base text-[#434656] leading-relaxed">Работа системы оптимальна. Все узлы сообщают о номинальном статусе. Просмотрите ваши ежедневные метрики и ожидающие задачи ниже.</p>
+      <div class="flex gap-3">
         <button
           type="button"
-          onclick={() => triggerAction('Показать все активности')}
-          class="font-label-caps text-label-caps text-primary hover:underline uppercase focus:outline-none"
+          onclick={() => triggerAction('Быстрое сканирование')}
+          class="bg-[#003ec7] text-[#ffffff] px-4 py-2 rounded text-sm font-semibold transition-all hover:shadow-lg active:scale-95 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
         >
-          Показать все
+          <span class="material-symbols-outlined text-[18px]">bolt</span> Быстрое сканирование
+        </button>
+        <button
+          type="button"
+          onclick={() => triggerAction('Просмотр журналов')}
+          class="border border-[#737688] text-[#515f78] px-4 py-2 rounded text-sm font-semibold transition-colors hover:bg-[#f2f4f6] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
+        >
+          Просмотр журналов
         </button>
       </div>
-      <div class="bento-card flex flex-col p-0 ambient-shadow overflow-hidden">
+    </div>
+    <div class="w-full md:w-1/3 h-48 rounded-lg overflow-hidden bg-[#f2f4f6] relative flex items-center justify-center border border-[#e0e3e5]/40">
+      <div class="absolute inset-0 bg-gradient-to-br from-[#003ec7]/10 to-transparent"></div>
+      <span class="material-symbols-outlined text-[64px] text-[#003ec7]/40 relative z-10">monitoring</span>
+    </div>
+  </section>
+
+  <!-- Bento Grid Metrics -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Metric 1: Throughput -->
+    <button
+      type="button"
+      onclick={() => triggerAction('Пропускная способность')}
+      class="bg-[#ffffff] text-left rounded-xl p-4 shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-[#e0e3e5]/50 flex flex-col justify-between hover:scale-[1.02] hover:shadow-[0px_8px_24px_rgba(15,23,42,0.08)] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
+    >
+      <div class="flex justify-between items-start mb-4 w-full">
+        <div class="bg-[#003ec7]/10 p-2 rounded-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#003ec7]">speed</span>
+        </div>
+        <span class="text-[12px] font-mono tracking-wider bg-[#eceef0] px-2 py-1 rounded text-[#515f78] font-medium uppercase">В ЭФИРЕ</span>
+      </div>
+      <div class="w-full">
+        <div class="text-xs text-[#434656] mb-1">Пропускная способность</div>
+        <div class="text-2xl font-semibold text-[#191c1e]">94.2 тыс. <span class="text-sm text-[#515f78] font-normal">запр./с</span></div>
+      </div>
+      <div class="mt-4 h-1 w-full bg-[#e0e3e5] rounded-full overflow-hidden">
+        <div class="h-full bg-[#003ec7] w-3/4 rounded-full"></div>
+      </div>
+    </button>
+
+    <!-- Metric 2: Active Nodes -->
+    <button
+      type="button"
+      onclick={() => triggerAction('Активные узлы')}
+      class="bg-[#ffffff] text-left rounded-xl p-4 shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-[#e0e3e5]/50 flex flex-col justify-between hover:scale-[1.02] hover:shadow-[0px_8px_24px_rgba(15,23,42,0.08)] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
+    >
+      <div class="flex justify-between items-start mb-4 w-full">
+        <div class="bg-[#003ec7]/10 p-2 rounded-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#003ec7]">dns</span>
+        </div>
+        <span class="text-[12px] font-mono tracking-wider bg-[#ffdad6] text-[#93000a] px-2 py-1 rounded font-medium uppercase">2 ОПОВЕЩЕНИЯ</span>
+      </div>
+      <div class="w-full">
+        <div class="text-xs text-[#434656] mb-1">Активные узлы</div>
+        <div class="text-2xl font-semibold text-[#191c1e]">1,024 <span class="text-sm text-[#515f78] font-normal">/ 1,028</span></div>
+      </div>
+      <div class="mt-4 h-1 w-full bg-[#e0e3e5] rounded-full overflow-hidden">
+        <div class="h-full bg-[#003ec7] w-[98%] rounded-full"></div>
+      </div>
+    </button>
+
+    <!-- Metric 3: CPU Load -->
+    <button
+      type="button"
+      onclick={() => triggerAction('Нагрузка на ЦП')}
+      class="bg-[#ffffff] text-left rounded-xl p-4 shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-[#e0e3e5]/50 flex flex-col justify-between hover:scale-[1.02] hover:shadow-[0px_8px_24px_rgba(15,23,42,0.08)] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
+    >
+      <div class="flex justify-between items-start mb-4 w-full">
+        <div class="bg-[#003ec7]/10 p-2 rounded-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#003ec7]">memory</span>
+        </div>
+      </div>
+      <div class="w-full">
+        <div class="text-xs text-[#434656] mb-1">Нагрузка на ЦП</div>
+        <div class="text-2xl font-semibold text-[#191c1e]">42%</div>
+      </div>
+      <div class="mt-4 h-1 w-full bg-[#e0e3e5] rounded-full overflow-hidden">
+        <div class="h-full bg-[#003ec7] w-[42%] rounded-full"></div>
+      </div>
+    </button>
+  </section>
+
+  <!-- Activity Feed & Tasks -->
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Pending Tasks -->
+    <div class="bg-[#ffffff] rounded-xl p-4 shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-[#e0e3e5]/50 flex flex-col justify-between">
+      <div>
+        <div class="flex justify-between items-center mb-4 pb-2 border-b border-[#e0e3e5]">
+          <h3 class="text-lg font-bold text-[#191c1e]">Ожидающие задачи</h3>
+          <button
+            type="button"
+            onclick={() => triggerAction('Дополнительные действия с задачами')}
+            class="text-[#515f78] hover:text-[#003ec7] transition-colors focus:outline-none focus:ring-2 focus:ring-[#3182CE] rounded"
+          >
+            <span class="material-symbols-outlined">more_horiz</span>
+          </button>
+        </div>
+        <ul class="space-y-2">
+          <li>
+            <button
+              type="button"
+              onclick={() => triggerAction('Проверить обновление безопасности версии 2.4')}
+              class="flex items-start text-left gap-3 p-2 hover:bg-[#f2f4f6] rounded-lg transition-colors w-full focus:outline-none focus:bg-[#f2f4f6] group"
+            >
+              <span class="material-symbols-outlined text-[#737688] mt-1 group-hover:text-[#003ec7] transition-colors">radio_button_unchecked</span>
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-[#191c1e] group-hover:text-[#003ec7] transition-colors">Проверить обновление безопасности версии 2.4</div>
+                <div class="text-xs text-[#434656]">Срок через 2 часа</div>
+              </div>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              onclick={() => triggerAction('Оптимизировать запросы к базе данных')}
+              class="flex items-start text-left gap-3 p-2 hover:bg-[#f2f4f6] rounded-lg transition-colors w-full focus:outline-none focus:bg-[#f2f4f6] group"
+            >
+              <span class="material-symbols-outlined text-[#737688] mt-1 group-hover:text-[#003ec7] transition-colors">radio_button_unchecked</span>
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-[#191c1e] group-hover:text-[#003ec7] transition-colors">Оптимизировать запросы к базе данных</div>
+                <div class="text-xs text-[#434656]">Высокий приоритет</div>
+              </div>
+            </button>
+          </li>
+          <li class="opacity-60">
+            <button
+              type="button"
+              onclick={() => triggerAction('Развернуть микросервис А')}
+              class="flex items-start text-left gap-3 p-2 hover:bg-[#f2f4f6] rounded-lg transition-colors w-full focus:outline-none focus:bg-[#f2f4f6] group"
+            >
+              <span class="material-symbols-outlined text-[#003ec7] mt-1 filled">check_circle</span>
+              <div class="flex-1 line-through">
+                <div class="text-sm font-semibold text-[#191c1e]">Развернуть микросервис А</div>
+                <div class="text-xs text-[#434656]">Завершено вчера</div>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <button
+        type="button"
+        onclick={() => triggerAction('Показать все задачи')}
+        class="w-full mt-4 py-2 border border-[#737688] text-[#515f78] font-semibold text-sm rounded hover:bg-[#f2f4f6] transition-colors focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
+      >
+        Показать все задачи
+      </button>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-[#ffffff] rounded-xl p-4 shadow-[0px_4px_20px_rgba(10,25,47,0.05)] border border-[#e0e3e5]/50 flex flex-col">
+      <div class="flex justify-between items-center mb-4 pb-2 border-b border-[#e0e3e5]">
+        <h3 class="text-lg font-bold text-[#191c1e]">Последняя активность</h3>
+        <button
+          type="button"
+          onclick={() => triggerAction('История активности')}
+          class="text-[#515f78] hover:text-[#003ec7] transition-colors focus:outline-none focus:ring-2 focus:ring-[#3182CE] rounded"
+        >
+          <span class="material-symbols-outlined">history</span>
+        </button>
+      </div>
+      <div class="relative pl-3 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-[#e0e3e5]">
         <!-- Activity Item 1 -->
         <button
           type="button"
-          onclick={() => triggerAction('Сгенерирован финансовый отчет за 3-й квартал')}
-          class="flex items-center p-sm md:p-md border-b border-surface-container w-full min-h-[64px] hover:bg-surface-bright transition-colors cursor-pointer group text-left focus:outline-none focus:bg-surface-bright"
+          onclick={() => triggerAction('Резервное копирование системы завершено')}
+          class="mb-4 relative pl-6 text-left w-full block focus:outline-none group"
         >
-          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-secondary mr-sm shrink-0">
-            <span class="material-symbols-outlined">description</span>
-          </div>
-          <div class="flex-grow">
-            <h3 class="font-body-md text-body-md text-on-surface font-semibold group-hover:text-primary transition-colors">Сгенерирован финансовый отчет за 3-й квартал</h3>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">Система автоматизирована</p>
-          </div>
-          <div class="text-right shrink-0 ml-sm">
-            <span class="font-label-caps text-label-caps text-on-surface-variant">10 МИНУТ НАЗАД</span>
-          </div>
+          <span class="absolute left-[-2px] top-1.5 w-2 h-2 rounded-full bg-[#003ec7] outline outline-4 outline-[#ffffff]"></span>
+          <div class="text-xs text-[#434656] mb-0.5 group-hover:text-[#003ec7] transition-colors">10:42</div>
+          <div class="text-sm font-semibold text-[#191c1e] group-hover:text-[#003ec7] transition-colors">Резервное копирование системы завершено</div>
         </button>
 
         <!-- Activity Item 2 -->
         <button
           type="button"
-          onclick={() => triggerAction('Зарегистрирован новый пользователь Сара Дженкинс')}
-          class="flex items-center p-sm md:p-md border-b border-surface-container w-full min-h-[64px] hover:bg-surface-bright transition-colors cursor-pointer group text-left focus:outline-none focus:bg-surface-bright"
+          onclick={() => triggerAction('Неудачная попытка входа (Узел 4)')}
+          class="mb-4 relative pl-6 text-left w-full block focus:outline-none group"
         >
-          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-secondary mr-sm shrink-0">
-            <span class="material-symbols-outlined">person_add</span>
-          </div>
-          <div class="flex-grow">
-            <h3 class="font-body-md text-body-md text-on-surface font-semibold group-hover:text-primary transition-colors">Зарегистрирован новый пользователь</h3>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">Сара Дженкинс (Отдел продаж)</p>
-          </div>
-          <div class="text-right shrink-0 ml-sm">
-            <span class="font-label-caps text-label-caps text-on-surface-variant">2 ЧАСА НАЗАД</span>
-          </div>
+          <span class="absolute left-[-2px] top-1.5 w-2 h-2 rounded-full bg-[#ba1a1a] outline outline-4 outline-[#ffffff]"></span>
+          <div class="text-xs text-[#434656] mb-0.5 group-hover:text-[#003ec7] transition-colors">09:15</div>
+          <div class="text-sm font-semibold text-[#191c1e] group-hover:text-[#003ec7] transition-colors">Неудачная попытка входа (Узел 4)</div>
         </button>
 
         <!-- Activity Item 3 -->
         <button
           type="button"
-          onclick={() => triggerAction('Синхронизация базы данных завершена')}
-          class="flex items-center p-sm md:p-md w-full min-h-[64px] hover:bg-surface-bright transition-colors cursor-pointer group text-left focus:outline-none focus:bg-surface-bright"
+          onclick={() => triggerAction('Конфигурация обновлена администратором')}
+          class="relative pl-6 text-left w-full block focus:outline-none group"
         >
-          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-secondary mr-sm shrink-0">
-            <span class="material-symbols-outlined">cloud_sync</span>
-          </div>
-          <div class="flex-grow">
-            <h3 class="font-body-md text-body-md text-on-surface font-semibold group-hover:text-primary transition-colors">Синхронизация базы данных завершена</h3>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">Регион US-East</p>
-          </div>
-          <div class="text-right shrink-0 ml-sm">
-            <span class="font-label-caps text-label-caps text-on-surface-variant">5 ЧАСОВ НАЗАД</span>
-          </div>
+          <span class="absolute left-[-2px] top-1.5 w-2 h-2 rounded-full bg-[#515f78] outline outline-4 outline-[#ffffff]"></span>
+          <div class="text-xs text-[#434656] mb-0.5 group-hover:text-[#003ec7] transition-colors">Вчера</div>
+          <div class="text-sm font-semibold text-[#191c1e] group-hover:text-[#003ec7] transition-colors">Конфигурация обновлена администратором</div>
         </button>
       </div>
-    </section>
-
-    <!-- Quick Actions & Context -->
-    <section class="lg:col-span-1 flex flex-col gap-sm">
-      <h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Быстрые инструменты</h2>
-      <div class="bento-card ambient-shadow flex flex-col gap-sm">
-        <button
-          type="button"
-          onclick={() => triggerAction('Экспорт текущего вида')}
-          class="w-full flex items-center justify-start gap-sm p-sm rounded hover:bg-surface-container-low transition-colors text-on-surface font-body-md text-body-md border border-transparent hover:border-outline-variant focus:outline-none focus:border-outline-variant"
-        >
-          <span class="material-symbols-outlined text-secondary">file_download</span>
-          <span>Экспорт текущего вида</span>
-        </button>
-        <button
-          type="button"
-          onclick={() => triggerAction('Поделиться ссылкой панели')}
-          class="w-full flex items-center justify-start gap-sm p-sm rounded hover:bg-surface-container-low transition-colors text-on-surface font-body-md text-body-md border border-transparent hover:border-outline-variant focus:outline-none focus:border-outline-variant"
-        >
-          <span class="material-symbols-outlined text-secondary">share</span>
-          <span>Поделиться ссылкой панели</span>
-        </button>
-        <button
-          type="button"
-          onclick={() => triggerAction('Настроить макет')}
-          class="w-full flex items-center justify-start gap-sm p-sm rounded hover:bg-surface-container-low transition-colors text-on-surface font-body-md text-body-md border border-transparent hover:border-outline-variant focus:outline-none focus:border-outline-variant"
-        >
-          <span class="material-symbols-outlined text-secondary">settings_suggest</span>
-          <span>Настроить макет</span>
-        </button>
-      </div>
-
-      <!-- Visual Context Area (Image/Graphic) -->
-      <button
-        type="button"
-        onclick={() => triggerAction('Переход к описанию релиза')}
-        class="mt-sm rounded-xl overflow-hidden h-48 ambient-shadow relative group text-left w-full block focus:outline-none focus:ring-2 focus:ring-[#3182CE]"
-      >
-        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Текстурированный фон" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCophFntr39N9H99DAOwWJJ6eWbtYANhjZnqwtf5hctoNi1hDZBdXMaza_O08VoR25EImch4G-evGlYutRzvDsuv7xUT1D7DT08yL2Gw6q5OjPj9ASy4aRQ6yvUYUl6R1SF20JjBrfN3L25OwZ3mfOPsFU1KLZNMlTfShEy0LqeTMOl0dibvMxMlILqQgFoGmzDzusRpJ_M0eUtpNarhimhTyJZWEVWx_hEBbcoAi76jbFF0O2vU9sapnbwzNyBMCTvDgYKlFtc-SGl"/>
-        <div class="absolute inset-0 bg-gradient-to-t from-primary-container/80 to-transparent flex items-end p-md">
-          <div class="text-on-primary">
-            <h4 class="font-body-md text-body-md font-semibold">Обновление системы V2.4</h4>
-            <p class="font-body-sm text-body-sm opacity-80">Читать описание релиза</p>
-          </div>
-        </div>
-      </button>
-    </section>
-  </div>
+    </div>
+  </section>
 </div>
