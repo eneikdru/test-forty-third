@@ -247,516 +247,565 @@
     </main>
   </div>
 {:else}
-  <div class="min-h-screen flex flex-col md:flex-row bg-[#f8f9ff] text-[#0b1c30] antialiased">
 
-    <!-- Боковая панель навигации (для десктопа) -->
-    <aside class="hidden md:flex flex-col w-64 bg-[#e5eeff] border-r border-[#c6c6cd] h-screen sticky top-0 z-40">
-      <div class="px-6 py-6 border-b border-[#c6c6cd]">
-        <h2 class="text-xl font-bold tracking-tight text-[#0b1c30]">ЦНИИ Эпидемиологии</h2>
-        <p class="text-xs text-[#45464d] mt-1">Информационная система</p>
-      </div>
+  {#if activeCategory === 'Панель'}
+    <!-- Render the pixel-perfect dark-themed mockup Dashboard directly -->
+    <Dashboard bind:selectedRole bind:activeCategory />
+  {:else}
+    <div class="min-h-screen flex flex-col md:flex-row bg-[#f8f9ff] text-[#0b1c30] antialiased">
 
-      <nav class="flex-1 py-4 flex flex-col gap-1">
-        <!-- Панель управления доступна для всех -->
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Панель'}
-          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Панель' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-        >
-          <span class="material-symbols-outlined">dashboard</span>
-          <span>Панель управления</span>
-        </button>
-
-        <!-- База знаний доступна для всех -->
-        <button
-          type="button"
-          onclick={() => activeCategory = 'База знаний'}
-          class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'База знаний' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-        >
-          <span class="material-symbols-outlined">library_books</span>
-          <span>База знаний</span>
-        </button>
-
-        {#if selectedRole === 'Admin'}
-          <!-- Навигация для Администратора -->
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Интеграция'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">settings_suggest</span>
-            <span>Настройки и аналитика</span>
-          </button>
-        {:else if selectedRole === 'Economist'}
-          <!-- Навигация для Экономиста -->
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Финансы'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Финансы' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">payments</span>
-            <span>Финансы и бюджет</span>
-          </button>
-
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Кадры'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Кадры' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">badge</span>
-            <span>Кадры и штат</span>
-          </button>
-
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Стипендии'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Стипендии' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">school</span>
-            <span>Стипендии</span>
-          </button>
-
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Интеграция'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">settings_suggest</span>
-            <span>Настройки и аналитика</span>
-          </button>
-        {:else if selectedRole === 'Teacher'}
-          <!-- Навигация для Преподавателя -->
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Нагрузка'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Нагрузка' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">analytics</span>
-            <span>Нормативы нагрузки</span>
-          </button>
-
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Стипендии'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Стипендии' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">school</span>
-            <span>Стипендии</span>
-          </button>
-
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Интеграция'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">settings_suggest</span>
-            <span>Настройки и аналитика</span>
-          </button>
-        {:else}
-          <!-- Навигация для Студента / Аспиранта -->
-          <button
-            type="button"
-            onclick={() => activeCategory = 'Стипендии'}
-            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Стипендии' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
-          >
-            <span class="material-symbols-outlined">school</span>
-            <span>Стипендии</span>
-          </button>
-        {/if}
-      </nav>
-
-      <!-- Информация о роли внизу -->
-      <div class="p-4 border-t border-[#c6c6cd]">
-        <div class="flex items-center gap-3">
-          <span class="material-symbols-outlined text-2xl text-[#515f74]">account_circle</span>
-          <div class="flex flex-col">
-            <span class="text-sm font-semibold text-[#0b1c30]">Текущий доступ</span>
-            <span class="text-xs text-[#45464d]">
-              {#if selectedRole === 'Admin'}
-                Администратор
-              {:else if selectedRole === 'Economist'}
-                Экономист
-              {:else if selectedRole === 'Teacher'}
-                Преподаватель
-              {:else}
-                Студент / Аспирант
-              {/if}
-            </span>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Основная область содержимого -->
-    <main class="flex-1 flex flex-col min-w-0 pb-16 md:pb-0">
-
-      <!-- Шапка страницы -->
-      <header class="w-full sticky top-0 z-50 bg-[#f8f9ff] border-b border-[#c6c6cd] flex items-center justify-between px-6 py-4">
-        <div class="flex items-center gap-4">
-          <h1 class="text-lg md:text-xl font-bold text-[#0b1c30]">
-            {#if selectedRole === 'Admin'}
-              Панель администратора
-            {:else if selectedRole === 'Economist'}
-              Панель управления экономиста
-            {:else}
-              Кабинет студента
-            {/if}
-          </h1>
+      <!-- Боковая панель навигации (для десктопа) -->
+      <aside class="hidden md:flex flex-col w-64 bg-[#e5eeff] border-r border-[#c6c6cd] h-screen sticky top-0 z-40">
+        <div class="px-6 py-6 border-b border-[#c6c6cd]">
+          <h2 class="text-xl font-bold tracking-tight text-[#0b1c30]">ЦНИИ Эпидемиологии</h2>
+          <p class="text-xs text-[#45464d] mt-1">Информационная система</p>
         </div>
 
-        <!-- Селектор роли для тестирования и переключения контекста -->
-        <div class="flex items-center gap-2">
-          <label for="role-select" class="text-xs font-semibold text-[#45464d]">Авторизация:</label>
-          <select
-            id="role-select"
-            bind:value={selectedRole}
-            class="bg-[#ffffff] border border-[#76777d] rounded px-3 py-1.5 text-sm text-[#0b1c30] font-semibold cursor-pointer focus:border-[#000000] focus:ring-0"
+        <nav class="flex-1 py-4 flex flex-col gap-1">
+          <!-- Панель управления доступна для всех -->
+          <button
+            type="button"
+            onclick={() => activeCategory = 'Панель'}
+            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Панель' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
           >
-            <option value="Economist">Экономист</option>
-            <option value="Teacher">Преподаватель</option>
-            <option value="Postgraduate">Студент / Аспирант</option>
-            <option value="Admin">Администратор</option>
-          </select>
-        </div>
-      </header>
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>Панель управления</span>
+          </button>
 
-      <!-- Тело страницы -->
-      <div class="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
+          <!-- База знаний доступна для всех -->
+          <button
+            type="button"
+            onclick={() => activeCategory = 'База знаний'}
+            class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'База знаний' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+          >
+            <span class="material-symbols-outlined">library_books</span>
+            <span>База знаний</span>
+          </button>
 
-        <!-- Уведомление об ошибке в системе -->
-        {#if errorMessage && errorMessage.trim() !== ''}
-          <div class="bg-[#ffdad6] text-[#93000a] p-4 rounded-lg border border-[#ba1a1a] flex items-center gap-3 w-full min-h-[56px] flex-shrink-0">
-            <span class="material-symbols-outlined shrink-0">error</span>
-            <span class="font-semibold text-sm break-words">{errorMessage}</span>
-          </div>
-        {/if}
+          {#if selectedRole === 'Admin'}
+            <!-- Навигация для Администратора -->
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Интеграция'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">settings_suggest</span>
+              <span>Настройки и аналитика</span>
+            </button>
+          {:else if selectedRole === 'Economist'}
+            <!-- Навигация для Экономиста -->
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Финансы'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Финансы' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">payments</span>
+              <span>Финансы и бюджет</span>
+            </button>
 
-        <!-- Загрузка -->
-        {#if loading}
-          <div class="flex flex-col items-center justify-center py-12 gap-2 text-[#515f74]">
-            <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
-            <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
-          </div>
-        {:else if activeCategory === 'Панель'}
-          <Dashboard />
-        {:else if activeCategory === 'База знаний'}
-          <OfflineMaterialSync />
-          <KnowledgeBase {selectedRole} />
-        {:else if activeCategory === 'Интеграция' && selectedRole !== 'Postgraduate'}
-          <SettingsAndAnalytics />
-        {:else}
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Кадры'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Кадры' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">badge</span>
+              <span>Кадры и штат</span>
+            </button>
 
-          <!-- Содержимое для Экономиста -->
-          {#if selectedRole === 'Economist'}
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Стипендии'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Стипендии' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">school</span>
+              <span>Стипендии</span>
+            </button>
 
-            {#if activeCategory === 'Финансы'}
-              <!-- Финансовый отчет по макету -->
-              <div class="flex flex-col gap-6">
-
-                <!-- Фильтры / Вкладки подразделов -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-[#c6c6cd]">
-                  <div class="flex gap-2">
-                    <button
-                      type="button"
-                      onclick={() => activeSubTab = 'Бюджет'}
-                      class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors border {activeSubTab === 'Бюджет' ? 'bg-[#d5e3fd] border-[#515f74] text-[#0d1c2f]' : 'border-[#c6c6cd] hover:bg-[#eff4ff]'}"
-                    >
-                      Бюджет ЦНИИ
-                    </button>
-                    <button
-                      type="button"
-                      onclick={() => activeSubTab = 'Нагрузка'}
-                      class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors border {activeSubTab === 'Нагрузка' ? 'bg-[#d5e3fd] border-[#515f74] text-[#0d1c2f]' : 'border-[#c6c6cd] hover:bg-[#eff4ff]'}"
-                    >
-                      Распределение нагрузки
-                    </button>
-                  </div>
-                  <div class="flex items-center gap-2 text-sm font-medium text-[#45464d]">
-                    <span class="material-symbols-outlined text-sm">calendar_today</span>
-                    <span>Период: 2026–2027 учебный год</span>
-                  </div>
-                </div>
-
-                {#if activeSubTab === 'Бюджет'}
-                  <!-- Карточки КПЭ (KPI) для Бюджета -->
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Выручка -->
-                    <div class="bg-white p-5 rounded-xl border border-[#c6c6cd] flex flex-col gap-2">
-                      <span class="text-xs font-bold tracking-wider text-[#45464d] uppercase">Общая выручка</span>
-                      <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-[#0b1c30] whitespace-nowrap">₽&nbsp;12.4&nbsp;млн</span>
-                        <span class="text-xs font-semibold text-[#0d1c2f] bg-[#dae2fd] px-2 py-0.5 rounded-full">+8.2%</span>
-                      </div>
-                      <span class="text-[11px] text-[#45464d]">По сравнению с прошлым кварталом</span>
-                    </div>
-
-                    <!-- Чистая прибыль -->
-                    <div class="bg-white p-5 rounded-xl border border-[#c6c6cd] flex flex-col gap-2">
-                      <span class="text-xs font-bold tracking-wider text-[#45464d] uppercase">Чистая прибыль</span>
-                      <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-[#0b1c30] whitespace-nowrap">₽&nbsp;3.1&nbsp;млн</span>
-                        <span class="text-xs font-semibold text-[#0d1c2f] bg-[#dae2fd] px-2 py-0.5 rounded-full">+4.5%</span>
-                      </div>
-                      <span class="text-[11px] text-[#45464d]">Превышает плановый таргет</span>
-                    </div>
-
-                    <!-- Опер. расходы -->
-                    <div class="bg-white p-5 rounded-xl border border-[#c6c6cd] flex flex-col gap-2">
-                      <span class="text-xs font-bold tracking-wider text-[#45464d] uppercase">Опер. расходы</span>
-                      <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-[#ba1a1a] whitespace-nowrap">₽&nbsp;8.5&nbsp;млн</span>
-                        <span class="text-xs font-semibold text-[#93000a] bg-[#ffdad6] px-2 py-0.5 rounded-full">+2.1%</span>
-                      </div>
-                      <span class="text-[11px] text-[#ba1a1a]">Незначительный перерасход лимита</span>
-                    </div>
-                  </div>
-
-                  <!-- Таблица бюджетов -->
-                  <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
-                    <div class="p-4 bg-[#eff4ff] border-b border-[#c6c6cd] flex justify-between items-center">
-                      <h3 class="font-bold text-base text-[#0b1c30]">Реестр бюджетных документов</h3>
-                      <span class="text-xs font-bold text-[#515f74] bg-[#d5e3fd] px-2.5 py-1 rounded">АКТУАЛЬНО</span>
-                    </div>
-
-                    {#if budgetDocs.length === 0}
-                      <p class="p-6 text-sm text-[#45464d] text-center">Документы не найдены</p>
-                    {:else}
-                      <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                          <thead>
-                            <tr class="bg-[#f8f9ff] border-b border-[#c6c6cd] text-xs font-bold text-[#45464d]">
-                              <th class="p-4">Название документа</th>
-                              <th class="p-4">Шифр</th>
-                              <th class="p-4 text-right">Сумма</th>
-                              <th class="p-4 text-center">Период бюджетирования</th>
-                              <th class="p-4">Версия / Класс</th>
-                              <th class="p-4">Статус</th>
-                            </tr>
-                          </thead>
-                          <tbody class="text-sm">
-                            {#each budgetDocs as doc}
-                              <tr class="border-b border-[#c6c6cd] hover:bg-[#f8f9ff] transition-colors">
-                                <td class="p-4">
-                                  <div class="font-semibold text-[#0b1c30]">{doc.title}</div>
-                                  <div class="text-xs text-[#515f74] mt-0.5">{doc.description}</div>
-                                </td>
-                                <td class="p-4 text-xs font-mono text-[#515f74]">{doc.documentNumber}</td>
-                                <td class="p-4 text-right font-mono text-[#0b1c30] whitespace-nowrap">
-                                  {doc.budgetCycleMetadata ? '₽\u00a0' + doc.budgetCycleMetadata.estimatedAmount.toLocaleString('ru-RU') : '—'}
-                                </td>
-                                <td class="p-4 text-center text-xs text-[#0b1c30]">
-                                  {#if doc.budgetCycleMetadata}
-                                    <div>{getQuarterName(doc.budgetCycleMetadata.quarter)}</div>
-                                    <div class="text-[11px] text-[#45464d]">Фин. год: {doc.budgetCycleMetadata.fiscalYear}</div>
-                                  {:else}
-                                    —
-                                  {/if}
-                                </td>
-                                <td class="p-4 text-xs">
-                                  <div class="font-semibold">Версия {doc.version}</div>
-                                  <div class="flex flex-wrap gap-1 mt-1">
-                                    {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
-                                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
-                                        {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
-                                      </span>
-                                    {/each}
-                                  </div>
-                                </td>
-                                <td class="p-4">
-                                  {#if doc.budgetCycleMetadata}
-                                    <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#dae2fd] text-[#131b2e]">
-                                      {getStatusName(doc.budgetCycleMetadata.status)}
-                                    </span>
-                                  {:else}
-                                    <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#eff4ff] text-[#45464d]">
-                                      УТВЕРЖДЕН
-                                    </span>
-                                  {/if}
-                                </td>
-                              </tr>
-                            {/each}
-                          </tbody>
-                        </table>
-                      </div>
-                    {/if}
-                  </div>
-                {:else if activeSubTab === 'Нагрузка'}
-                  <!-- Раздел Нагрузки -->
-                  <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
-                    <div class="p-4 bg-[#eff4ff] border-b border-[#c6c6cd] flex justify-between items-center">
-                      <h3 class="font-bold text-base text-[#0b1c30]">Нормативы учебной нагрузки</h3>
-                      <span class="text-xs font-bold text-[#515f74] bg-[#d5e3fd] px-2.5 py-1 rounded">ФГОС</span>
-                    </div>
-
-                    {#if loadDocs.length === 0}
-                      <p class="p-6 text-sm text-[#45464d] text-center">Документы не найдены</p>
-                    {:else}
-                      <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                          <thead>
-                            <tr class="bg-[#f8f9ff] border-b border-[#c6c6cd] text-xs font-bold text-[#45464d]">
-                              <th class="p-4">Название регламента</th>
-                              <th class="p-4">Учебный год</th>
-                              <th class="p-4">Тип документа</th>
-                              <th class="p-4">Раздел / Процесс</th>
-                              <th class="p-4">Классификация</th>
-                              <th class="p-4">Версия</th>
-                            </tr>
-                          </thead>
-                          <tbody class="text-sm">
-                            {#each loadDocs as doc}
-                              <tr class="border-b border-[#c6c6cd] hover:bg-[#f8f9ff] transition-colors">
-                                <td class="p-4 font-semibold text-[#0b1c30]">{doc.title}</td>
-                                <td class="p-4 font-mono text-[#515f74]">{doc.academicYear}</td>
-                                <td class="p-4 text-xs">{getDocumentTypeName(doc.documentType)}</td>
-                                <td class="p-4 text-xs">{getProcessName(doc.process)}</td>
-                                <td class="p-4 text-xs">
-                                  <div class="flex flex-wrap gap-1">
-                                    {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
-                                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
-                                        {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
-                                      </span>
-                                    {/each}
-                                  </div>
-                                </td>
-                                <td class="p-4 text-xs font-semibold">Версия {doc.version}</td>
-                              </tr>
-                            {/each}
-                          </tbody>
-                        </table>
-                      </div>
-                    {/if}
-                  </div>
-                {/if}
-
-              </div>
-
-            {:else if activeCategory === 'Кадры'}
-              <!-- Раздел Кадров -->
-              <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
-                <div class="p-4 bg-[#eff4ff] border-b border-[#c6c6cd] flex justify-between items-center">
-                  <h3 class="font-bold text-base text-[#0b1c30]">Штатное расписание и должностные оклады</h3>
-                  <span class="text-xs font-bold text-[#515f74] bg-[#d5e3fd] px-2.5 py-1 rounded">КОНФИДЕНЦИАЛЬНО</span>
-                </div>
-
-                <div class="p-6 border-b border-[#c6c6cd]">
-                  <h4 class="font-bold text-lg text-[#0b1c30] mb-2">Штатные единицы ОЦ ЦНИИ Эпидемиологии</h4>
-                  <p class="text-sm text-[#45464d]">
-                    Ниже приведен список служебных актов и регламентов, касающихся кадрового учета преподавателей и административного персонала.
-                  </p>
-                </div>
-
-                <!-- Показываем отфильтрованные документы для кадров -->
-                <div class="p-4">
-                  <div class="grid grid-cols-1 gap-4">
-                    {#each budgetDocs.filter(d => d.title.includes('штат') || d.title.includes('оплат')) as doc}
-                      <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
-                        <div class="flex justify-between items-start">
-                          <span class="text-sm font-bold text-[#0b1c30]">{doc.title}</span>
-                          <span class="text-xs font-mono text-[#515f74]">{doc.documentNumber}</span>
-                        </div>
-                        <p class="text-xs text-[#45464d]">{doc.description}</p>
-                        <div class="flex items-center justify-between text-xs mt-2 border-t border-[#c6c6cd] pt-2">
-                          <span>Тип: {getDocumentTypeName(doc.documentType)}</span>
-                          <span>Версия: {doc.version}</span>
-                        </div>
-                      </div>
-                    {/each}
-                  </div>
-                </div>
-              </div>
-
-            {:else if activeCategory === 'Стипендии'}
-              <!-- Стипендии для Экономиста -->
-              <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
-                <div class="p-4 bg-[#eff4ff] border-b border-[#c6c6cd]">
-                  <h3 class="font-bold text-base text-[#0b1c30]">Стипендиальное обеспечение</h3>
-                </div>
-
-                {#if stipendDocs.length === 0}
-                  <p class="p-6 text-sm text-[#45464d] text-center">Инструкции по стипендиям не найдены</p>
-                {:else}
-                  <div class="p-4 grid grid-cols-1 gap-4">
-                    {#each stipendDocs as doc}
-                      <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
-                        <span class="text-sm font-bold text-[#0b1c30]">{doc.title}</span>
-                        <p class="text-xs text-[#45464d]">{doc.description}</p>
-                        <div class="flex items-center justify-between text-xs border-t border-[#c6c6cd] pt-2 mt-2">
-                          <span>Направление: {getProgramName(doc.program)}</span>
-                          <div class="flex gap-1">
-                            {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
-                              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
-                                {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
-                              </span>
-                            {/each}
-                          </div>
-                          <span class="font-semibold">Версия {doc.version}</span>
-                        </div>
-                      </div>
-                    {/each}
-                  </div>
-                {/if}
-              </div>
-            {/if}
-
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Интеграция'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">settings_suggest</span>
+              <span>Настройки и аналитика</span>
+            </button>
           {:else if selectedRole === 'Teacher'}
-            <!-- Содержимое для Преподавателя -->
-            <div class="flex flex-col gap-6">
-              <div class="bg-[#eff4ff] border border-[#c6c6cd] p-5 rounded-xl">
-                <h3 class="font-bold text-lg text-[#0d1c2f] mb-2">Кабинет преподавателя ЦНИИ Эпидемиологии</h3>
-                <p class="text-sm text-[#45464d]">
-                  В соответствии с регламентом, вам предоставлен доступ к расчётам нагрузки и стипендиальному обеспечению в режиме просмотра.
-                </p>
-              </div>
+            <!-- Навигация для Преподавателя -->
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Нагрузка'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Нагрузка' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">analytics</span>
+              <span>Нормативы нагрузки</span>
+            </button>
 
-              {#if activeCategory === 'Нагрузка'}
-                <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
-                  <div class="p-4 bg-[#d5e3fd] border-b border-[#c6c6cd] flex justify-between items-center">
-                    <h3 class="font-bold text-base text-[#0d1c2f]">Реестр учебной нагрузки и нормативов</h3>
-                    <span class="text-xs font-bold text-[#0d1c2f] bg-white px-2 py-0.5 rounded">ФГОС</span>
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Стипендии'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Стипендии' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">school</span>
+              <span>Стипендии</span>
+            </button>
+
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Интеграция'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Интеграция' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">settings_suggest</span>
+              <span>Настройки и аналитика</span>
+            </button>
+          {:else}
+            <!-- Навигация для Студента / Аспиранта -->
+            <button
+              type="button"
+              onclick={() => activeCategory = 'Стипендии'}
+              class="flex items-center gap-3 px-6 py-3 mx-2 rounded-lg text-left transition-colors font-semibold {activeCategory === 'Стипендии' ? 'bg-[#d5e3fd] text-[#0d1c2f]' : 'text-[#45464d] hover:bg-[#dce9ff]'}"
+            >
+              <span class="material-symbols-outlined">school</span>
+              <span>Стипендии</span>
+            </button>
+          {/if}
+        </nav>
+
+        <!-- Информация о роли внизу -->
+        <div class="p-4 border-t border-[#c6c6cd]">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-2xl text-[#515f74]">account_circle</span>
+            <div class="flex flex-col">
+              <span class="text-sm font-semibold text-[#0b1c30]">Текущий доступ</span>
+              <span class="text-xs text-[#45464d]">
+                {#if selectedRole === 'Admin'}
+                  Администратор
+                {:else if selectedRole === 'Economist'}
+                  Экономист
+                {:else if selectedRole === 'Teacher'}
+                  Преподаватель
+                {:else}
+                  Студент / Аспирант
+                {/if}
+              </span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Основная область содержимого -->
+      <main class="flex-1 flex flex-col min-w-0 pb-16 md:pb-0">
+
+        <!-- Шапка страницы -->
+        <header class="w-full sticky top-0 z-50 bg-[#f8f9ff] border-b border-[#c6c6cd] flex items-center justify-between px-6 py-4">
+          <div class="flex items-center gap-4">
+            <h1 class="text-lg md:text-xl font-bold text-[#0b1c30]">
+              {#if selectedRole === 'Admin'}
+                Панель администратора
+              {:else if selectedRole === 'Economist'}
+                Панель управления экономиста
+              {:else}
+                Кабинет студента
+              {/if}
+            </h1>
+          </div>
+
+          <!-- Селектор роли для тестирования и переключения контекста -->
+          <div class="flex items-center gap-2">
+            <label for="role-select" class="text-xs font-semibold text-[#45464d]">Авторизация:</label>
+            <select
+              id="role-select"
+              bind:value={selectedRole}
+              class="bg-[#ffffff] border border-[#76777d] rounded px-3 py-1.5 text-sm text-[#0b1c30] font-semibold cursor-pointer focus:border-[#000000] focus:ring-0"
+            >
+              <option value="Economist">Экономист</option>
+              <option value="Teacher">Преподаватель</option>
+              <option value="Postgraduate">Студент / Аспирант</option>
+              <option value="Admin">Администратор</option>
+            </select>
+          </div>
+        </header>
+
+        <!-- Тело страницы -->
+        <div class="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
+
+          <!-- Уведомление об ошибке в системе -->
+          {#if errorMessage && errorMessage.trim() !== ''}
+            <div class="bg-[#ffdad6] text-[#93000a] p-4 rounded-lg border border-[#ba1a1a] flex items-center gap-3 w-full min-h-[56px] flex-shrink-0">
+              <span class="material-symbols-outlined shrink-0">error</span>
+              <span class="font-semibold text-sm break-words">{errorMessage}</span>
+            </div>
+          {/if}
+
+          <!-- Загрузка -->
+          {#if loading}
+            <div class="flex flex-col items-center justify-center py-12 gap-2 text-[#515f74]">
+              <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+              <span class="text-sm font-semibold">Идет получение данных из реестра...</span>
+            </div>
+          {:else if activeCategory === 'База знаний'}
+            <OfflineMaterialSync />
+            <KnowledgeBase {selectedRole} />
+          {:else if activeCategory === 'Интеграция' && selectedRole !== 'Postgraduate'}
+            <SettingsAndAnalytics />
+          {:else}
+
+            <!-- Содержимое для Экономиста -->
+            {#if selectedRole === 'Economist'}
+
+              {#if activeCategory === 'Финансы'}
+                <!-- Финансовый отчет по макету -->
+                <div class="flex flex-col gap-6">
+
+                  <!-- Фильтры / Вкладки подразделов -->
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-[#c6c6cd]">
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        onclick={() => activeSubTab = 'Бюджет'}
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors border {activeSubTab === 'Бюджет' ? 'bg-[#d5e3fd] border-[#515f74] text-[#0d1c2f]' : 'border-[#c6c6cd] hover:bg-[#eff4ff]'}"
+                      >
+                        Бюджет ЦНИИ
+                      </button>
+                      <button
+                        type="button"
+                        onclick={() => activeSubTab = 'Нагрузка'}
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors border {activeSubTab === 'Нагрузка' ? 'bg-[#d5e3fd] border-[#515f74] text-[#0d1c2f]' : 'border-[#c6c6cd] hover:bg-[#eff4ff]'}"
+                      >
+                        Распределение нагрузки
+                      </button>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm font-medium text-[#45464d]">
+                      <span class="material-symbols-outlined text-sm">calendar_today</span>
+                      <span>Период: 2026–2027 учебный год</span>
+                    </div>
                   </div>
 
-                  {#if loadDocs.length === 0}
-                    <p class="p-6 text-sm text-[#45464d] text-center">Документы нагрузки не найдены</p>
-                  {:else}
-                    <div class="p-4 flex flex-col gap-4">
-                      {#each loadDocs as doc}
+                  {#if activeSubTab === 'Бюджет'}
+                    <!-- Карточки КПЭ (KPI) для Бюджета -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <!-- Выручка -->
+                      <div class="bg-white p-5 rounded-xl border border-[#c6c6cd] flex flex-col gap-2">
+                        <span class="text-xs font-bold tracking-wider text-[#45464d] uppercase">Общая выручка</span>
+                        <div class="flex items-baseline gap-2">
+                          <span class="text-2xl font-bold text-[#0b1c30] whitespace-nowrap">₽&nbsp;12.4&nbsp;млн</span>
+                          <span class="text-xs font-semibold text-[#0d1c2f] bg-[#dae2fd] px-2 py-0.5 rounded-full">+8.2%</span>
+                        </div>
+                        <span class="text-[11px] text-[#45464d]">По сравнению с прошлым кварталом</span>
+                      </div>
+
+                      <!-- Чистая прибыль -->
+                      <div class="bg-white p-5 rounded-xl border border-[#c6c6cd] flex flex-col gap-2">
+                        <span class="text-xs font-bold tracking-wider text-[#45464d] uppercase">Чистая прибыль</span>
+                        <div class="flex items-baseline gap-2">
+                          <span class="text-2xl font-bold text-[#0b1c30] whitespace-nowrap">₽&nbsp;3.1&nbsp;млн</span>
+                          <span class="text-xs font-semibold text-[#0d1c2f] bg-[#dae2fd] px-2 py-0.5 rounded-full">+4.5%</span>
+                        </div>
+                        <span class="text-[11px] text-[#45464d]">Превышает плановый таргет</span>
+                      </div>
+
+                      <!-- Опер. расходы -->
+                      <div class="bg-white p-5 rounded-xl border border-[#c6c6cd] flex flex-col gap-2">
+                        <span class="text-xs font-bold tracking-wider text-[#45464d] uppercase">Опер. расходы</span>
+                        <div class="flex items-baseline gap-2">
+                          <span class="text-2xl font-bold text-[#ba1a1a] whitespace-nowrap">₽&nbsp;8.5&nbsp;млн</span>
+                          <span class="text-xs font-semibold text-[#93000a] bg-[#ffdad6] px-2 py-0.5 rounded-full">+2.1%</span>
+                        </div>
+                        <span class="text-[11px] text-[#ba1a1a]">Незначительный перерасход лимита</span>
+                      </div>
+                    </div>
+
+                    <!-- Таблица бюджетов -->
+                    <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
+                      <div class="p-4 bg-[#eff4ff] border-b border-[#c6c6cd] flex justify-between items-center">
+                        <h3 class="font-bold text-base text-[#0b1c30]">Реестр бюджетных документов</h3>
+                        <span class="text-xs font-bold text-[#515f74] bg-[#d5e3fd] px-2.5 py-1 rounded">АКТУАЛЬНО</span>
+                      </div>
+
+                      {#if budgetDocs.length === 0}
+                        <p class="p-6 text-sm text-[#45464d] text-center">Документы не найдены</p>
+                      {:else}
+                        <div class="overflow-x-auto">
+                          <table class="w-full text-left border-collapse">
+                            <thead>
+                              <tr class="bg-[#f8f9ff] border-b border-[#c6c6cd] text-xs font-bold text-[#45464d]">
+                                <th class="p-4">Название документа</th>
+                                <th class="p-4">Шифр</th>
+                                <th class="p-4 text-right">Сумма</th>
+                                <th class="p-4 text-center">Период бюджетирования</th>
+                                <th class="p-4">Версия / Класс</th>
+                                <th class="p-4">Статус</th>
+                              </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                              {#each budgetDocs as doc}
+                                <tr class="border-b border-[#c6c6cd] hover:bg-[#f8f9ff] transition-colors">
+                                  <td class="p-4">
+                                    <div class="font-semibold text-[#0b1c30]">{doc.title}</div>
+                                    <div class="text-xs text-[#515f74] mt-0.5">{doc.description}</div>
+                                  </td>
+                                  <td class="p-4 text-xs font-mono text-[#515f74]">{doc.documentNumber}</td>
+                                  <td class="p-4 text-right font-mono text-[#0b1c30] whitespace-nowrap">
+                                    {doc.budgetCycleMetadata ? '₽\u00a0' + doc.budgetCycleMetadata.estimatedAmount.toLocaleString('ru-RU') : '—'}
+                                  </td>
+                                  <td class="p-4 text-center text-xs text-[#0b1c30]">
+                                    {#if doc.budgetCycleMetadata}
+                                      <div>{getQuarterName(doc.budgetCycleMetadata.quarter)}</div>
+                                      <div class="text-[11px] text-[#45464d]">Фин. год: {doc.budgetCycleMetadata.fiscalYear}</div>
+                                    {:else}
+                                      —
+                                    {/if}
+                                  </td>
+                                  <td class="p-4 text-xs">
+                                    <div class="font-semibold">Версия {doc.version}</div>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                      {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
+                                          {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                                        </span>
+                                      {/each}
+                                    </div>
+                                  </td>
+                                  <td class="p-4">
+                                    {#if doc.budgetCycleMetadata}
+                                      <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#dae2fd] text-[#131b2e]">
+                                        {getStatusName(doc.budgetCycleMetadata.status)}
+                                      </span>
+                                    {:else}
+                                      <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#eff4ff] text-[#45464d]">
+                                        УТВЕРЖДЕН
+                                      </span>
+                                    {/if}
+                                  </td>
+                                </tr>
+                              {/each}
+                            </tbody>
+                          </table>
+                        </div>
+                      {/if}
+                    </div>
+                  {:else if activeSubTab === 'Нагрузка'}
+                    <!-- Раздел Нагрузки -->
+                    <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
+                      <div class="p-4 bg-[#eff4ff] border-b border-[#c6c6cd] flex justify-between items-center">
+                        <h3 class="font-bold text-base text-[#0b1c30]">Нормативы учебной нагрузки</h3>
+                        <span class="text-xs font-bold text-[#515f74] bg-[#d5e3fd] px-2.5 py-1 rounded">ФГОС</span>
+                      </div>
+
+                      {#if loadDocs.length === 0}
+                        <p class="p-6 text-sm text-[#45464d] text-center">Документы не найдены</p>
+                      {:else}
+                        <div class="overflow-x-auto">
+                          <table class="w-full text-left border-collapse">
+                            <thead>
+                              <tr class="bg-[#f8f9ff] border-b border-[#c6c6cd] text-xs font-bold text-[#45464d]">
+                                <th class="p-4">Название регламента</th>
+                                <th class="p-4">Учебный год</th>
+                                <th class="p-4">Тип документа</th>
+                                <th class="p-4">Раздел / Процесс</th>
+                                <th class="p-4">Классификация</th>
+                                <th class="p-4">Версия</th>
+                              </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                              {#each loadDocs as doc}
+                                <tr class="border-b border-[#c6c6cd] hover:bg-[#f8f9ff] transition-colors">
+                                  <td class="p-4 font-semibold text-[#0b1c30]">{doc.title}</td>
+                                  <td class="p-4 font-mono text-[#515f74]">{doc.academicYear}</td>
+                                  <td class="p-4 text-xs">{getDocumentTypeName(doc.documentType)}</td>
+                                  <td class="p-4 text-xs">{getProcessName(doc.process)}</td>
+                                  <td class="p-4 text-xs">
+                                    <div class="flex flex-wrap gap-1">
+                                      {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
+                                          {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                                        </span>
+                                      {/each}
+                                    </div>
+                                  </td>
+                                  <td class="p-4 text-xs font-semibold">Версия {doc.version}</td>
+                                </tr>
+                              {/each}
+                            </tbody>
+                          </table>
+                        </div>
+                      {/if}
+                    </div>
+                  {/if}
+
+                </div>
+
+              {:else if activeCategory === 'Кадры'}
+                <!-- Раздел Кадров -->
+                <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
+                  <div class="p-4 bg-[#eff4ff] border-b border-[#c6c6cd] flex justify-between items-center">
+                    <h3 class="font-bold text-base text-[#0b1c30]">Штатное расписание и должностные оклады</h3>
+                    <span class="text-xs font-bold text-[#515f74] bg-[#d5e3fd] px-2.5 py-1 rounded">КОНФИДЕНЦИАЛЬНО</span>
+                  </div>
+
+                  <div class="p-6 border-b border-[#c6c6cd]">
+                    <h4 class="font-bold text-lg text-[#0b1c30] mb-2">Штатные единицы ОЦ ЦНИИ Эпидемиологии</h4>
+                    <p class="text-sm text-[#45464d]">
+                      Ниже приведен список служебных актов и регламентов, касающихся кадрового учета преподавателей и административного персонала.
+                    </p>
+                  </div>
+
+                  <!-- Показываем отфильтрованные документы для кадров -->
+                  <div class="p-4">
+                    <div class="grid grid-cols-1 gap-4">
+                      {#each budgetDocs.filter(d => d.title.includes('штат') || d.title.includes('оплат')) as doc}
                         <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
-                          <span class="text-base font-bold text-[#0b1c30]">{doc.title}</span>
-                          <p class="text-sm text-[#45464d]">{doc.description}</p>
-                          <div class="flex flex-wrap items-center gap-4 text-xs border-t border-[#c6c6cd] pt-2 mt-2 text-[#515f74]">
+                          <div class="flex justify-between items-start">
+                            <span class="text-sm font-bold text-[#0b1c30]">{doc.title}</span>
+                            <span class="text-xs font-mono text-[#515f74]">{doc.documentNumber}</span>
+                          </div>
+                          <p class="text-xs text-[#45464d]">{doc.description}</p>
+                          <div class="flex items-center justify-between text-xs mt-2 border-t border-[#c6c6cd] pt-2">
                             <span>Тип: {getDocumentTypeName(doc.documentType)}</span>
-                            <span>Процесс: {getProcessName(doc.process)}</span>
-                            <span>Год: {doc.academicYear}</span>
+                            <span>Версия: {doc.version}</span>
+                          </div>
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                </div>
+
+              {:else if activeCategory === 'Стипендии'}
+                <!-- Стипендии для Экономиста -->
+                <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
+                  <div class="p-4 bg-[#eff4ff] border-b border-[#c6c6cd]">
+                    <h3 class="font-bold text-base text-[#0b1c30]">Стипендиальное обеспечение</h3>
+                  </div>
+
+                  {#if stipendDocs.length === 0}
+                    <p class="p-6 text-sm text-[#45464d] text-center">Инструкции по стипендиям не найдены</p>
+                  {:else}
+                    <div class="p-4 grid grid-cols-1 gap-4">
+                      {#each stipendDocs as doc}
+                        <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
+                          <span class="text-sm font-bold text-[#0b1c30]">{doc.title}</span>
+                          <p class="text-xs text-[#45464d]">{doc.description}</p>
+                          <div class="flex items-center justify-between text-xs border-t border-[#c6c6cd] pt-2 mt-2">
+                            <span>Направление: {getProgramName(doc.program)}</span>
                             <div class="flex gap-1">
                               {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
-                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white text-[#0b1c30] border border-[#c6c6cd]">
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff4ff] text-[#0b1c30] border border-[#c6c6cd]">
                                   {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
                                 </span>
                               {/each}
                             </div>
-                            <span class="ml-auto font-semibold">Версия {doc.version}</span>
+                            <span class="font-semibold">Версия {doc.version}</span>
                           </div>
                         </div>
                       {/each}
                     </div>
                   {/if}
                 </div>
-              {:else if activeCategory === 'Стипендии'}
+              {/if}
+
+            {:else if selectedRole === 'Teacher'}
+              <!-- Содержимое для Преподавателя -->
+              <div class="flex flex-col gap-6">
+                <div class="bg-[#eff4ff] border border-[#c6c6cd] p-5 rounded-xl">
+                  <h3 class="font-bold text-lg text-[#0d1c2f] mb-2">Кабинет преподавателя ЦНИИ Эпидемиологии</h3>
+                  <p class="text-sm text-[#45464d]">
+                    В соответствии с регламентом, вам предоставлен доступ к расчётам нагрузки и стипендиальному обеспечению в режиме просмотра.
+                  </p>
+                </div>
+
+                {#if activeCategory === 'Нагрузка'}
+                  <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
+                    <div class="p-4 bg-[#d5e3fd] border-b border-[#c6c6cd] flex justify-between items-center">
+                      <h3 class="font-bold text-base text-[#0d1c2f]">Реестр учебной нагрузки и нормативов</h3>
+                      <span class="text-xs font-bold text-[#0d1c2f] bg-white px-2 py-0.5 rounded">ФГОС</span>
+                    </div>
+
+                    {#if loadDocs.length === 0}
+                      <p class="p-6 text-sm text-[#45464d] text-center">Документы нагрузки не найдены</p>
+                    {:else}
+                      <div class="p-4 flex flex-col gap-4">
+                        {#each loadDocs as doc}
+                          <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
+                            <span class="text-base font-bold text-[#0b1c30]">{doc.title}</span>
+                            <p class="text-sm text-[#45464d]">{doc.description}</p>
+                            <div class="flex flex-wrap items-center gap-4 text-xs border-t border-[#c6c6cd] pt-2 mt-2 text-[#515f74]">
+                              <span>Тип: {getDocumentTypeName(doc.documentType)}</span>
+                              <span>Процесс: {getProcessName(doc.process)}</span>
+                              <span>Год: {doc.academicYear}</span>
+                              <div class="flex gap-1">
+                                {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white text-[#0b1c30] border border-[#c6c6cd]">
+                                    {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                                  </span>
+                                {/each}
+                              </div>
+                              <span class="ml-auto font-semibold">Версия {doc.version}</span>
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                    {/if}
+                  </div>
+                {:else if activeCategory === 'Стипендии'}
+                  <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
+                    <div class="p-4 bg-[#d5e3fd] border-b border-[#c6c6cd] flex justify-between items-center">
+                      <h3 class="font-bold text-base text-[#0d1c2f]">Справочник стипендий</h3>
+                    </div>
+
+                    {#if stipendDocs.length === 0}
+                      <p class="p-6 text-sm text-[#45464d] text-center">Документы не найдены</p>
+                    {:else}
+                      <div class="p-4 flex flex-col gap-4">
+                        {#each stipendDocs as doc}
+                          <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
+                            <span class="text-base font-bold text-[#0b1c30]">{doc.title}</span>
+                            <p class="text-sm text-[#45464d]">{doc.description}</p>
+                            <div class="flex flex-wrap items-center gap-4 text-xs border-t border-[#c6c6cd] pt-2 mt-2 text-[#515f74]">
+                              <span>Направление: {getProgramName(doc.program)}</span>
+                              <div class="flex gap-1">
+                                {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
+                                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white text-[#0b1c30] border border-[#c6c6cd]">
+                                    {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
+                                  </span>
+                                {/each}
+                              </div>
+                              <span class="ml-auto font-semibold">Версия {doc.version}</span>
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                    {/if}
+                  </div>
+                {/if}
+              </div>
+
+            {:else}
+              <!-- Содержимое для Студента (Аспиранта) -->
+              <div class="flex flex-col gap-6">
+                <div class="bg-[#eff4ff] border border-[#c6c6cd] p-5 rounded-xl">
+                  <h3 class="font-bold text-lg text-[#0d1c2f] mb-2">Добро пожаловать в кабинет обучающегося!</h3>
+                  <p class="text-sm text-[#45464d]">
+                    В соответствии с вашими правами доступа, вам открыт исключительно регламент стипендиального обеспечения. Разделы о бюджете и распределении учебной нагрузки скрыты.
+                  </p>
+                </div>
+
                 <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
                   <div class="p-4 bg-[#d5e3fd] border-b border-[#c6c6cd] flex justify-between items-center">
-                    <h3 class="font-bold text-base text-[#0d1c2f]">Справочник стипендий</h3>
+                    <h3 class="font-bold text-base text-[#0d1c2f]">Справочник стипендий аспирантов и ординаторов</h3>
+                    <span class="text-xs font-bold text-[#0d1c2f] bg-white px-2 py-0.5 rounded">ДОСТУПНО</span>
                   </div>
 
                   {#if stipendDocs.length === 0}
-                    <p class="p-6 text-sm text-[#45464d] text-center">Документы не найдены</p>
+                    <p class="p-6 text-sm text-[#45464d] text-center">Документы не загружены</p>
                   {:else}
                     <div class="p-4 flex flex-col gap-4">
                       {#each stipendDocs as doc}
-                        <div class="border border-[#c6c6cd] rounded-lg p-4 bg-[#f8f9ff] flex flex-col gap-2">
+                        <div class="border border-[#c6c6cd] rounded-lg p-4 hover:bg-[#eff4ff] transition-colors flex flex-col gap-2">
                           <span class="text-base font-bold text-[#0b1c30]">{doc.title}</span>
                           <p class="text-sm text-[#45464d]">{doc.description}</p>
                           <div class="flex flex-wrap items-center gap-4 text-xs border-t border-[#c6c6cd] pt-2 mt-2 text-[#515f74]">
+                            <span>Номер акта: {doc.documentNumber}</span>
+                            <span>Утверждено: {doc.approvalDate}</span>
+                            <span>Тип: {getDocumentTypeName(doc.documentType)}</span>
                             <span>Направление: {getProgramName(doc.program)}</span>
                             <div class="flex gap-1">
                               {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
@@ -765,155 +814,110 @@
                                 </span>
                               {/each}
                             </div>
-                            <span class="ml-auto font-semibold">Версия {doc.version}</span>
+                            <span class="ml-auto font-semibold">Актуальная версия: {doc.version}</span>
                           </div>
                         </div>
                       {/each}
                     </div>
                   {/if}
                 </div>
-              {/if}
-            </div>
-
-          {:else}
-            <!-- Содержимое для Студента (Аспиранта) -->
-            <div class="flex flex-col gap-6">
-              <div class="bg-[#eff4ff] border border-[#c6c6cd] p-5 rounded-xl">
-                <h3 class="font-bold text-lg text-[#0d1c2f] mb-2">Добро пожаловать в кабинет обучающегося!</h3>
-                <p class="text-sm text-[#45464d]">
-                  В соответствии с вашими правами доступа, вам открыт исключительно регламент стипендиального обеспечения. Разделы о бюджете и распределении учебной нагрузки скрыты.
-                </p>
               </div>
+            {/if}
 
-              <div class="bg-white rounded-xl border border-[#c6c6cd] overflow-hidden flex flex-col">
-                <div class="p-4 bg-[#d5e3fd] border-b border-[#c6c6cd] flex justify-between items-center">
-                  <h3 class="font-bold text-base text-[#0d1c2f]">Справочник стипендий аспирантов и ординаторов</h3>
-                  <span class="text-xs font-bold text-[#0d1c2f] bg-white px-2 py-0.5 rounded">ДОСТУПНО</span>
-                </div>
-
-                {#if stipendDocs.length === 0}
-                  <p class="p-6 text-sm text-[#45464d] text-center">Документы не загружены</p>
-                {:else}
-                  <div class="p-4 flex flex-col gap-4">
-                    {#each stipendDocs as doc}
-                      <div class="border border-[#c6c6cd] rounded-lg p-4 hover:bg-[#eff4ff] transition-colors flex flex-col gap-2">
-                        <span class="text-base font-bold text-[#0b1c30]">{doc.title}</span>
-                        <p class="text-sm text-[#45464d]">{doc.description}</p>
-                        <div class="flex flex-wrap items-center gap-4 text-xs border-t border-[#c6c6cd] pt-2 mt-2 text-[#515f74]">
-                          <span>Номер акта: {doc.documentNumber}</span>
-                          <span>Утверждено: {doc.approvalDate}</span>
-                          <span>Тип: {getDocumentTypeName(doc.documentType)}</span>
-                          <span>Направление: {getProgramName(doc.program)}</span>
-                          <div class="flex gap-1">
-                            {#each doc.schemaTags.map(translateTag).filter(Boolean) as tag}
-                              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white text-[#0b1c30] border border-[#c6c6cd]">
-                                {tag === 'Книга' ? '📖 Книга' : tag === 'Глоссарий' ? '📚 Глоссарий' : tag}
-                              </span>
-                            {/each}
-                          </div>
-                          <span class="ml-auto font-semibold">Актуальная версия: {doc.version}</span>
-                        </div>
-                      </div>
-                    {/each}
-                  </div>
-                {/if}
-              </div>
-            </div>
           {/if}
 
+        </div>
+
+      </main>
+
+      <!-- Нижняя панель навигации (для мобильных устройств) -->
+      <nav class="md:hidden fixed bottom-0 w-full z-50 bg-[#e5eeff] border-t border-[#c6c6cd] flex justify-around items-center h-16 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+        <!-- Панель в мобильном меню для всех ролей -->
+        <button
+          type="button"
+          onclick={() => activeCategory = 'Панель'}
+          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Панель' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+        >
+          <span class="material-symbols-outlined text-xl">dashboard</span>
+          <span>Панель</span>
+        </button>
+
+        <!-- База знаний в мобильном меню для всех ролей -->
+        <button
+          type="button"
+          onclick={() => activeCategory = 'База знаний'}
+          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'База знаний' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+        >
+          <span class="material-symbols-outlined text-xl">library_books</span>
+          <span>База</span>
+        </button>
+
+        {#if selectedRole === 'Admin'}
+          <button
+            type="button"
+            onclick={() => activeCategory = 'Интеграция'}
+            class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Интеграция' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+          >
+            <span class="material-symbols-outlined text-xl">settings_suggest</span>
+            <span>Интеграция</span>
+          </button>
+        {:else if selectedRole === 'Economist'}
+          <button
+            type="button"
+            onclick={() => activeCategory = 'Финансы'}
+            class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Финансы' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+          >
+            <span class="material-symbols-outlined text-xl">payments</span>
+            <span>Финансы</span>
+          </button>
+
+          <button
+            type="button"
+            onclick={() => activeCategory = 'Кадры'}
+            class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Кадры' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+          >
+            <span class="material-symbols-outlined text-xl">badge</span>
+            <span>Кадры</span>
+          </button>
+
+          <button
+            type="button"
+            onclick={() => activeCategory = 'Стипендии'}
+            class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+          >
+            <span class="material-symbols-outlined text-xl">school</span>
+            <span>Стипендии</span>
+          </button>
+        {:else if selectedRole === 'Teacher'}
+          <button
+            type="button"
+            onclick={() => activeCategory = 'Нагрузка'}
+            class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Нагрузка' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+          >
+            <span class="material-symbols-outlined text-xl">analytics</span>
+            <span>Нагрузка</span>
+          </button>
+
+          <button
+            type="button"
+            onclick={() => activeCategory = 'Стипендии'}
+            class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+          >
+            <span class="material-symbols-outlined text-xl">school</span>
+            <span>Стипендии</span>
+          </button>
+        {:else}
+          <button
+            type="button"
+            onclick={() => activeCategory = 'Стипендии'}
+            class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
+          >
+            <span class="material-symbols-outlined text-xl">school</span>
+            <span>Стипендии</span>
+          </button>
         {/if}
+      </nav>
 
-      </div>
-
-    </main>
-
-    <!-- Нижняя панель навигации (для мобильных устройств) -->
-    <nav class="md:hidden fixed bottom-0 w-full z-50 bg-[#e5eeff] border-t border-[#c6c6cd] flex justify-around items-center h-16 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
-      <!-- Панель в мобильном меню для всех ролей -->
-      <button
-        type="button"
-        onclick={() => activeCategory = 'Панель'}
-        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Панель' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-      >
-        <span class="material-symbols-outlined text-xl">dashboard</span>
-        <span>Панель</span>
-      </button>
-
-      <!-- База знаний в мобильном меню для всех ролей -->
-      <button
-        type="button"
-        onclick={() => activeCategory = 'База знаний'}
-        class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'База знаний' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-      >
-        <span class="material-symbols-outlined text-xl">library_books</span>
-        <span>База</span>
-      </button>
-
-      {#if selectedRole === 'Admin'}
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Интеграция'}
-          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Интеграция' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-        >
-          <span class="material-symbols-outlined text-xl">settings_suggest</span>
-          <span>Интеграция</span>
-        </button>
-      {:else if selectedRole === 'Economist'}
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Финансы'}
-          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Финансы' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-        >
-          <span class="material-symbols-outlined text-xl">payments</span>
-          <span>Финансы</span>
-        </button>
-
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Кадры'}
-          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Кадры' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-        >
-          <span class="material-symbols-outlined text-xl">badge</span>
-          <span>Кадры</span>
-        </button>
-
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Стипендии'}
-          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-        >
-          <span class="material-symbols-outlined text-xl">school</span>
-          <span>Стипендии</span>
-        </button>
-      {:else if selectedRole === 'Teacher'}
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Нагрузка'}
-          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Нагрузка' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-        >
-          <span class="material-symbols-outlined text-xl">analytics</span>
-          <span>Нагрузка</span>
-        </button>
-
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Стипендии'}
-          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-        >
-          <span class="material-symbols-outlined text-xl">school</span>
-          <span>Стипендии</span>
-        </button>
-      {:else}
-        <button
-          type="button"
-          onclick={() => activeCategory = 'Стипендии'}
-          class="flex flex-col items-center justify-center text-xs font-bold {activeCategory === 'Стипендии' ? 'text-[#0d1c2f] bg-[#d5e3fd] rounded-full px-4 py-1' : 'text-[#45464d]'}"
-        >
-          <span class="material-symbols-outlined text-xl">school</span>
-          <span>Стипендии</span>
-        </button>
-      {/if}
-    </nav>
-
-  </div>
+    </div>
+  {/if}
 {/if}
