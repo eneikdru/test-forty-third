@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import DocumentViewer from './DocumentViewer.svelte';
+  import SearchAutoSuggest from './SearchAutoSuggest.svelte';
   import { getTypoCorrection, getSuggestions } from '../utils/searchUtils.js';
 
   // Props
@@ -511,69 +512,17 @@
   </div>
 
   <!-- Крупная строка поиска с кнопкой сохранения и автоподсказками -->
-  <div class="relative w-full">
-    <div class="sticky top-0 z-10 bg-surface/95 backdrop-blur border border-surface-container-high p-1.5 rounded-[8px] h-[48px] flex items-center shadow-sm w-full transition-all duration-200">
-      <span class="material-symbols-outlined text-primary-container px-3">search</span>
-      <input
-        type="text"
-        bind:value={searchQuery}
-        onfocus={() => showSuggestions = true}
-        onblur={() => setTimeout(() => showSuggestions = false, 200)}
-        onkeydown={handleKeyDown}
-        placeholder="Поиск по названию, аннотации или шифру документа..."
-        class="flex-1 bg-transparent border-0 ring-0 focus:ring-0 focus:outline-none text-sm text-on-secondary-fixed placeholder-slate-400 font-sans h-full"
-      />
-      {#if searchQuery}
-        <button
-          type="button"
-          onclick={() => { searchQuery = ''; activeSuggestionIndex = -1; }}
-          class="text-on-surface-variant hover:text-primary p-1 flex items-center justify-center mr-1"
-          aria-label="Очистить поиск"
-        >
-          <span class="material-symbols-outlined text-lg">close</span>
-        </button>
-        <button
-          type="button"
-          onclick={saveCurrentSearch}
-          class="bg-primary text-white hover:bg-primary px-3 py-1 rounded-[6px] text-xs font-semibold mr-1 transition-colors"
-          title="Сохранить поисковый запрос"
-        >
-          Сохранить запрос
-        </button>
-      {/if}
-    </div>
-
-    <!-- Список автоподсказок -->
-    {#if showSuggestions && suggestionsList.length > 0}
-      <div class="absolute left-0 right-0 top-[52px] bg-white border border-surface-container-high rounded-[8px] shadow-lg z-50 overflow-hidden max-h-60 overflow-y-auto">
-        {#each suggestionsList as suggestion, idx}
-          <button
-            type="button"
-            onclick={() => { searchQuery = suggestion; showSuggestions = false; }}
-            class="w-full text-left px-4 py-2.5 text-sm hover:bg-surface-container-low transition-colors flex items-center gap-2 font-sans {idx === activeSuggestionIndex ? 'bg-slate-100' : ''}"
-          >
-            <span class="material-symbols-outlined text-on-surface-variant text-sm">history</span>
-            <span class="text-on-secondary-fixed truncate">{suggestion}</span>
-          </button>
-        {/each}
-      </div>
-    {/if}
-  </div>
-
-  <!-- Исправление опечаток (Баннер) -->
-  {#if typoCorrection}
-    <div class="bg-amber-50 border border-amber-200 rounded-[8px] p-3 text-sm text-amber-800 flex items-center gap-2 font-sans">
-      <span class="material-symbols-outlined text-amber-600">info</span>
-      <span>Возможно, вы имели в виду:</span>
-      <button
-        type="button"
-        onclick={() => searchQuery = typoCorrection}
-        class="font-bold underline text-primary hover:text-primary text-left"
-      >
-        {typoCorrection}
-      </button>
-    </div>
-  {/if}
+  <SearchAutoSuggest
+    bind:searchQuery={searchQuery}
+    bind:activeSuggestionIndex={activeSuggestionIndex}
+    bind:showSuggestions={showSuggestions}
+    {suggestionsList}
+    {typoCorrection}
+    onSaveSearch={saveCurrentSearch}
+    onClearSearch={() => { searchQuery = ''; activeSuggestionIndex = -1; }}
+    onSelectSuggestion={(suggestion) => { searchQuery = suggestion; showSuggestions = false; }}
+    onKeyDown={handleKeyDown}
+  />
 
   <!-- Панель сохраненных запросов -->
   {#if savedSearches.length > 0}
