@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sync Queue - System Manager</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#dce9ff",
+                        "background": "#f8f9ff",
+                        "secondary": "#006c4a",
+                        "outline": "#777584",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "on-secondary-fixed-variant": "#005137",
+                        "secondary-container": "#82f5c1",
+                        "on-background": "#0d1c2e",
+                        "primary-container": "#3730a3",
+                        "on-primary-container": "#a9a7ff",
+                        "on-surface-variant": "#464553",
+                        "tertiary-container": "#683600",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary": "#482300",
+                        "tertiary-fixed-dim": "#ffb77d",
+                        "surface-container-highest": "#d5e3fc",
+                        "inverse-primary": "#c3c0ff",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#002114",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#544fc0",
+                        "on-secondary-container": "#00714e",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#6e3900",
+                        "secondary-fixed-dim": "#68dba9",
+                        "on-primary-fixed": "#0f0069",
+                        "error-container": "#ffdad6",
+                        "primary": "#1f108e",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "surface-variant": "#d5e3fc",
+                        "surface-container": "#e6eeff",
+                        "surface": "#f8f9ff",
+                        "primary-fixed": "#e2dfff",
+                        "outline-variant": "#c8c4d5",
+                        "on-surface": "#0d1c2e",
+                        "on-tertiary-container": "#ff9631",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#85f8c4",
+                        "on-tertiary-fixed": "#2f1500",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-surface": "#233144",
+                        "tertiary-fixed": "#ffdcc3",
+                        "surface-dim": "#ccdbf3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "stack-gap": "8px",
+                        "inline-gap": "12px",
+                        "container-padding": "16px",
+                        "touch-target": "44px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "status-code": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "status-code": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .sync-animation {
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { border-color: rgba(226, 232, 240, 1); }
+            50% { border-color: rgba(31, 16, 142, 0.5); }
+            100% { border-color: rgba(226, 232, 240, 1); }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md">
+<!-- TopAppBar -->
+<header class="bg-surface w-full top-0 sticky border-b border-outline-variant flex justify-between items-center px-container-padding h-touch-target z-40 shadow-sm">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full active:opacity-80 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="settings_remote">settings_remote</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary truncate mx-4">System Manager</h1>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full active:opacity-80 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="cloud_sync">cloud_sync</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow p-container-padding pb-24 md:pb-container-padding max-w-4xl mx-auto w-full flex flex-col gap-6">
+<!-- Status Header -->
+<section class="flex flex-col gap-stack-gap">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-lg text-headline-lg text-on-background">Sync Queue</h2>
+<div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded border border-slate-200">
+<span class="material-symbols-outlined text-slate-500 text-sm">wifi_off</span>
+<span class="font-status-code text-status-code text-slate-700 uppercase">Offline</span>
+</div>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant">3 operations pending network restoration.</p>
+</section>
+<!-- Queue List -->
+<section class="flex flex-col gap-stack-gap">
+<!-- Item 1: Pending Update -->
+<div class="flex items-stretch bg-surface-container-lowest border border-slate-200 rounded relative overflow-hidden group hover:border-slate-300 transition-colors">
+<!-- Indicator Stripe -->
+<div class="w-[4px] bg-amber-400 flex-shrink-0"></div>
+<div class="p-4 flex-grow flex justify-between items-center">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Update Record</span>
+<span class="font-body-md text-body-md font-semibold text-on-background">Update Profile: Contact Info</span>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="font-status-code text-status-code text-amber-700 bg-amber-50 px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Pending
+                        </span>
+<span class="font-status-code text-status-code text-on-surface-variant text-[10px]">10:42 AM</span>
+</div>
+</div>
+</div>
+<!-- Item 2: Pending Creation -->
+<div class="flex items-stretch bg-surface-container-lowest border border-slate-200 rounded relative overflow-hidden group hover:border-slate-300 transition-colors">
+<!-- Indicator Stripe -->
+<div class="w-[4px] bg-amber-400 flex-shrink-0"></div>
+<div class="p-4 flex-grow flex justify-between items-center">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Create Record</span>
+<span class="font-body-md text-body-md font-semibold text-on-background">New Comment on PR #442</span>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="font-status-code text-status-code text-amber-700 bg-amber-50 px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Pending
+                        </span>
+<span class="font-status-code text-status-code text-on-surface-variant text-[10px]">11:15 AM</span>
+</div>
+</div>
+</div>
+<!-- Item 3: Queued Deletion (Lower Priority) -->
+<div class="flex items-stretch bg-surface-container-lowest border border-slate-200 rounded relative overflow-hidden group hover:border-slate-300 transition-colors opacity-75">
+<!-- Indicator Stripe -->
+<div class="w-[4px] bg-slate-300 flex-shrink-0"></div>
+<div class="p-4 flex-grow flex justify-between items-center">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Delete Record</span>
+<span class="font-body-md text-body-md font-semibold text-on-background line-through text-slate-500">Draft Document X19</span>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="font-status-code text-status-code text-slate-700 bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1 border border-slate-200">
+<span class="material-symbols-outlined text-[14px]">inventory_2</span> Queued
+                        </span>
+<span class="font-status-code text-status-code text-on-surface-variant text-[10px]">11:30 AM</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Area -->
+<section class="mt-4 flex flex-col gap-4 border-t border-slate-200 pt-6">
+<div class="bg-surface-container-low p-4 rounded border border-slate-200 flex items-start gap-3">
+<span class="material-symbols-outlined text-on-surface-variant mt-0.5">info</span>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">
+                    Modifications are stored locally. They will automatically begin syncing in order of priority once a stable network connection is re-established.
+                </p>
+</div>
+<button class="w-full bg-slate-300 text-slate-500 font-body-lg text-body-lg font-semibold py-3 rounded cursor-not-allowed flex items-center justify-center gap-2 transition-colors" disabled="">
+<span class="material-symbols-outlined">sync</span>
+                Sync All Pending
+            </button>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden flex justify-around items-center w-full h-16 pb-safe bg-surface fixed bottom-0 z-50 border-t border-outline-variant shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+<!-- Inventory (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/4 hover:bg-surface-container-low scale-95 duration-100" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="database">database</span>
+<span class="font-label-caps text-label-caps text-center">Inventory</span>
+</a>
+<!-- Queue (Active) -->
+<a class="flex flex-col items-center justify-center text-primary border-t-2 border-primary pt-1 w-1/4 bg-surface-container-low" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="sync_alt">sync_alt</span>
+<span class="font-label-caps text-label-caps text-center font-bold">Queue</span>
+</a>
+<!-- Logs (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/4 hover:bg-surface-container-low scale-95 duration-100" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="terminal">terminal</span>
+<span class="font-label-caps text-label-caps text-center">Logs</span>
+</a>
+<!-- Settings (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/4 hover:bg-surface-container-low scale-95 duration-100" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps text-center">Settings</span>
+</a>
+</nav>
+<!-- Desktop Side Navigation equivalent would typically be injected here if instructed, hidden on mobile -->
+</body></html>
