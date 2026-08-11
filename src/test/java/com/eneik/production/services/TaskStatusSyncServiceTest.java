@@ -61,6 +61,9 @@ public class TaskStatusSyncServiceTest {
         Timestamp updatedAt = jdbcTemplate.queryForObject("SELECT updated_at FROM sync_tasks WHERE id = ?", Timestamp.class, taskId);
         assertNotNull(updatedAt, "The updated_at timestamp should not be null.");
         assertEquals(Timestamp.valueOf(fixedTime), updatedAt, "The updated_at timestamp should match the fixed time from TimeProvider.");
+
+        String rootCausePatternId = jdbcTemplate.queryForObject("SELECT root_cause_pattern_id FROM sync_tasks WHERE id = ?", String.class, taskId);
+        assertEquals("uncategorized", rootCausePatternId, "The root_cause_pattern_id should be assigned as uncategorized.");
     }
 
     @Test
@@ -78,6 +81,9 @@ public class TaskStatusSyncServiceTest {
         Timestamp updatedAt = jdbcTemplate.queryForObject("SELECT updated_at FROM sync_tasks WHERE id = ?", Timestamp.class, newTaskId);
         assertNotNull(updatedAt, "The updated_at timestamp should not be null.");
         assertEquals(Timestamp.valueOf(fixedTime), updatedAt, "The updated_at timestamp should match the fixed time from TimeProvider.");
+
+        String rootCausePatternId = jdbcTemplate.queryForObject("SELECT root_cause_pattern_id FROM sync_tasks WHERE id = ?", String.class, newTaskId);
+        assertEquals("uncategorized", rootCausePatternId, "The root_cause_pattern_id should be assigned as uncategorized.");
     }
 
     @Test
