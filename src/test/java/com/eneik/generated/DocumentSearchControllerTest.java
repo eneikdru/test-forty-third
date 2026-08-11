@@ -473,4 +473,42 @@ public class DocumentSearchControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    public void testSearchQueryAnalyticsLoggingWithRequestAttributes() throws Exception {
+        analyticsEventRepository.deleteAll();
+
+        createDocument("Положение о стипендиях ординаторов", "Документ об академических выплатах.", "residency", "Position");
+
+        UUID testUserId = UUID.fromString("00000000-0000-0000-0000-000000000005");
+
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .requestAttr("X-User-Id", testUserId.toString())
+                        .param("q", "стипендиях")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        List<AnalyticsEvent> loggedEvents = analyticsEventRepository.findAll();
+        org.junit.jupiter.api.Assertions.assertFalse(loggedEvents.isEmpty(), "An analytics event should be logged");
+
+        AnalyticsEvent searchEvent = loggedEvents.stream()
+                .filter(e -> "SEARCH".equalsIgnoreCase(e.getEventType()))
+                .findFirst()
+                .orElse(null);
+
+        org.junit.jupiter.api.Assertions.assertNotNull(searchEvent, "Search analytics event should exist");
+        org.junit.jupiter.api.Assertions.assertEquals("стипендиях", searchEvent.getSearchQuery());
+        org.junit.jupiter.api.Assertions.assertEquals(testUserId, searchEvent.getUserId());
+    }
+
+    @Test
+    public void testSearchWithInvalidUserIdProceedsGracefully() throws Exception {
+        mockMvc.perform(get("/api/documents/search")
+                        .header("X-User-Role", "Teacher")
+                        .header("X-User-Id", "not-a-valid-uuid")
+                        .param("q", "тест")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 }

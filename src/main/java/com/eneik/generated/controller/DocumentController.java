@@ -408,19 +408,15 @@ public class DocumentController {
 
         Document doc = docOpt.get();
 
-        // Extract user ID
-        UUID userId = null;
-        String xUserId = request.getHeader("X-User-Id");
-        try {
-            if (xUserId != null && !xUserId.trim().isEmpty()) {
-                userId = UUID.fromString(xUserId.trim());
-            }
-        } catch (IllegalArgumentException e) {
-            // Proceed with null
-        }
+        // Extract user ID securely via centralized extractor helper
+        UUID userId = com.eneik.generated.util.RequestUserIdExtractor.extractUserId(request);
 
-        // Log VIEW event
-        analyticsService.logEvent("VIEW", userId, doc.getId(), null);
+        // Log VIEW event in a separate try-catch block to prevent analytics failures from failing document retrieval
+        try {
+            analyticsService.logEvent("VIEW", userId, doc.getId(), null);
+        } catch (Exception e) {
+            log.error("Failed to log VIEW event in AnalyticsService for document ID: {}", doc.getId(), e);
+        }
 
         DocumentDetailsResponseDTO details = new DocumentDetailsResponseDTO();
         details.setDocument(mapToResponse(doc));
