@@ -14,6 +14,7 @@ import com.eneik.generated.dto.TelegramNotificationRequest;
 import com.eneik.generated.service.AnalyticsService;
 import com.eneik.generated.service.NotificationDispatcher;
 import com.eneik.generated.service.NotificationService;
+import com.eneik.generated.service.AntivirusScannerService;
 import com.eneik.generated.util.IdProvider;
 import com.eneik.generated.util.TimeProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +46,7 @@ public class DocumentController {
     private final NotificationService notificationService;
     private final AnalyticsService analyticsService;
     private final NotificationDispatcher notificationDispatcher;
+    private final AntivirusScannerService antivirusScannerService;
 
     private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of("Position", "Procedure", "Project", "Other");
     private static final Set<String> ALLOWED_PROGRAMS = Set.of("postgraduate", "residency", "both");
@@ -60,7 +62,8 @@ public class DocumentController {
                               TimeProvider timeProvider,
                               NotificationService notificationService,
                               AnalyticsService analyticsService,
-                              NotificationDispatcher notificationDispatcher) {
+                              NotificationDispatcher notificationDispatcher,
+                              AntivirusScannerService antivirusScannerService) {
         this.documentRepository = documentRepository;
         this.documentVersionRepository = documentVersionRepository;
         this.schemaTagRepository = schemaTagRepository;
@@ -71,6 +74,7 @@ public class DocumentController {
         this.notificationService = notificationService;
         this.analyticsService = analyticsService;
         this.notificationDispatcher = notificationDispatcher;
+        this.antivirusScannerService = antivirusScannerService;
     }
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -128,6 +132,19 @@ public class DocumentController {
         if (!ALLOWED_PROCESSES.contains(process)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("BAD_REQUEST", "Invalid process. Must be one of: " + ALLOWED_PROCESSES));
+        }
+
+        // Anti-virus scan before saving
+        try (java.io.InputStream scanStream = file.getInputStream()) {
+            if (!antivirusScannerService.scan(scanStream)) {
+                log.warn("Uploaded file contains virus or malware signature. File rejected.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponse("BAD_REQUEST", "Uploaded file contains malware or virus signature"));
+            }
+        } catch (java.io.IOException e) {
+            log.error("Failed to scan uploaded file", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("INTERNAL_SERVER_ERROR", "Failed to perform virus scan on uploaded file: " + e.getMessage()));
         }
 
         // Duplication control: check if a document with same documentNumber exists, or same title exists
