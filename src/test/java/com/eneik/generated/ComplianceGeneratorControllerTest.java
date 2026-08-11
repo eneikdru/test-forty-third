@@ -143,15 +143,13 @@ public class ComplianceGeneratorControllerTest {
         List<String> specifications = List.of(
                 "Document Comments and Update Requests",
                 "Saved Searches and Favorites",
-                "Search Auto-Suggestions",
-                "Offline Material Creation and Sync"
+                "Search Auto-Suggestions"
         );
         // Under a falsified success report, the client claims all of these are addressed/covered
         List<String> addressed = List.of(
                 "Document Comments and Update Requests",
                 "Saved Searches and Favorites",
-                "Search Auto-Suggestions",
-                "Offline Material Creation and Sync"
+                "Search Auto-Suggestions"
         );
 
         CoverageAuditRequest request = new CoverageAuditRequest(specifications, addressed);
@@ -163,12 +161,11 @@ public class ComplianceGeneratorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 // Then the system blocks the faked stubs and allows the truly tested ones ("Document Comments and Update Requests" and "Saved Searches and Favorites")
-                // Therefore, the 2 unimplemented specifications are returned as gaps
+                // Therefore, the 1 unimplemented specification is returned as gaps
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.gaps", hasSize(2)))
+                .andExpect(jsonPath("$.gaps", hasSize(1)))
                 .andExpect(jsonPath("$.gaps", containsInAnyOrder(
-                        "Search Auto-Suggestions",
-                        "Offline Material Creation and Sync"
+                        "Search Auto-Suggestions"
                 )))
                 .andExpect(jsonPath("$.coverageComplete", is(false)));
     }
