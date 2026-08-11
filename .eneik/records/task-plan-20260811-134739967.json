@@ -1,0 +1,64 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "3cdf2a0b-27cb-4167-83a4-de5578304bd8",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Patch the underlying root cause of design review concern patterns for document search"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch document search design review concerns",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the fix for this epic, I want to patch the root cause of the design review concern patterns directly in existing code, so that the u-chart for document search stabilizes",
+          "acceptanceCriteria": "Given the existing document search implementation,\nWhen the patch addressing design review concerns is applied,\nThen the code passes all quality checks and the pattern is resolved.\nGiven the patched search logic,\nWhen QA tests are executed,\nThen all search assertions pass without regression.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Document search review pattern",
+          "sixSigmaMetric": "Reduce document search review concerns u-value from 0.5000 to 0.0000",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "60677bf0-6e4e-4794-b5bd-32b4a2a4e4a3",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Patch the underlying root cause of design review concern patterns for task status mismatches"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch task status mismatch design review concerns",
+          "roleTag": "BARCAN-TAG-02",
+          "jtbd": "When implementing the fix for this epic, I want to patch the root cause of the design review concern patterns directly in existing code, so that the u-chart for task status synchronization stabilizes",
+          "acceptanceCriteria": "Given the existing task status synchronization implementation,\nWhen the patch addressing design review concerns is applied,\nThen the code passes all quality checks and the pattern is resolved.\nGiven the patched task sync logic,\nWhen QA tests are executed,\nThen all synchronization assertions pass without regression.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Task status sync review pattern",
+          "sixSigmaMetric": "Reduce task status mismatch review concerns u-value from 0.0500 to 0.0000",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
