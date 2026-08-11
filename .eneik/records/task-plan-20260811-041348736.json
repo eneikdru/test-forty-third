@@ -1,0 +1,64 @@
+{
+  "epics": [
+    {
+      "existingEpicId": "f5da8084-2471-4d88-a384-e6f06165789f",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 0,
+      "requirements": [
+        "R1: Real-time auto-suggestions and typo correction"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch search input logic for auto-suggestions",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing auto-suggestions for this epic, I want to patch the existing frontend search component, so that search queries yield real-time suggestions and correction.",
+          "acceptanceCriteria": "Given a search input field, When a user starts typing a query, Then the system returns a list of suggested queries or matching document titles.\nGiven a typed query with a typo, When the system evaluates the input, Then it suggests corrected queries or matching document titles.\nGiven a unit test suite, When the auto-suggestion logic is tested, Then it passes all test cases verifying typo correction and query matching.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Search query processing latency",
+          "sixSigmaMetric": "Decrease average search query formulation time by 15%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "existingEpicId": "a136bf09-0f75-413f-a079-312a84fc0ee5",
+      "title": null,
+      "jtbd": null,
+      "kanoClass": null,
+      "cynefinDomain": null,
+      "sixSigmaMetric": null,
+      "tocConstraintRef": null,
+      "sourceIndex": 1,
+      "requirements": [
+        "R1: Ability to add materials offline with subsequent synchronization"
+      ],
+      "coverageComplete": true,
+      "slices": [
+        {
+          "title": "Patch offline sync mechanism for materials",
+          "roleTag": "BARCAN-TAG-11",
+          "jtbd": "When implementing offline sync for this epic, I want to patch the existing storage logic, so that local offline modifications are queued and synced upon reconnection.",
+          "acceptanceCriteria": "Given an offline state, When a user creates or modifies a document, Then it is stored locally in the browser storage.\nGiven a restored internet connection, When the system detects the network is back online, Then the locally queued modifications are pushed to the server.\nGiven an integration test suite, When the offline sync logic is executed, Then it passes all test cases verifying successful synchronization without data loss.",
+          "leanValue": "essential",
+          "cynefinDomain": "clear",
+          "tocConstraintRef": "Network state transition handling",
+          "sixSigmaMetric": "Reduce un-synchronized offline material creation events to 0%",
+          "hasUi": false,
+          "requirementRefs": [
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}
