@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest(classes = {com.eneik.generated.Application.class, com.eneik.production.config.ProductionConfig.class})
 @Transactional
@@ -129,5 +130,35 @@ public class TaskStatusSyncServiceTest {
         UUID nonExistentTaskId = UUID.fromString("123e4567-e89b-12d3-a456-426614174003");
         boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(nonExistentTaskId, true, false);
         assertFalse(updated, "Should return false since the task ID does not exist in the database.");
+    }
+
+    @Test
+    public void testEvaluateReviewConcerns_AssignsRootCausePatternIdToMismatchEvent() {
+        // Prepare task with no rootCausePatternId
+        UUID testEvalId = UUID.fromString("123e4567-e89b-12d3-a456-426614174010");
+        jdbcTemplate.update("INSERT INTO sync_tasks (id, github_pr_number, status, root_cause_pattern_id) VALUES (?, ?, ?, null)", testEvalId, "111", "done");
+
+        // Evaluate review concerns for closed unmerged PR (mismatch defect event)
+        boolean evaluated = taskStatusSyncService.evaluateReviewConcerns(testEvalId, true, false);
+        assertTrue(evaluated, "The defect event evaluation should successfully update the task.");
+
+        // Assert rootCausePatternId mapping of the invariant pattern 'reviewConcerns'
+        String rootCausePatternId = jdbcTemplate.queryForObject("SELECT root_cause_pattern_id FROM sync_tasks WHERE id = ?", String.class, testEvalId);
+        assertEquals("reviewConcerns", rootCausePatternId, "The rootCausePatternId must be assigned to 'reviewConcerns' for task status mismatch.");
+    }
+
+    @Test
+    public void testCategorizeUncategorizedMismatchEvents() {
+        // Prepare a failed task with null rootCausePatternId (uncategorized mismatch event)
+        UUID uncategorizedId = UUID.fromString("123e4567-e89b-12d3-a456-426614174011");
+        jdbcTemplate.update("INSERT INTO sync_tasks (id, github_pr_number, status, root_cause_pattern_id) VALUES (?, ?, ?, null)", uncategorizedId, "222", "failed");
+
+        // Categorize uncategorized mismatch events
+        int patchedCount = taskStatusSyncService.categorizeUncategorizedMismatchEvents();
+        assertTrue(patchedCount >= 1, "At least one uncategorized mismatch event should be categorized.");
+
+        // Verify the rootCausePatternId is set to 'reviewConcerns'
+        String rootCausePatternId = jdbcTemplate.queryForObject("SELECT root_cause_pattern_id FROM sync_tasks WHERE id = ?", String.class, uncategorizedId);
+        assertEquals("reviewConcerns", rootCausePatternId, "The uncategorized mismatch event must carry 'reviewConcerns' rootCausePatternId.");
     }
 }
