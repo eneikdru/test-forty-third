@@ -131,6 +131,90 @@
       "confidence": "high",
       "evidence": "frontend/src/FinancialModule.svelte -> onclick={() => activeCategory = 'Кадры'}",
       "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "philosopher": "Готлоб Фреге",
+      "worldview": "Sense and Reference - distinction between reference and mode of presentation (Принцип смысла и значения)",
+      "critique": "The backend uses UUIDs as the reference (значение) for documents, but the frontend mixes multiple modes of presentation (смысл) like title and category without formally separating them. This risks confusing the referent with its presentation.",
+      "proposal": "Strictly separate the referential ID of a document from its presentational fields in the API contract.",
+      "dislike": "Confusing the referent of an object with its mode of presentation.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/Document.java -> mixing ID and title.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "philosopher": "Бертран Рассел",
+      "worldview": "On Denoting - theory of definite descriptions (Принцип определенных дескрипций)",
+      "critique": "The application relies on definite descriptions for filtering (e.g., 'the budget document for economist') which may fail to denote if the underlying document is removed, leading to unhandled null states.",
+      "proposal": "Avoid relying on implicit definite descriptions for data fetching; ensure existential claims are checked before assertion.",
+      "dislike": "Relying on descriptions that may fail to denote any actual object.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte -> filtering docs without existence checks.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-00",
+      "philosopher": "Джон Остин",
+      "worldview": "How to Do Things with Words - speech acts and performative utterances (Принцип перформативности)",
+      "critique": "The UI triggers state changes (e.g., selecting categories) treated merely as constative descriptions of state rather than performative acts that carry explicit success/failure felicity conditions.",
+      "proposal": "Model user interactions as explicit command objects (performative utterances) with clear felicity conditions.",
+      "dislike": "Treating performative actions as mere descriptive state changes.",
+      "kanoClass": "Attractive",
+      "confidence": "medium",
+      "evidence": "frontend/src/FinancialModule.svelte -> activeCategory = 'Кадры'",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01",
+      "philosopher": "Питер Стросон",
+      "worldview": "Individuals - descriptive metaphysics and basic particulars (Принцип базовых партикулярий)",
+      "critique": "The domain model treats documents as basic particulars, but they are dependent on categories. The ontology does not properly distinguish between independent basic entities and dependent entities.",
+      "proposal": "Refine the domain model to clearly distinguish basic particulars from dependent properties.",
+      "dislike": "Flat ontology that fails to distinguish independent from dependent entities.",
+      "kanoClass": "Indifferent",
+      "confidence": "low",
+      "evidence": "src/main/java/com/eneik/generated/model/Document.java -> category relationship.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01",
+      "philosopher": "Рудольф Карнап",
+      "worldview": "Meaning and Necessity - intensional logic and state descriptions (Принцип интенсиональных структур)",
+      "critique": "The 'Document' class mixes extensional properties (like ID) with intensional properties (like description) without a formal structure separating state descriptions.",
+      "proposal": "Separate extensional identifiers from intensional state payloads in the domain model.",
+      "dislike": "Mixing extensional identity with intensional state descriptions.",
+      "kanoClass": "Performance",
+      "confidence": "medium",
+      "evidence": "src/main/java/com/eneik/generated/model/Document.java -> mixing ID and description.",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-01",
+      "philosopher": "Дэвид Льюис",
+      "worldview": "On the Plurality of Worlds - modal realism and counterpart theory (Принцип теории двойников)",
+      "critique": "DocumentVersion acts as a counterpart to Document across different temporal 'worlds' (versions), but there is no explicit counterpart relation formally linking a specific version's properties to the actualized Document.",
+      "proposal": "Implement an explicit counterpart mapping between Document and DocumentVersion entities.",
+      "dislike": "Implicit counterpart relations across modal/temporal versions.",
+      "kanoClass": "Must-Be",
+      "confidence": "high",
+      "evidence": "src/main/java/com/eneik/generated/model/DocumentVersion.java",
+      "screenshotFile": ""
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "philosopher": "Гарет Эванс",
+      "worldview": "The Varieties of Reference - information-based thoughts (Принцип информационно-зависимой референции)",
+      "critique": "The frontend's reference to 'selectedRole' is information-dependent but disconnected from the causal chain of the actual user's session in the backend. If the session expires, the reference fails.",
+      "proposal": "Ground the selected role reference in a validated, causally secure token from the backend API.",
+      "dislike": "Information-based references lacking a causal link to the source of truth.",
+      "kanoClass": "Performance",
+      "confidence": "high",
+      "evidence": "frontend/src/FinancialModule.svelte -> local selectedRole state.",
+      "screenshotFile": ""
     }
   ]
 }
