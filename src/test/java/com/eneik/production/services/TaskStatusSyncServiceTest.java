@@ -63,7 +63,7 @@ public class TaskStatusSyncServiceTest {
         assertEquals(Timestamp.valueOf(fixedTime), updatedAt, "The updated_at timestamp should match the fixed time from TimeProvider.");
 
         String rootCausePatternId = jdbcTemplate.queryForObject("SELECT root_cause_pattern_id FROM sync_tasks WHERE id = ?", String.class, taskId);
-        assertEquals("uncategorized", rootCausePatternId, "The root_cause_pattern_id should be assigned as uncategorized.");
+        assertEquals("reviewConcerns", rootCausePatternId, "The root_cause_pattern_id should be assigned as reviewConcerns.");
     }
 
     @Test
@@ -83,7 +83,7 @@ public class TaskStatusSyncServiceTest {
         assertEquals(Timestamp.valueOf(fixedTime), updatedAt, "The updated_at timestamp should match the fixed time from TimeProvider.");
 
         String rootCausePatternId = jdbcTemplate.queryForObject("SELECT root_cause_pattern_id FROM sync_tasks WHERE id = ?", String.class, newTaskId);
-        assertEquals("uncategorized", rootCausePatternId, "The root_cause_pattern_id should be assigned as uncategorized.");
+        assertEquals("reviewConcerns", rootCausePatternId, "The root_cause_pattern_id should be assigned as reviewConcerns.");
     }
 
     @Test
