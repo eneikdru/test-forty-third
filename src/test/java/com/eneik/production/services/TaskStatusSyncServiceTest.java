@@ -68,23 +68,19 @@ public class TaskStatusSyncServiceTest {
     }
 
     @Test
-    public void testSyncTaskStatus_InProgress_TransitionsToFailed() {
+    public void testSyncTaskStatus_InProgress_RetainsActiveStatus() {
         UUID newTaskId = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
         jdbcTemplate.update("INSERT INTO sync_tasks (id, github_pr_number, status) VALUES (?, ?, ?)", newTaskId, "456", "in_progress");
 
         boolean updated = taskStatusSyncService.syncTaskStatusWithGitHub(newTaskId, true, false);
 
-        assertTrue(updated, "The task status should be updated since it wasn't failed yet.");
+        assertFalse(updated, "The task status should not be updated since it is currently active (in_progress).");
 
         String status = jdbcTemplate.queryForObject("SELECT status FROM sync_tasks WHERE id = ?", String.class, newTaskId);
-        assertEquals("failed", status, "The status should transition to failed.");
-
-        Timestamp updatedAt = jdbcTemplate.queryForObject("SELECT updated_at FROM sync_tasks WHERE id = ?", Timestamp.class, newTaskId);
-        assertNotNull(updatedAt, "The updated_at timestamp should not be null.");
-        assertEquals(Timestamp.valueOf(fixedTime), updatedAt, "The updated_at timestamp should match the fixed time from TimeProvider.");
+        assertEquals("in_progress", status, "The status should retain its active status ('in_progress').");
 
         String rootCausePatternId = jdbcTemplate.queryForObject("SELECT root_cause_pattern_id FROM sync_tasks WHERE id = ?", String.class, newTaskId);
-        assertEquals("reviewConcerns", rootCausePatternId, "The root_cause_pattern_id should be assigned as reviewConcerns.");
+        assertNull(rootCausePatternId, "The root_cause_pattern_id should remain null.");
     }
 
     @Test

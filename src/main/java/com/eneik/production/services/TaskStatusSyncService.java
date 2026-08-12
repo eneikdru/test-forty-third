@@ -29,7 +29,7 @@ public class TaskStatusSyncService {
             evaluateReviewConcerns(taskId, isPrClosed, isPrMerged);
 
             // Then, perform the task status transition to 'failed'
-            String sql = "UPDATE sync_tasks SET status = 'failed', updated_at = ? WHERE id = ? AND status != 'failed'";
+            String sql = "UPDATE sync_tasks SET status = 'failed', updated_at = ? WHERE id = ? AND status = 'done'";
             int updatedRows = jdbcTemplate.update(sql, Timestamp.valueOf(timeProvider.now()), taskId);
             return updatedRows > 0;
         }
@@ -46,7 +46,7 @@ public class TaskStatusSyncService {
             return false;
         }
         if (isPrClosed && !isPrMerged) {
-            String sql = "UPDATE sync_tasks SET root_cause_pattern_id = 'reviewConcerns', updated_at = ? WHERE id = ?";
+            String sql = "UPDATE sync_tasks SET root_cause_pattern_id = 'reviewConcerns', updated_at = ? WHERE id = ? AND status = 'done'";
             int updatedRows = jdbcTemplate.update(sql, Timestamp.valueOf(timeProvider.now()), taskId);
             return updatedRows > 0;
         }
