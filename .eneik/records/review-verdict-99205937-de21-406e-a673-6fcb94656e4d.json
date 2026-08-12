@@ -6,7 +6,7 @@
       "criticalReason": "",
       "concerns": [
         {
-          "text": "The UPDATE query is now strictly constrained to status = 'done', meaning any other status (active or otherwise) will not transition to failed. While this satisfies the requirement to retain active status for non-done tasks, ensure that there are no other terminal statuses that should also transition to failed upon a mismatch.",
+          "text": "The SQL update query restricts state transitions to status = 'done'. While this successfully keeps other active (non-done) tasks from transitioning to failed, verify if there are other terminal statuses that might require transition upon task status mismatch.",
           "severity": "low"
         }
       ]
