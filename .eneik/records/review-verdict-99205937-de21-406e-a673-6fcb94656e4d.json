@@ -1,0 +1,15 @@
+{
+  "verdicts": [
+    {
+      "sourceIndex": 0,
+      "verdict": "approve",
+      "criticalReason": "",
+      "concerns": [
+        {
+          "text": "The UPDATE query is now strictly constrained to status = 'done', meaning any other status (active or otherwise) will not transition to failed. While this satisfies the requirement to retain active status for non-done tasks, ensure that there are no other terminal statuses that should also transition to failed upon a mismatch.",
+          "severity": "low"
+        }
+      ]
+    }
+  ]
+}
