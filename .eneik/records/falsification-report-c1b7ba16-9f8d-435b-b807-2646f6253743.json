@@ -1,0 +1,38 @@
+{
+  "violations": [
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "coverage",
+      "reason": "The client specification requires a centralized Knowledge Base for the epidemiological center (including full-text search, role-based access, and document storage), but none of these functional requirements are implemented in the actual codebase or merged PRs."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "stub",
+      "prNumber": 342,
+      "reason": "The coverage audit report in .eneik/records/coverage-audit-fd0f74a9-fbe4-4172-a772-2c42387d088d.json fakes success by returning an empty 'gaps' array despite the codebase completely lacking the primary Knowledge Base application explicitly requested in the client brief."
+    },
+    {
+      "roleTag": "BARCAN-TAG-03",
+      "type": "stub",
+      "prNumber": 339,
+      "reason": "The design review verdict in .eneik/records/design-review-verdict-b3da9f43-aea5-47c3-9e07-ce3c13417ac6.json fakes success by returning an 'approve' verdict while simultaneously logging a 'critical' severity concern regarding English UI strings, effectively swallowing a blocking mandatory requirement failure."
+    },
+    {
+      "roleTag": "BARCAN-TAG-02",
+      "type": "layer_violation",
+      "prNumber": 341,
+      "reason": "The method categorizeUncategorizedMismatchEvents() was added to TaskStatusSyncService to patch defect events, but it is never invoked in the production codebase, leaving the claimed integration unwired and the data flow silently dropped."
+    },
+    {
+      "roleTag": "BARCAN-TAG-09",
+      "type": "methodological",
+      "prNumber": 345,
+      "philosopher": "Дональд Дэвидсон",
+      "thesis": "Interpretation And Coherence - Conversation Maxim Check",
+      "score": "2.000292",
+      "mustBe": "The PR title 'Patch defect events with rootCausePatternId' is factually false for the actual diff, which instead fixes state machine transitions to retain the 'in_progress' status. This violates the conversation maxim to provide informative, true, and non-ambiguous output for the next worker.",
+      "performance": "",
+      "attractive": ""
+    }
+  ]
+}
